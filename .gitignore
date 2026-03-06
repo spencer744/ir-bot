@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Build output
+client/dist/
+
+# Environment — NEVER commit secrets
+server/.env
+.env
+.env.local
+.env.production
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+nul
+
+# Logs
+*.log
+npm-debug.log*
+
+# Claude Code local config
+.claude/
