@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { Play } from 'lucide-react';
 import type { DealMedia } from '../../../types/deal';
 
 interface PhotoGalleryProps {
@@ -8,7 +9,7 @@ interface PhotoGalleryProps {
 }
 
 const CATEGORY_LABELS: Record<string, string> = {
-  all: 'All Photos',
+  all: 'All',
   exterior: 'Exterior',
   interior: 'Interior',
   amenity: 'Amenities',
@@ -19,8 +20,8 @@ const CATEGORY_LABELS: Record<string, string> = {
 export default function PhotoGallery({ photos, onPhotoClick }: PhotoGalleryProps) {
   const [activeCategory, setActiveCategory] = useState('all');
 
-  // Build category tabs from available photos
-  const availableCategories = ['all', ...new Set(photos.map(p => p.category))];
+  // Build category tabs from available media (filter out undefined)
+  const availableCategories = ['all', ...new Set(photos.map(p => p.category).filter(Boolean) as string[])];
 
   const filtered = activeCategory === 'all'
     ? photos
@@ -29,8 +30,8 @@ export default function PhotoGallery({ photos, onPhotoClick }: PhotoGalleryProps
   return (
     <section>
       <div className="flex items-center justify-between mb-5">
-        <h2 className="text-xl font-semibold text-gc-text">Photo Gallery</h2>
-        <span className="text-gc-text-muted text-sm">{filtered.length} photos</span>
+        <h2 className="text-xl font-semibold text-gc-text">Photo & Video Gallery</h2>
+        <span className="text-gc-text-muted text-sm">{filtered.length} items</span>
       </div>
 
       {/* Category filter tabs */}
@@ -57,36 +58,51 @@ export default function PhotoGallery({ photos, onPhotoClick }: PhotoGalleryProps
         ))}
       </div>
 
-      {/* Photo grid — hero image larger */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-        {filtered.map((photo, i) => {
-          // First image spans 2 cols on md+
+      {/* Media grid — hero larger; videos show play icon */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+        {filtered.map((item, i) => {
           const isHero = i === 0 && filtered.length > 2;
+          const isVideo = item.type === 'video';
           return (
             <motion.button
-              key={photo.id}
+              key={item.id}
               initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true, margin: '-40px' }}
               transition={{ delay: Math.min(i * 0.04, 0.3), duration: 0.35 }}
               onClick={() => {
-                const globalIndex = photos.findIndex(p => p.id === photo.id);
+                const globalIndex = photos.findIndex(p => p.id === item.id);
                 onPhotoClick(globalIndex >= 0 ? globalIndex : i);
               }}
               className={`relative aspect-[4/3] rounded-xl overflow-hidden bg-gc-surface-elevated group cursor-pointer ${
                 isHero ? 'md:col-span-2 md:row-span-2 md:aspect-[4/3]' : ''
               }`}
             >
-              <img
-                src={photo.url}
-                alt={photo.caption || ''}
-                loading="lazy"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              />
-              {/* Caption overlay on hover */}
-              {photo.caption && (
+              {isVideo ? (
+                <>
+                  <video
+                    src={item.url}
+                    muted
+                    preload="metadata"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 pointer-events-none"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition-colors">
+                    <div className="w-14 h-14 rounded-full bg-white/90 flex items-center justify-center shadow-lg">
+                      <Play className="w-7 h-7 text-gc-bg fill-gc-bg ml-1" />
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <img
+                  src={item.url}
+                  alt={item.caption || ''}
+                  loading="lazy"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+              )}
+              {item.caption && (
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <p className="text-white text-xs">{photo.caption}</p>
+                  <p className="text-white text-xs">{item.caption}</p>
                 </div>
               )}
             </motion.button>

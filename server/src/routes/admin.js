@@ -1,11 +1,23 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const multer = require('multer');
 const { supabase } = require('../config/supabase');
 const { generateToken, requireAdmin } = require('../middleware/auth');
 const { getKBInventory } = require('../services/kbSelector');
 
 const router = express.Router();
+
+// Multer: memory storage for PDF uploads (max 25MB)
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 25 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const ok = file.mimetype === 'application/pdf' || (file.mimetype === 'application/octet-stream' && (file.originalname || '').toLowerCase().endsWith('.pdf'));
+    if (ok) cb(null, true);
+    else cb(new Error('Only PDF files are allowed'));
+  },
+});
 
 const KB_BASE_PATH = path.join(__dirname, '../../kb');
 
@@ -262,9 +274,44 @@ router.put('/deals/:id', async (req, res, next) => {
       return res.status(501).json({ message: 'Database not configured' });
     }
 
+    const body = { ...req.body };
+    const pr = body.preferred_return != null ? Number(body.preferred_return) / 100 : null;
+    const lp = body.lp_split != null ? Number(body.lp_split) / 100 : null;
+    const gp = body.gp_split != null ? Number(body.gp_split) / 100 : null;
+
+    if (body.minimum_investment != null) {
+      body.min_investment = Number(body.minimum_investment);
+      delete body.minimum_investment;
+    }
+    if (pr != null && (lp != null || gp != null)) {
+      body.waterfall_terms = {
+        ...(body.waterfall_terms || {}),
+        pref_rate: pr,
+        split_above_hurdle_1: { lp: lp ?? 0.7, gp: gp ?? 0.3 },
+      };
+      delete body.preferred_return;
+      delete body.lp_split;
+      delete body.gp_split;
+    }
+    if (body.acquisition_fee != null || body.asset_management_fee != null || body.property_management_fee != null || body.disposition_fee != null) {
+      body.fees = {
+        acquisition_fee_pct: body.acquisition_fee != null ? Number(body.acquisition_fee) : undefined,
+        loan_guarantee_fee_pct: body.loan_guarantee_fee != null ? Number(body.loan_guarantee_fee) : undefined,
+        asset_management_fee_pct: body.asset_management_fee != null ? Number(body.asset_management_fee) : undefined,
+        property_management_fee_pct: body.property_management_fee != null ? Number(body.property_management_fee) : undefined,
+        disposition_fee_pct: body.disposition_fee != null ? Number(body.disposition_fee) : undefined,
+      };
+      delete body.acquisition_fee;
+      delete body.asset_management_fee;
+      delete body.loan_guarantee_fee;
+      delete body.property_management_fee;
+      delete body.disposition_fee;
+    }
+    body.updated_at = new Date().toISOString();
+
     const { data, error } = await supabase
       .from('deals')
-      .update({ ...req.body, updated_at: new Date().toISOString() })
+      .update(body)
       .eq('id', req.params.id)
       .select()
       .single();
@@ -726,18 +773,22 @@ router.get('/deals/:id/media', async (req, res, next) => {
 // POST /api/admin/deals/:id/media — Add a media item
 router.post('/deals/:id/media', async (req, res, next) => {
   try {
-    const { type, label, url, sort_order } = req.body;
+    const { type, label, url, sort_order, document_role, caption, description, file_type, file_size, pages } = req.body;
+    const captionOrLabel = caption || label || '';
 
     if (supabase) {
+      const row = {
+        deal_id: req.params.id,
+        type: type || 'image',
+        caption: captionOrLabel,
+        url: url || '',
+        sort_order: sort_order ?? 0,
+        document_role: document_role || null,
+        category: type === 'document' ? 'other' : null,
+      };
       const { data, error } = await supabase
         .from('deal_media')
-        .insert({
-          deal_id: req.params.id,
-          type: type || 'image',
-          label: label || '',
-          url: url || '',
-          sort_order: sort_order || 0,
-        })
+        .insert(row)
         .select()
         .single();
 
@@ -750,13 +801,45 @@ router.post('/deals/:id/media', async (req, res, next) => {
       id: `media-${Date.now()}`,
       deal_id: req.params.id,
       type: type || 'image',
-      label: label || '',
+      label: captionOrLabel,
+      caption: captionOrLabel,
       url: url || '',
-      sort_order: sort_order || demoMediaItems.length + 1,
+      sort_order: sort_order ?? demoMediaItems.length + 1,
+      document_role: document_role || null,
+      description: description || null,
+      file_type: file_type || 'PDF',
+      file_size: file_size || null,
+      pages: pages || null,
       created_at: new Date().toISOString(),
     };
     demoMediaItems.push(newItem);
     res.json({ media: newItem });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /api/admin/deals/:id/media/upload — Upload PDF to storage, returns { url }
+router.post('/deals/:id/media/upload', requireAdmin, upload.single('file'), async (req, res, next) => {
+  try {
+    if (!req.file || !req.file.buffer) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+    if (supabase) {
+      const bucket = 'deal-documents';
+      const ext = (req.file.originalname || '').split('.').pop() || 'pdf';
+      const filename = `${req.params.id}/${Date.now()}-${(req.file.originalname || 'document').replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+      const { data, error } = await supabase.storage
+        .from(bucket)
+        .upload(filename, req.file.buffer, {
+          contentType: req.file.mimetype,
+          upsert: false,
+        });
+      if (error) throw error;
+      const { data: urlData } = supabase.storage.from(bucket).getPublicUrl(data.path);
+      return res.json({ url: urlData.publicUrl });
+    }
+    return res.status(501).json({ message: 'File upload requires Supabase Storage. Use URL for demo mode.' });
   } catch (err) {
     next(err);
   }

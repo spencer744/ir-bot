@@ -141,11 +141,11 @@ function MetricCard({
   return (
     <motion.div
       variants={item}
-      className="bg-gc-surface border border-gc-border rounded-xl p-6 text-center"
+      className="bg-gc-surface border border-gc-border rounded-xl p-4 sm:p-6 text-center"
     >
       <span
         ref={ref}
-        className="block text-4xl md:text-5xl font-bold font-mono-numbers text-gc-text"
+        className="block text-3xl sm:text-4xl md:text-5xl font-bold font-mono-numbers text-gc-text"
       >
         {display}
       </span>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAdminApi } from '../../hooks/useAdminApi';
 
 /* ------------------------------------------------------------------ */
@@ -18,10 +18,12 @@ interface MediaItem {
   label: string;
   category?: string;
   sort_order?: number;
+  document_role?: 'deck' | 'one_pager' | 'operating_agreement' | 'other' | null;
 }
 
 type PhotoCategory = 'Exterior' | 'Interior' | 'Amenity' | 'Renovation' | 'Progress' | 'Aerial';
 type DocumentType = 'PDF' | 'Excel' | 'PowerPoint';
+type DocumentRole = 'deck' | 'one_pager' | 'operating_agreement' | 'other';
 
 const PHOTO_CATEGORIES: PhotoCategory[] = [
   'Exterior',
@@ -33,6 +35,13 @@ const PHOTO_CATEGORIES: PhotoCategory[] = [
 ];
 
 const DOCUMENT_TYPES: DocumentType[] = ['PDF', 'Excel', 'PowerPoint'];
+
+const DOCUMENT_ROLES: { value: DocumentRole; label: string }[] = [
+  { value: 'deck', label: 'Deck' },
+  { value: 'one_pager', label: 'One-pager' },
+  { value: 'operating_agreement', label: 'Operating agreement' },
+  { value: 'other', label: 'Other' },
+];
 
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
@@ -77,7 +86,10 @@ export function DealMediaTab({ deal, dealId, onSave }: TabProps) {
   const [newDocTitle, setNewDocTitle] = useState('');
   const [newDocUrl, setNewDocUrl] = useState('');
   const [newDocType, setNewDocType] = useState<DocumentType>('PDF');
+  const [newDocRole, setNewDocRole] = useState<DocumentRole>('other');
   const [addingDoc, setAddingDoc] = useState(false);
+  const [uploadingDoc, setUploadingDoc] = useState(false);
+  const docFileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Video
   const [videoUrl, setVideoUrl] = useState(deal?.video_url ?? '');
@@ -162,6 +174,28 @@ export function DealMediaTab({ deal, dealId, onSave }: TabProps) {
 
   /* ---- document CRUD ---- */
 
+  async function handleUploadDocument(file: File) {
+    const token = localStorage.getItem('admin_token');
+    if (!token) return;
+    setUploadingDoc(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch(`/api/admin/deals/${dealId}/media/upload`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.url) setNewDocUrl(data.url);
+      else throw new Error(data.message || 'Upload failed');
+    } catch {
+      /* silent */
+    } finally {
+      setUploadingDoc(false);
+    }
+  }
+
   async function handleAddDocument() {
     if (!newDocTitle.trim() || !newDocUrl.trim()) return;
     setAddingDoc(true);
@@ -170,12 +204,15 @@ export function DealMediaTab({ deal, dealId, onSave }: TabProps) {
         type: 'document',
         url: newDocUrl.trim(),
         label: newDocTitle.trim(),
+        caption: newDocTitle.trim(),
         category: newDocType,
         sort_order: documents.length,
+        document_role: newDocRole,
       });
       setNewDocTitle('');
       setNewDocUrl('');
       setNewDocType('PDF');
+      setNewDocRole('other');
       setShowDocForm(false);
       await fetchMedia();
     } catch {
@@ -355,14 +392,46 @@ export function DealMediaTab({ deal, dealId, onSave }: TabProps) {
               onChange={(e) => setNewDocTitle(e.target.value)}
               className={inputClass}
             />
-            <input
-              type="text"
-              placeholder="Document URL"
-              value={newDocUrl}
-              onChange={(e) => setNewDocUrl(e.target.value)}
-              className={inputClass}
-            />
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 flex-wrap">
+              <input
+                type="text"
+                placeholder="Document URL (or upload PDF below)"
+                value={newDocUrl}
+                onChange={(e) => setNewDocUrl(e.target.value)}
+                className={`${inputClass} flex-1 min-w-[200px]`}
+              />
+              <input
+                type="file"
+                accept=".pdf,application/pdf"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleUploadDocument(file);
+                  e.target.value = '';
+                }}
+                ref={docFileInputRef}
+              />
+              <button
+                type="button"
+                onClick={() => docFileInputRef.current?.click()}
+                disabled={uploadingDoc}
+                className="bg-gc-surface-elevated hover:bg-gc-border border border-gc-border text-gc-text text-sm font-medium px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
+              >
+                {uploadingDoc ? 'Uploading...' : 'Upload PDF'}
+              </button>
+            </div>
+            <div className="flex items-center gap-3 flex-wrap">
+              <select
+                value={newDocRole}
+                onChange={(e) => setNewDocRole(e.target.value as DocumentRole)}
+                className={selectClass}
+              >
+                {DOCUMENT_ROLES.map((r) => (
+                  <option key={r.value} value={r.value}>
+                    {r.label}
+                  </option>
+                ))}
+              </select>
               <select
                 value={newDocType}
                 onChange={(e) => setNewDocType(e.target.value as DocumentType)}
@@ -395,9 +464,8 @@ export function DealMediaTab({ deal, dealId, onSave }: TabProps) {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gc-border">
-                  <th className="text-left py-3 pr-4 text-gc-text-secondary font-medium">
-                    Title
-                  </th>
+                  <th className="text-left py-3 pr-4 text-gc-text-secondary font-medium">Title</th>
+                  <th className="text-left py-3 pr-4 text-gc-text-secondary font-medium">Role</th>
                   <th className="text-left py-3 pr-4 text-gc-text-secondary font-medium">Type</th>
                   <th className="text-left py-3 pr-4 text-gc-text-secondary font-medium">URL</th>
                   <th className="text-right py-3 text-gc-text-secondary font-medium">Actions</th>
@@ -413,6 +481,17 @@ export function DealMediaTab({ deal, dealId, onSave }: TabProps) {
                         onChange={(e) => handleUpdateMedia(doc.id, { label: e.target.value })}
                         className="bg-gc-bg border border-gc-border rounded px-2 py-1 text-sm text-gc-text w-full focus:outline-none focus:border-gc-accent-light"
                       />
+                    </td>
+                    <td className="py-3 pr-4">
+                      <select
+                        value={doc.document_role || 'other'}
+                        onChange={(e) => handleUpdateMedia(doc.id, { document_role: e.target.value as DocumentRole || 'other' })}
+                        className="bg-gc-bg border border-gc-border rounded px-2 py-1 text-sm text-gc-text focus:outline-none focus:border-gc-accent-light"
+                      >
+                        {DOCUMENT_ROLES.map((r) => (
+                          <option key={r.value} value={r.value}>{r.label}</option>
+                        ))}
+                      </select>
                     </td>
                     <td className="py-3 pr-4 text-gc-text-secondary">{doc.category || 'PDF'}</td>
                     <td className="py-3 pr-4">
@@ -444,10 +523,11 @@ export function DealMediaTab({ deal, dealId, onSave }: TabProps) {
       {/* ---- Section 3: Video ---- */}
       <div className="bg-gc-surface border border-gc-border rounded-xl p-6">
         <h2 className="text-lg font-semibold text-gc-text mb-4">Video</h2>
+        <p className="text-sm text-gc-text-muted mb-3">YouTube or Vimeo embed URL, or direct link to an MP4/WebM file for the Deal Walkthrough section.</p>
 
         <input
           type="text"
-          placeholder="YouTube or Vimeo URL"
+          placeholder="YouTube, Vimeo, or direct MP4/WebM URL"
           value={videoUrl}
           onChange={(e) => setVideoUrl(e.target.value)}
           className={`${inputClass} mb-4`}

@@ -35,20 +35,21 @@ export default function RentBridgeChart({ data, narrative }: RentBridgeChartProp
   });
 
   const CustomLabel = (props: any) => {
-    const { x, y, width, value, index } = props;
+    const { x, y, width, value: _value, index } = props;
     const item = chartData[index];
     if (!item) return null;
+    const labelText = `$${item.total.toLocaleString()}`;
     return (
       <Text
         x={x + width / 2}
         y={y - 8}
         textAnchor="middle"
         fill={chartTheme.tooltipTextColor}
-        fontSize={11}
+        fontSize={10}
         fontFamily="'JetBrains Mono', monospace"
         fontWeight={600}
       >
-        ${item.total.toLocaleString()}
+        {labelText}
       </Text>
     );
   };
@@ -66,26 +67,28 @@ export default function RentBridgeChart({ data, narrative }: RentBridgeChartProp
 
       <div className="bg-gc-surface border border-gc-border rounded-2xl p-5 mb-6">
         <h3 className="text-sm font-semibold text-gc-text mb-4">Rent Bridge — Current to Stabilized</h3>
-        <div className="h-[320px]">
+        <div className="h-[250px] sm:h-[350px] min-h-[200px]">
+          {inView ? (
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData} margin={{ left: 10, right: 10, top: 25, bottom: 5 }}>
+            <BarChart data={chartData} margin={{ left: 0, right: 10, top: 25, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.gridStroke} vertical={false} />
               <XAxis
                 dataKey="name"
-                tick={{ fill: chartTheme.axisTickColor, fontSize: 10 }}
+                tick={{ fill: chartTheme.axisTickColor, fontSize: 9 }}
                 axisLine={{ stroke: chartTheme.axisStroke }}
                 tickLine={false}
                 interval={0}
                 angle={-15}
                 textAnchor="end"
-                height={60}
+                height={50}
               />
               <YAxis
-                tick={{ fill: chartTheme.axisTickColor, fontSize: 11 }}
+                tick={{ fill: chartTheme.axisTickColor, fontSize: 10 }}
                 axisLine={false}
                 tickLine={false}
                 tickFormatter={v => `$${v.toLocaleString()}`}
                 domain={[0, 'dataMax + 100']}
+                width={55}
               />
               <Tooltip content={<ChartTooltip formatter={(v, name) => name === 'invisible' ? '' : `$${v.toLocaleString()}`} />} />
               {/* Invisible base */}
@@ -108,6 +111,9 @@ export default function RentBridgeChart({ data, narrative }: RentBridgeChartProp
               </Bar>
             </BarChart>
           </ResponsiveContainer>
+          ) : (
+            <div className="w-full h-full" aria-hidden />
+          )}
         </div>
       </div>
 

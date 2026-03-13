@@ -76,8 +76,8 @@ const TOPIC_MAP = {
     ['reference/ref-reading-a-ppm.md'],
 };
 
-// Always loaded for baseline context
-const ALWAYS_LOAD = ['deal/[slug]/deal-overview.md'];
+// Always loaded for baseline context (core firm + current deal)
+const ALWAYS_LOAD = ['firm/gray-capital-background.md', 'deal/[slug]/deal-overview.md'];
 
 // Section-aware loading (when investor is viewing a specific spoke)
 const SECTION_MAP = {

@@ -19,17 +19,17 @@ export default function PropertySpoke() {
 
   if (!deal) return null;
 
-  const photos = media.filter(m => m.type === 'photo');
+  const galleryMedia = media.filter(m => m.type === 'photo' || m.type === 'video');
   const dealAny = deal as any;
 
   return (
     <SpokeLayout title="Property Deep Dive" subtitle={`${deal.name} — ${deal.city}, ${deal.state}`}>
       <div className="space-y-14">
 
-        {/* 1. Photo Gallery */}
-        {photos.length > 0 && (
+        {/* 1. Photo & Video Gallery */}
+        {galleryMedia.length > 0 && (
           <PhotoGallery
-            photos={photos}
+            photos={galleryMedia}
             onPhotoClick={(index) => setLightboxIndex(index)}
           />
         )}
@@ -82,7 +82,7 @@ export default function PropertySpoke() {
         )}
 
         {/* Empty state when no data at all */}
-        {photos.length === 0 && !dealAny.property_overview_md && !dealAny.unit_mix && (
+        {galleryMedia.length === 0 && !dealAny.property_overview_md && !dealAny.unit_mix && (
           <section>
             <div className="bg-gc-surface border border-gc-border rounded-2xl p-8 text-center">
               <p className="text-gc-text-secondary">Property photos and details will be available once uploaded by the deal team.</p>
@@ -94,7 +94,7 @@ export default function PropertySpoke() {
       {/* Lightbox */}
       {lightboxIndex !== null && (
         <PhotoLightbox
-          photos={photos}
+          photos={galleryMedia}
           currentIndex={lightboxIndex}
           onClose={() => setLightboxIndex(null)}
           onNavigate={(index) => setLightboxIndex(index)}

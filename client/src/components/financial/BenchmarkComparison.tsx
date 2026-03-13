@@ -5,7 +5,6 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  Legend,
   ResponsiveContainer,
 } from 'recharts';
 import type { Deal, ScenarioKey } from '../../types/deal';
@@ -69,12 +68,12 @@ export default function BenchmarkComparison({ deal, scenario, investmentAmount }
   const scenarioLabel = scenario === 'downside' ? 'Conservative' : scenario.charAt(0).toUpperCase() + scenario.slice(1);
 
   return (
-    <div className="bg-gc-surface border border-gc-border rounded-2xl p-6">
+    <div className="bg-gc-surface border border-gc-border rounded-2xl p-4 sm:p-6">
       <p className="text-gc-text-secondary text-xs mb-4">
         Growth of ${(investmentAmount / 1_000).toFixed(0)}K over {deal.projected_hold_years} years ({scenarioLabel} scenario)
       </p>
 
-      <div className="h-72 sm:h-80">
+      <div className="h-[250px] sm:h-[350px]">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
             <XAxis
@@ -98,7 +97,7 @@ export default function BenchmarkComparison({ deal, scenario, investmentAmount }
                 color: '#F0F0F5',
                 fontSize: '12px',
               }}
-              formatter={(value: number, name: string) => {
+              formatter={(value: number | undefined, name?: string) => {
                 const labels: Record<string, string> = {
                   deal: `This Deal (${scenarioLabel})`,
                   savings: 'High-Yield Savings',
@@ -106,7 +105,8 @@ export default function BenchmarkComparison({ deal, scenario, investmentAmount }
                   muni: 'Muni Bond Index',
                   sp500: 'S&P 500 (Avg)',
                 };
-                return [fmt(value), labels[name] || name];
+                const key = name ?? '';
+                return [value != null ? fmt(value) : '', labels[key] || key];
               }}
             />
             <Line
@@ -153,7 +153,7 @@ export default function BenchmarkComparison({ deal, scenario, investmentAmount }
         </ResponsiveContainer>
       </div>
 
-      <div className="flex flex-wrap gap-x-4 gap-y-1 mt-3 justify-center text-[11px] text-gc-text-muted">
+      <div className="flex flex-wrap gap-x-3 gap-y-1.5 mt-3 justify-center text-[11px] text-gc-text-muted">
         <div className="flex items-center gap-1.5">
           <div className="w-4 h-0.5 bg-gc-accent rounded" />
           This Deal

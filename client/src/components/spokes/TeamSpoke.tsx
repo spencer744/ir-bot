@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { api } from '../../lib/api';
 import { useAnalytics } from '../../hooks/useAnalytics';
+import { useConfig } from '../../hooks/useConfig';
 import SpokeLayout from './SpokeLayout';
+import { SkeletonBlock, SkeletonCard } from '../shared/Skeleton';
 import TrackRecordHero from './team/TrackRecordHero';
 import FullCycleTable from './team/FullCycleTable';
 import ActivePortfolioTable from './team/ActivePortfolioTable';
@@ -15,12 +17,14 @@ import LeadershipGrid from './team/LeadershipGrid';
 import Differentiators from './team/Differentiators';
 import Testimonials from './team/Testimonials';
 import InvestorRelationsCTA from './team/InvestorRelationsCTA';
+import OperationsSection from './team/OperationsSection';
 
 const VI_NARRATIVE =
   'Gray Capital is built upon a fully integrated platform that allows control of every aspect of the real estate investment process — acquisitions, asset management, property management, construction management, and design. By keeping everything in-house, we streamline operations and create more value for our investors, delivering consistent returns while maintaining complete transparency and oversight at every stage.';
 
 export default function TeamSpoke() {
   const { trackSectionView } = useAnalytics();
+  const { meetingsUrl } = useConfig();
   const [loading, setLoading] = useState(true);
   const [summary, setSummary] = useState<any>(null);
   const [fullCycle, setFullCycle] = useState<any[]>([]);
@@ -55,8 +59,31 @@ export default function TeamSpoke() {
   if (loading) {
     return (
       <SpokeLayout title="Team & Track Record" subtitle="The people behind your investment">
-        <div className="flex items-center justify-center py-20">
-          <div className="w-8 h-8 border-2 border-gc-accent border-t-transparent rounded-full animate-spin" />
+        <div className="space-y-10 sm:space-y-14">
+          {/* Track record hero skeleton */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="bg-gc-surface border border-gc-border rounded-2xl p-5 space-y-3">
+                <SkeletonBlock className="h-4 w-1/2" />
+                <SkeletonBlock className="h-8 w-3/4" />
+              </div>
+            ))}
+          </div>
+          {/* Table skeleton */}
+          <div className="bg-gc-surface border border-gc-border rounded-2xl p-5 space-y-3">
+            <SkeletonBlock className="h-5 w-1/4 mb-4" />
+            {Array.from({ length: 5 }).map((_, i) => (
+              <SkeletonBlock key={i} className="h-10 w-full" />
+            ))}
+          </div>
+          {/* Leadership grid skeleton */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <SkeletonCard key={i} />
+            ))}
+          </div>
+          {/* Additional section */}
+          <SkeletonCard />
         </div>
       </SpokeLayout>
     );
@@ -67,7 +94,7 @@ export default function TeamSpoke() {
 
   return (
     <SpokeLayout title="Team & Track Record" subtitle="The people behind your investment">
-      <div className="space-y-14">
+      <div className="space-y-10 sm:space-y-14">
         {/* 1. Track Record Hero */}
         {summary && (
           <TrackRecordHero
@@ -96,6 +123,11 @@ export default function TeamSpoke() {
             narrative={VI_NARRATIVE}
             pillars={companyData.vertical_integration}
           />
+        )}
+
+        {/* 6b. Operations — Gray Residential, Asset Mgmt, Gray Construction, Tech Stack */}
+        {companyData?.operations && (
+          <OperationsSection operations={companyData.operations} />
         )}
 
         {/* 7. Investment Strategies */}
@@ -129,6 +161,7 @@ export default function TeamSpoke() {
           <InvestorRelationsCTA
             contacts={irContacts}
             contactInfo={companyData.contact_info}
+            meetingsUrl={meetingsUrl}
           />
         )}
 

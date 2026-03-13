@@ -40,6 +40,9 @@ const CATEGORY_ORDER: string[] = ['firm', 'faq', 'reference', 'deal'];
 
 const NEW_FILE_CATEGORIES = ['firm', 'faq', 'reference'];
 
+/** Categories for "Add content" (browse / enter text) — includes deal */
+const ADD_CONTENT_CATEGORIES = ['firm', 'faq', 'deal', 'reference'];
+
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
 /* ------------------------------------------------------------------ */
@@ -178,6 +181,179 @@ function NewFileForm({ onSubmit, onCancel, creating }: NewFileFormProps) {
 }
 
 /* ------------------------------------------------------------------ */
+/*  Add Content Modal (Browse files / Enter text)                     */
+/* ------------------------------------------------------------------ */
+
+interface AddContentModalProps {
+  open: boolean;
+  initialContent: string;
+  initialFilename: string;
+  onClose: () => void;
+  onSubmit: (path: string, content: string) => Promise<void>;
+}
+
+function AddContentModal({
+  open,
+  initialContent,
+  initialFilename,
+  onClose,
+  onSubmit,
+}: AddContentModalProps) {
+  const [category, setCategory] = useState<string>('firm');
+  const [dealSlug, setDealSlug] = useState('');
+  const [filename, setFilename] = useState(initialFilename);
+  const [content, setContent] = useState(initialContent);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Reset form when modal opens or initial values change
+  useEffect(() => {
+    if (open) {
+      setContent(initialContent);
+      setFilename(initialFilename || '');
+      setCategory('firm');
+      setDealSlug('');
+      setError(null);
+    }
+  }, [open, initialContent, initialFilename]);
+
+  function buildPath(): string {
+    const cleanName = filename
+      .trim()
+      .replace(/\.md$/i, '')
+      .replace(/[^a-zA-Z0-9_-]/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '') || 'new-doc';
+    const base = `${cleanName}.md`;
+    if (category === 'deal') {
+      const slug = dealSlug.trim().replace(/[^a-zA-Z0-9_-]/g, '-') || 'deal';
+      return `deal/${slug}/${base}`;
+    }
+    return `${category}/${base}`;
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!content.trim()) {
+      setError('Enter some content.');
+      return;
+    }
+    const path = buildPath();
+    setSaving(true);
+    setError(null);
+    try {
+      await onSubmit(path, content.trim());
+      onClose();
+    } catch {
+      setError('Failed to save. Check path and try again.');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60" onClick={onClose}>
+      <div
+        className="bg-gc-surface border border-gc-border rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="px-6 py-4 border-b border-gc-border shrink-0">
+          <h2 className="text-lg font-semibold text-gc-text">Add KB content</h2>
+          <p className="text-sm text-gc-text-secondary mt-0.5">
+            Save as Firm, FAQ, Deal, or Reference. Content is stored as Markdown.
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
+          <div className="px-6 py-4 space-y-4 overflow-y-auto shrink-0">
+            <div>
+              <label className="block text-xs font-medium text-gc-text-secondary mb-1.5">
+                Save to
+              </label>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="w-full bg-gc-bg border border-gc-border rounded-lg px-3 py-2 text-sm text-gc-text focus:outline-none focus:ring-2 focus:ring-gc-accent appearance-none cursor-pointer"
+              >
+                {ADD_CONTENT_CATEGORIES.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {CATEGORY_LABELS[cat] || cat}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {category === 'deal' && (
+              <div>
+                <label className="block text-xs font-medium text-gc-text-secondary mb-1.5">
+                  Deal slug
+                </label>
+                <input
+                  type="text"
+                  value={dealSlug}
+                  onChange={(e) => setDealSlug(e.target.value)}
+                  placeholder="e.g. parkview-commons"
+                  className="w-full bg-gc-bg border border-gc-border rounded-lg px-3 py-2 text-sm text-gc-text focus:outline-none focus:ring-2 focus:ring-gc-accent"
+                />
+              </div>
+            )}
+
+            <div>
+              <label className="block text-xs font-medium text-gc-text-secondary mb-1.5">
+                Filename (without .md)
+              </label>
+              <input
+                type="text"
+                value={filename}
+                onChange={(e) => setFilename(e.target.value)}
+                placeholder="e.g. my-doc"
+                className="w-full bg-gc-bg border border-gc-border rounded-lg px-3 py-2 text-sm text-gc-text focus:outline-none focus:ring-2 focus:ring-gc-accent"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-gc-text-secondary mb-1.5">
+                Content
+              </label>
+              <textarea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="Paste or type Markdown content..."
+                rows={12}
+                className="w-full bg-gc-bg border border-gc-border rounded-lg px-3 py-2 text-sm text-gc-text font-mono leading-relaxed resize-y min-h-[200px] focus:outline-none focus:ring-2 focus:ring-gc-accent"
+              />
+            </div>
+
+            {error && (
+              <p className="text-sm text-gc-negative">{error}</p>
+            )}
+          </div>
+
+          <div className="px-6 py-4 border-t border-gc-border flex items-center gap-3 shrink-0">
+            <button
+              type="submit"
+              disabled={saving}
+              className="bg-gc-accent hover:bg-gc-accent-hover text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
+            >
+              {saving ? 'Saving…' : 'Save as KB'}
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="text-sm text-gc-text-secondary hover:text-gc-text transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /*  Main Component                                                     */
 /* ------------------------------------------------------------------ */
 
@@ -201,6 +377,11 @@ export default function KBManagerPage() {
 
   const [showNewFileForm, setShowNewFileForm] = useState(false);
   const [creatingFile, setCreatingFile] = useState(false);
+
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [addModalContent, setAddModalContent] = useState('');
+  const [addModalFilename, setAddModalFilename] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -325,6 +506,40 @@ export default function KBManagerPage() {
     }
   }
 
+  /* ---- add content modal: save as KB (from browse or enter text) ---- */
+  async function handleAddContentSave(path: string, content: string) {
+    await api.post('/api/admin/knowledge-base', { path, content });
+    await fetchFiles();
+    setAddModalOpen(false);
+    setAddModalContent('');
+    setAddModalFilename('');
+    const newFile: KBFile = {
+      path,
+      category: path.split('/')[0],
+      title: path.replace(/^.*\//, '').replace(/\.md$/, ''),
+      size_bytes: new Blob([content]).size,
+      estimated_tokens: estimateTokens(content),
+      updated_at: new Date().toISOString(),
+    };
+    handleSelectFile(newFile);
+  }
+
+  /* ---- browse files: read selected file and open add modal ---- */
+  function handleBrowseFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const text = typeof reader.result === 'string' ? reader.result : '';
+      const base = file.name.replace(/\.(md|txt)$/i, '');
+      setAddModalContent(text);
+      setAddModalFilename(base.replace(/[^a-zA-Z0-9_-]/g, '-'));
+      setAddModalOpen(true);
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  }
+
   /* ---- create new file ---- */
   async function handleCreateFile(category: string, filename: string) {
     setCreatingFile(true);
@@ -373,15 +588,50 @@ export default function KBManagerPage() {
   return (
     <div className="flex flex-col h-[calc(100vh-10rem)]">
       {/* ---- Header ---- */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <h1 className="text-2xl font-bold text-gc-text">Knowledge Base</h1>
-        <button
-          onClick={() => setShowNewFileForm((prev) => !prev)}
-          className="bg-gc-accent hover:bg-gc-accent-hover text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
-        >
-          + New File
-        </button>
+        <div className="flex items-center gap-2">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".md,.txt"
+            className="hidden"
+            onChange={handleBrowseFile}
+          />
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="bg-gc-surface-elevated hover:bg-gc-surface border border-gc-border text-gc-text text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+          >
+            Browse files
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setAddModalContent('');
+              setAddModalFilename('');
+              setAddModalOpen(true);
+            }}
+            className="bg-gc-surface-elevated hover:bg-gc-surface border border-gc-border text-gc-text text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+          >
+            Enter text
+          </button>
+          <button
+            onClick={() => setShowNewFileForm((prev) => !prev)}
+            className="bg-gc-accent hover:bg-gc-accent-hover text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+          >
+            + New File
+          </button>
+        </div>
       </div>
+
+      <AddContentModal
+        open={addModalOpen}
+        initialContent={addModalContent}
+        initialFilename={addModalFilename}
+        onClose={() => setAddModalOpen(false)}
+        onSubmit={handleAddContentSave}
+      />
 
       {/* ---- Two-panel layout ---- */}
       <div className="flex-1 flex gap-4 min-h-0">

@@ -4,7 +4,9 @@ import { useDeal } from '../../context/DealContext';
 import { useAnalytics } from '../../hooks/useAnalytics';
 import { api } from '../../lib/api';
 import SpokeLayout from './SpokeLayout';
+import { SkeletonBlock, SkeletonChart, SkeletonCard } from '../shared/Skeleton';
 import MarketHero from './market/MarketHero';
+import MarketMap from './market/MarketMap';
 import MetroOverview from './market/MetroOverview';
 import TopEmployersChart from './market/TopEmployersChart';
 import SectorDonutChart from './market/SectorDonutChart';
@@ -12,6 +14,8 @@ import PopulationChart from './market/PopulationChart';
 import SupplyDemandChart from './market/SupplyDemandChart';
 import VacancyChart from './market/VacancyChart';
 import RentGrowthChart from './market/RentGrowthChart';
+import RentCompsBarChart from './market/RentCompsBarChart';
+import RentPsfVintageScatter from './market/RentPsfVintageScatter';
 import RentComparablesTable from './market/RentComparablesTable';
 import MidwestThesis from './market/MidwestThesis';
 import MarketRisks from './market/MarketRisks';
@@ -48,8 +52,25 @@ export default function MarketSpoke() {
       subtitle={md ? `${deal.city}, ${deal.state} — ${md.msa_name} Metropolitan Area` : `${deal.city}, ${deal.state} Metro Area`}
     >
       {loading && (
-        <div className="flex justify-center py-20">
-          <div className="w-8 h-8 border-2 border-gc-accent border-t-transparent rounded-full animate-spin" />
+        <div className="space-y-14">
+          {/* Hero stat row skeleton */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="bg-gc-surface border border-gc-border rounded-2xl p-5 space-y-3">
+                <SkeletonBlock className="h-4 w-1/2" />
+                <SkeletonBlock className="h-8 w-3/4" />
+              </div>
+            ))}
+          </div>
+          {/* Narrative + chart skeleton */}
+          <SkeletonCard />
+          <div className="grid lg:grid-cols-5 gap-6">
+            <SkeletonChart height="h-72" className="lg:col-span-3" />
+            <SkeletonChart height="h-72" className="lg:col-span-2" />
+          </div>
+          {/* Text section skeleton */}
+          <SkeletonCard />
+          <SkeletonChart height="h-64" />
         </div>
       )}
 
@@ -65,7 +86,16 @@ export default function MarketSpoke() {
           {/* 1. Market Hero Stat Row */}
           <MarketHero data={md} />
 
-          {/* 2. Metro Overview */}
+          {/* 2. Market & Submarket Map */}
+          {md.map_image_url && (
+            <MarketMap
+              imageUrl={md.map_image_url}
+              subjectLabel="Subject property"
+              caption={md.map_caption}
+            />
+          )}
+
+          {/* 3. Metro Overview */}
           {md.metro_overview_md && md.metro_snapshot && (
             <MetroOverview narrative={md.metro_overview_md} snapshot={md.metro_snapshot} />
           )}
@@ -163,6 +193,12 @@ export default function MarketSpoke() {
             )}
             {md.rent_comparables && (
               <>
+                <div className="bg-gc-surface border border-gc-border rounded-2xl p-5 mb-6">
+                  <RentCompsBarChart data={md.rent_comparables} />
+                </div>
+                <div className="bg-gc-surface border border-gc-border rounded-2xl p-5 mb-6">
+                  <RentPsfVintageScatter data={md.rent_comparables} />
+                </div>
                 <RentComparablesTable data={md.rent_comparables} />
                 {/* Insight callout */}
                 <div className="mt-6 bg-gc-surface border-l-4 border-l-gc-accent border border-gc-border rounded-xl p-5">

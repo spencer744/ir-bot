@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { useAdminAuth } from '../../hooks/useAdminAuth';
+import Logo from '../shared/Logo';
 
 export default function AdminLogin() {
   const { login, isAuthenticated, loading } = useAdminAuth();
@@ -35,9 +36,8 @@ export default function AdminLogin() {
     <div className="min-h-screen bg-gc-bg flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo */}
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gc-text tracking-wider">GRAY CAPITAL</h1>
-          <p className="text-gc-text-secondary text-sm mt-1">Admin Portal</p>
+        <div className="flex justify-center mb-8">
+          <Logo variant="vertical" theme="dark" tagline="Admin Portal" />
         </div>
 
         {/* Login Card */}

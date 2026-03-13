@@ -134,7 +134,7 @@ function TableSkeleton() {
 /*  Main Component                                                     */
 /* ------------------------------------------------------------------ */
 
-export function DealAnalyticsTab({ deal, dealId, onSave }: DealAnalyticsTabProps) {
+export function DealAnalyticsTab({ deal, dealId, onSave: _onSave }: DealAnalyticsTabProps) {
   const api = useAdminApi();
 
   const slug = deal?.slug;

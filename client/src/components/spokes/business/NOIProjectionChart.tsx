@@ -33,9 +33,10 @@ export default function NOIProjectionChart({ data, narrative }: NOIProjectionCha
       <p className="text-gc-text-muted text-sm mb-6">Projected net operating income across three scenarios.</p>
 
       <div className="bg-gc-surface border border-gc-border rounded-2xl p-5 mb-6">
-        <div className="h-[320px]">
+        <div className="h-[250px] sm:h-[350px] min-h-[200px]">
+          {inView ? (
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={data} margin={{ left: 10, right: 10, top: 5, bottom: 5 }}>
+            <AreaChart data={data} margin={{ left: 0, right: 10, top: 5, bottom: 5 }}>
               <defs>
                 <linearGradient id="gradUpside" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor={chartTheme.accent} stopOpacity={0.08} />
@@ -53,23 +54,24 @@ export default function NOIProjectionChart({ data, narrative }: NOIProjectionCha
               <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.gridStroke} vertical={false} />
               <XAxis
                 dataKey="year"
-                tick={{ fill: chartTheme.axisTickColor, fontSize: 11 }}
+                tick={{ fill: chartTheme.axisTickColor, fontSize: 10 }}
                 axisLine={{ stroke: chartTheme.axisStroke }}
                 tickLine={false}
                 tickFormatter={v => `Year ${v}`}
               />
               <YAxis
-                tick={{ fill: chartTheme.axisTickColor, fontSize: 11 }}
+                tick={{ fill: chartTheme.axisTickColor, fontSize: 10 }}
                 axisLine={false}
                 tickLine={false}
                 tickFormatter={v => `$${(v / 1_000_000).toFixed(1)}M`}
+                width={55}
               />
               <Tooltip content={<ChartTooltip formatter={(v) => fmtDollar(v)} />} />
               <Legend
                 verticalAlign="top"
                 iconType="line"
-                iconSize={12}
-                formatter={(value) => <span style={{ color: chartTheme.axisTickColor, fontSize: 11 }}>{value}</span>}
+                iconSize={10}
+                formatter={(value) => <span style={{ color: chartTheme.axisTickColor, fontSize: 10 }}>{value}</span>}
               />
               <Area
                 type="monotone"
@@ -104,6 +106,9 @@ export default function NOIProjectionChart({ data, narrative }: NOIProjectionCha
               />
             </AreaChart>
           </ResponsiveContainer>
+          ) : (
+            <div className="w-full h-full" aria-hidden />
+          )}
         </div>
       </div>
 

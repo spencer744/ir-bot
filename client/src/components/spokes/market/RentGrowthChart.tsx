@@ -24,7 +24,8 @@ export default function RentGrowthChart({ data }: RentGrowthChartProps) {
       viewport={{ once: true, margin: '-60px' }}
     >
       <h3 className="text-sm font-semibold text-gc-text mb-4">YoY Rent Growth (%)</h3>
-      <div className="h-[300px]">
+      <div className="h-[250px] md:h-[400px] min-h-[200px]">
+        {inView ? (
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ left: 0, right: 10, top: 5, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.gridStroke} vertical={false} />
@@ -80,6 +81,9 @@ export default function RentGrowthChart({ data }: RentGrowthChartProps) {
             />
           </LineChart>
         </ResponsiveContainer>
+        ) : (
+          <div className="w-full h-full" aria-hidden />
+        )}
       </div>
     </motion.div>
   );

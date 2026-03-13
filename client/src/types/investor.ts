@@ -5,10 +5,10 @@ export interface Investor {
   first_name: string;
   last_name: string;
   phone: string | null;
-  investment_goal: InvestmentGoal | null;
-  syndication_experience: SyndicationExperience | null;
-  target_range: TargetRange | null;
-  lead_source: LeadSource | null;
+  investment_goal: InvestmentGoal | string | null;
+  syndication_experience: SyndicationExperience | string | null;
+  target_range: TargetRange | string | null;
+  lead_source: LeadSource | string | null;
 }
 
 export type InvestmentGoal = 'cash_flow' | 'appreciation' | 'tax_benefits' | 'diversification';
@@ -44,8 +44,8 @@ export interface GateFormData {
 }
 
 export interface IntakeAnswers {
-  investment_goal?: InvestmentGoal;
-  syndication_experience?: SyndicationExperience;
-  target_range?: TargetRange;
-  lead_source?: LeadSource;
+  investment_goal?: InvestmentGoal | string;
+  syndication_experience?: SyndicationExperience | string;
+  target_range?: TargetRange | string;
+  lead_source?: LeadSource | string;
 }

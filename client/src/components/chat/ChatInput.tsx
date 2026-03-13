@@ -53,15 +53,15 @@ export default function ChatInput({ onSend, disabled, autoFocus }: ChatInputProp
           placeholder="Ask anything about this deal..."
           rows={1}
           disabled={disabled}
-          className="flex-1 bg-gc-bg border border-gc-border rounded-xl px-4 py-2.5 text-sm text-gc-text placeholder:text-gc-text-muted focus:border-gc-accent focus:ring-1 focus:ring-gc-accent transition-colors resize-none disabled:opacity-50"
+          className="flex-1 bg-gc-bg border border-gc-border rounded-xl px-4 py-2.5 text-base text-gc-text placeholder:text-gc-text-muted focus:border-gc-accent focus:ring-1 focus:ring-gc-accent transition-colors resize-none disabled:opacity-50"
         />
         {input.trim() && (
           <button
             onClick={handleSend}
             disabled={disabled}
-            className="bg-gc-accent hover:bg-gc-accent-hover disabled:opacity-30 disabled:cursor-not-allowed text-white rounded-xl p-2.5 transition-colors shrink-0"
+            className="bg-gc-accent hover:bg-gc-accent-hover disabled:opacity-30 disabled:cursor-not-allowed text-white rounded-xl min-w-[44px] min-h-[44px] flex items-center justify-center transition-colors shrink-0"
           >
-            <Send className="w-4 h-4" />
+            <Send className="w-5 h-5" />
           </button>
         )}
       </div>

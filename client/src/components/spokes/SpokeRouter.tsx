@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion';
-import { useDeal } from '../../context/DealContext';
 import SpokeLayout from './SpokeLayout';
 import PropertySpoke from './PropertySpoke';
 import MarketSpoke from './MarketSpoke';

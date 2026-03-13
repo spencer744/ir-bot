@@ -1,3 +1,4 @@
+import React from 'react';
 import { motion } from 'framer-motion';
 import type { ChatMessage as ChatMessageType } from '../../types/investor';
 
@@ -12,7 +13,7 @@ function renderSimpleMarkdown(text: string) {
   return lines.map((line, lineIdx) => {
     if (!line.trim()) return <br key={`br-${lineIdx}`} />;
 
-    const elements: (string | JSX.Element)[] = [];
+    const elements: (string | React.ReactElement)[] = [];
     let remaining = line;
     let keyIdx = 0;
 

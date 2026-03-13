@@ -3,6 +3,7 @@ import { useDeal } from '../../context/DealContext';
 import { useAnalytics } from '../../hooks/useAnalytics';
 import { api } from '../../lib/api';
 import SpokeLayout from './SpokeLayout';
+import { SkeletonBlock, SkeletonText, SkeletonChart, SkeletonCard } from '../shared/Skeleton';
 import BusinessHero from './business/BusinessHero';
 import ValuePillars from './business/ValuePillars';
 import InteriorRenovation from './business/InteriorRenovation';
@@ -44,8 +45,30 @@ export default function BusinessSpoke() {
       subtitle="Value-Add Strategy & Execution Roadmap"
     >
       {loading && (
-        <div className="flex justify-center py-20">
-          <div className="w-8 h-8 border-2 border-gc-accent border-t-transparent rounded-full animate-spin" />
+        <div className="space-y-10 sm:space-y-14">
+          {/* Thesis hero skeleton */}
+          <div className="bg-gc-surface border border-gc-border rounded-2xl p-6 sm:p-8 space-y-4">
+            <SkeletonBlock className="h-6 w-2/3" />
+            <SkeletonText lines={2} />
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="space-y-2">
+                  <SkeletonBlock className="h-4 w-1/2" />
+                  <SkeletonBlock className="h-7 w-3/4" />
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* Value pillars skeleton */}
+          <div className="grid sm:grid-cols-3 gap-6">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <SkeletonCard key={i} />
+            ))}
+          </div>
+          {/* Chart skeletons */}
+          <SkeletonChart height="h-72" />
+          <SkeletonCard />
+          <SkeletonChart height="h-64" />
         </div>
       )}
 
@@ -56,7 +79,7 @@ export default function BusinessSpoke() {
       )}
 
       {!loading && bp && (
-        <div className="space-y-14">
+        <div className="space-y-10 sm:space-y-14">
 
           {/* 1. Hero — Thesis + Strategy Metrics */}
           <BusinessHero thesis={bp.thesis_statement} metrics={bp.strategy_metrics} />

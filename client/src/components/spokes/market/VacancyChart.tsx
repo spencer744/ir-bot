@@ -17,7 +17,8 @@ export default function VacancyChart({ data }: VacancyChartProps) {
       viewport={{ once: true, margin: '-60px' }}
     >
       <h3 className="text-sm font-semibold text-gc-text mb-4">Vacancy Rate Trend</h3>
-      <div className="h-[220px]">
+      <div className="h-[250px] md:h-[350px] min-h-[200px]">
+        {inView ? (
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ left: 0, right: 10, top: 5, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.gridStroke} vertical={false} />
@@ -48,6 +49,9 @@ export default function VacancyChart({ data }: VacancyChartProps) {
             />
           </LineChart>
         </ResponsiveContainer>
+        ) : (
+          <div className="w-full h-full" aria-hidden />
+        )}
       </div>
     </motion.div>
   );

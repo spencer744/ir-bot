@@ -16,6 +16,9 @@ server/.env
 *.swp
 *.swo
 
+# Local / binary
+*.xlsx
+
 # OS
 .DS_Store
 Thumbs.db

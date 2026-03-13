@@ -1,59 +1,23 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { Play } from 'lucide-react';
 import { useDeal } from '../../context/DealContext';
+import { SPOKES } from '../../constants/spokes';
 import SpokeCard from './SpokeCard';
-import {
-  Building2,
-  BarChart3,
-  Calculator,
-  Wrench,
-  Users,
-  FileText,
-  Play,
-} from 'lucide-react';
-
-const SPOKES = [
-  {
-    id: 'property',
-    title: 'Property Deep Dive',
-    description: 'Photos, unit mix, amenities, renovation scope',
-    icon: Building2,
-  },
-  {
-    id: 'market',
-    title: 'Market Analysis',
-    description: 'Employment, demographics, rent comps, supply pipeline',
-    icon: BarChart3,
-  },
-  {
-    id: 'financials',
-    title: 'Financial Explorer',
-    description: 'Interactive scenarios, projections, benchmarks',
-    icon: Calculator,
-  },
-  {
-    id: 'business',
-    title: 'Business Plan',
-    description: 'Value-add strategy, timeline, milestones',
-    icon: Wrench,
-  },
-  {
-    id: 'team',
-    title: 'Team & Track Record',
-    description: 'Leadership, property management, realized performance',
-    icon: Users,
-  },
-  {
-    id: 'documents',
-    title: 'Documents',
-    description: 'Deal deck, executive summary, PPM request',
-    icon: FileText,
-  },
-];
+import DealTermsCard from './DealTermsCard';
+import { isEmbedVideoUrl, getEmbedVideoUrl } from '../../utils/videoUrl';
 
 export default function Hub() {
   const { deal, setCurrentSection, trackEvent } = useDeal();
+  const [heroVideoFailed, setHeroVideoFailed] = useState(false);
 
   if (!deal) return null;
+
+  const showHeroVideo = deal.hero_video_url?.trim() && !heroVideoFailed;
+  const walkthroughEmbedUrl = deal.video_url?.trim() && isEmbedVideoUrl(deal.video_url)
+    ? getEmbedVideoUrl(deal.video_url)
+    : null;
+  const walkthroughDirectVideo = deal.video_url?.trim() && !isEmbedVideoUrl(deal.video_url);
 
   const formatCurrency = (n: number) => {
     if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
@@ -78,7 +42,22 @@ export default function Hub() {
     >
       {/* Hero Section — full viewport */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        {deal.hero_image_url ? (
+        {showHeroVideo ? (
+          <>
+            <video
+              aria-label="Deal hero background"
+              className="absolute inset-0 w-full h-full object-cover"
+              src={deal.hero_video_url}
+              poster={deal.hero_image_url || undefined}
+              autoPlay
+              muted
+              loop
+              playsInline
+              onError={() => setHeroVideoFailed(true)}
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-gc-bg/50 via-gc-bg/75 to-gc-bg" />
+          </>
+        ) : deal.hero_image_url ? (
           <div
             className="absolute inset-0 bg-cover bg-center"
             style={{ backgroundImage: `url(${deal.hero_image_url})` }}
@@ -135,7 +114,7 @@ export default function Hub() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7, duration: 0.5, ease: 'easeOut' }}
-            className="flex flex-wrap justify-center gap-6 sm:gap-10 mb-10"
+            className="flex flex-wrap justify-center gap-x-6 gap-y-4 sm:gap-10 mb-10"
           >
             {[
               { label: 'Total Raise', value: formatCurrency(deal.total_raise), accent: false },
@@ -153,12 +132,14 @@ export default function Hub() {
             ))}
           </motion.div>
 
+          <DealTermsCard deal={deal} />
+
           {/* CTAs */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.85, duration: 0.5, ease: 'easeOut' }}
-            className="flex gap-4 justify-center"
+            className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center"
           >
             {deal.video_url && (
               <button
@@ -179,17 +160,27 @@ export default function Hub() {
         </div>
       </section>
 
-      {/* Video Embed (placeholder when no URL) */}
-      {deal.video_url ? (
-        <section className="max-w-4xl mx-auto px-4 sm:px-6 -mt-8 mb-16 relative z-10">
+      {/* Deal Walkthrough — embed (YouTube/Vimeo) or direct video */}
+      {(deal.video_url && (walkthroughEmbedUrl || walkthroughDirectVideo)) ? (
+        <section className="max-w-4xl mx-auto px-4 sm:px-6 -mt-8 mb-16 relative z-10" aria-label="Deal walkthrough video">
           <h3 className="text-lg font-semibold text-gc-text mb-4">Deal Walkthrough</h3>
           <div className="bg-gc-surface border border-gc-border rounded-2xl overflow-hidden aspect-video">
-            <iframe
-              src={deal.video_url}
-              className="w-full h-full"
-              allow="autoplay; fullscreen; picture-in-picture"
-              allowFullScreen
-            />
+            {walkthroughEmbedUrl ? (
+              <iframe
+                src={walkthroughEmbedUrl}
+                className="w-full h-full"
+                allow="autoplay; fullscreen; picture-in-picture"
+                allowFullScreen
+                title="Deal walkthrough video"
+              />
+            ) : (
+              <video
+                src={deal.video_url}
+                className="w-full h-full object-contain"
+                controls
+                title="Deal walkthrough video"
+              />
+            )}
           </div>
         </section>
       ) : null}

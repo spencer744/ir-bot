@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, Eye } from 'lucide-react';
 import { useAdminApi } from '../../hooks/useAdminApi';
 import { DealOverviewTab } from './DealOverviewTab';
 import { DealSensitivityTab } from './DealSensitivityTab';
@@ -8,6 +8,7 @@ import { DealMediaTab } from './DealMediaTab';
 import { DealContentTab } from './DealContentTab';
 import { DealKBTab } from './DealKBTab';
 import { DealAnalyticsTab } from './DealAnalyticsTab';
+import { DealExportTab } from './DealExportTab';
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -25,6 +26,7 @@ const TABS: Tab[] = [
   { id: 'content', label: 'Content' },
   { id: 'kb', label: 'KB Files' },
   { id: 'analytics', label: 'Analytics' },
+  { id: 'export', label: 'Export PDF' },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -49,13 +51,16 @@ function StatusBadge({ status }: { status: string }) {
   let classes = 'bg-gc-surface-elevated text-gc-text-secondary';
   if (normalized === 'live') {
     classes = 'bg-emerald-500/10 text-emerald-400';
+  } else if (normalized === 'coming_soon') {
+    classes = 'bg-blue-500/10 text-blue-400';
   } else if (normalized === 'closed') {
     classes = 'bg-amber-500/10 text-amber-400';
   }
 
+  const label = normalized === 'coming_soon' ? 'Coming soon' : normalized;
   return (
     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${classes}`}>
-      {normalized}
+      {label}
     </span>
   );
 }
@@ -155,6 +160,8 @@ export default function DealEditorPage() {
         return <DealKBTab deal={deal} dealId={id ?? 'new'} onSave={handleSave} />;
       case 'analytics':
         return <DealAnalyticsTab deal={deal} dealId={id ?? 'new'} onSave={handleSave} />;
+      case 'export':
+        return <DealExportTab deal={deal} dealId={id ?? 'new'} onSave={handleSave} />;
       default:
         return <PlaceholderTab name={activeTab} />;
     }
@@ -170,7 +177,7 @@ export default function DealEditorPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         <Link
           to="/admin/deals"
           className="text-gc-text-secondary hover:text-gc-text transition-colors"
@@ -179,15 +186,27 @@ export default function DealEditorPage() {
         </Link>
         <h1 className="text-2xl font-bold text-gc-text">{dealName}</h1>
         <StatusBadge status={dealStatus} />
+        {deal?.slug && (
+          <a
+            href={`/deals/${deal.slug}?lp_preview=1`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 min-h-[44px] px-4 py-2 rounded-lg text-sm font-medium text-gc-accent-light hover:bg-gc-accent-light/10 touch-manipulation"
+          >
+            <Eye className="w-4 h-4" />
+            Switch to LP view
+          </a>
+        )}
       </div>
 
-      {/* Tab Bar */}
-      <div className="flex gap-1 border-b border-gc-border mb-6 overflow-x-auto">
+      {/* Tab Bar: scrollable on small screens, touch-friendly */}
+      <div className="flex gap-1 border-b border-gc-border mb-6 overflow-x-auto pb-px -mx-1 px-1">
         {TABS.map((tab) => (
           <button
             key={tab.id}
+            type="button"
             onClick={() => setActiveTab(tab.id)}
-            className={`px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px whitespace-nowrap ${
+            className={`min-h-[44px] px-4 py-3 text-sm font-medium transition-colors border-b-2 -mb-px whitespace-nowrap touch-manipulation ${
               activeTab === tab.id
                 ? 'border-gc-accent-light text-gc-accent-light'
                 : 'border-transparent text-gc-text-secondary hover:text-gc-text'

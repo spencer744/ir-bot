@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDeal } from '../../context/DealContext';
-import type { InvestmentGoal, SyndicationExperience, TargetRange, LeadSource, IntakeAnswers } from '../../types/investor';
+import { LogoWordmark } from '../shared/Logo';
+import type { IntakeAnswers } from '../../types/investor';
 
 interface IntakeQuestion {
   key: keyof IntakeAnswers;
@@ -90,12 +91,12 @@ export default function Intake({ dealName }: { dealName: string }) {
               transition={{ duration: 0.3 }}
               className="text-center"
             >
-              <div className="bg-gc-surface border border-gc-border rounded-2xl p-8 mb-4">
-                <div className="w-10 h-10 bg-gc-accent/10 border border-gc-accent/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-gc-accent text-lg">G</span>
+              <div className="bg-gc-surface border border-gc-border rounded-2xl p-5 sm:p-8 mb-4">
+                <div className="flex justify-center mb-4">
+                  <LogoWordmark className="text-gc-text text-sm" />
                 </div>
                 <p className="text-gc-text leading-relaxed">
-                  Welcome to Gray Capital's <span className="font-semibold">{dealName}</span> deal
+                  Welcome to Gray Capital's <span className="font-semibold text-gc-text">{dealName}</span> deal
                   room{investor?.first_name ? `, ${investor.first_name}` : ''}. A few quick questions
                   to personalize your experience — feel free to skip any of these.
                 </p>
@@ -103,13 +104,13 @@ export default function Intake({ dealName }: { dealName: string }) {
               <div className="flex gap-3 justify-center">
                 <button
                   onClick={() => setStep(0)}
-                  className="bg-gc-accent hover:bg-gc-accent-hover text-white font-medium py-2.5 px-6 rounded-lg text-sm transition-colors"
+                  className="bg-gc-accent hover:bg-gc-accent-hover text-white font-medium py-3 px-6 rounded-lg text-sm transition-colors"
                 >
                   Let's Go
                 </button>
                 <button
                   onClick={handleSkipAll}
-                  className="text-gc-text-secondary hover:text-gc-text text-sm transition-colors"
+                  className="text-gc-text-secondary hover:text-gc-text text-sm transition-colors py-3 px-4"
                 >
                   Skip to Deal Room
                 </button>
@@ -135,11 +136,11 @@ export default function Intake({ dealName }: { dealName: string }) {
                 ))}
               </div>
 
-              <div className="bg-gc-surface border border-gc-border rounded-2xl p-8">
+              <div className="bg-gc-surface border border-gc-border rounded-2xl p-5 sm:p-8">
                 <p className="text-gc-text text-lg font-medium mb-6">
                   {QUESTIONS[step].text}
                 </p>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {QUESTIONS[step].options.map(opt => (
                     <button
                       key={opt.value}
@@ -155,7 +156,7 @@ export default function Intake({ dealName }: { dealName: string }) {
               <div className="text-center mt-4">
                 <button
                   onClick={handleSkip}
-                  className="text-gc-text-muted hover:text-gc-text-secondary text-xs transition-colors"
+                  className="text-gc-text-muted hover:text-gc-text-secondary text-xs transition-colors py-2 px-4"
                 >
                   Skip this question
                 </button>

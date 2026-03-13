@@ -22,6 +22,7 @@ interface FormData {
   year_built: number | '';
   purchase_price: number | '';
   hero_image_url: string;
+  hero_video_url: string;
   deal_video_url: string;
   // Capital Structure
   total_raise: number | '';
@@ -83,7 +84,8 @@ function getInitialFormData(deal: any): FormData {
     year_built: deal?.year_built ?? '',
     purchase_price: deal?.purchase_price ?? '',
     hero_image_url: deal?.hero_image_url ?? '',
-    deal_video_url: deal?.deal_video_url ?? '',
+    hero_video_url: deal?.hero_video_url ?? '',
+    deal_video_url: deal?.deal_video_url ?? deal?.video_url ?? '',
     total_raise: deal?.total_raise ?? '',
     gp_coinvest: deal?.gp_coinvest ?? '',
     minimum_investment: deal?.minimum_investment ?? 100000,
@@ -152,7 +154,7 @@ export function DealOverviewTab({ deal, dealId, onSave }: DealOverviewTabProps) 
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [showPublishConfirm, setShowPublishConfirm] = useState(false);
-  const [publishAction, setPublishAction] = useState<'publish' | 'unpublish' | null>(null);
+  const [publishAction, setPublishAction] = useState<'publish' | 'unpublish' | 'golive' | null>(null);
 
   /* ---- Populate form when deal prop changes ---- */
   useEffect(() => {
@@ -183,11 +185,14 @@ export function DealOverviewTab({ deal, dealId, onSave }: DealOverviewTabProps) 
     setSaveMessage(null);
 
     try {
-      const payload = { ...formData };
+      const payload: Record<string, unknown> = { ...formData };
       // Auto-generate slug if empty
       if (!payload.slug) {
-        payload.slug = generateSlug(payload.name);
+        payload.slug = generateSlug(payload.name as string);
       }
+      // Map form field to API/DB column name
+      payload.video_url = payload.deal_video_url;
+      delete payload.deal_video_url;
 
       let result: any;
       if (isNew) {
@@ -206,8 +211,8 @@ export function DealOverviewTab({ deal, dealId, onSave }: DealOverviewTabProps) 
     }
   }
 
-  /* ---- Publish / Unpublish ---- */
-  function handlePublishClick(action: 'publish' | 'unpublish') {
+  /* ---- Publish / Unpublish / Go live ---- */
+  function handlePublishClick(action: 'publish' | 'unpublish' | 'golive') {
     setPublishAction(action);
     setShowPublishConfirm(true);
   }
@@ -215,7 +220,7 @@ export function DealOverviewTab({ deal, dealId, onSave }: DealOverviewTabProps) 
   async function confirmPublish() {
     if (!publishAction) return;
 
-    const newStatus = publishAction === 'publish' ? 'live' : 'draft';
+    const newStatus = publishAction === 'unpublish' ? 'draft' : 'live';
     setSaving(true);
     setSaveMessage(null);
     setShowPublishConfirm(false);
@@ -228,9 +233,14 @@ export function DealOverviewTab({ deal, dealId, onSave }: DealOverviewTabProps) 
 
       const updatedDeal = result.deal ?? { ...formData, status: newStatus, id: dealId };
       setFormData((prev) => ({ ...prev, status: newStatus }));
+      const successMessages: Record<string, string> = {
+        publish: 'Deal published successfully.',
+        unpublish: 'Deal unpublished.',
+        golive: 'Deal is now live.',
+      };
       setSaveMessage({
         type: 'success',
-        text: publishAction === 'publish' ? 'Deal published successfully.' : 'Deal unpublished.',
+        text: successMessages[publishAction] || 'Status updated.',
       });
       onSave(updatedDeal);
     } catch (err: any) {
@@ -343,6 +353,17 @@ export function DealOverviewTab({ deal, dealId, onSave }: DealOverviewTabProps) 
             onChange={(e) => updateField('hero_image_url', e.target.value)}
             placeholder="https://..."
           />
+        </Field>
+
+        <Field label="Hero Video URL">
+          <input
+            type="text"
+            className={INPUT_CLASSES}
+            value={formData.hero_video_url}
+            onChange={(e) => updateField('hero_video_url', e.target.value)}
+            placeholder="https://... (MP4/WebM, optional looping background)"
+          />
+          <p className="text-xs text-gc-text-muted mt-1">Optional. Direct link to MP4/WebM for full-bleed looping background video. Leave empty to use hero image only.</p>
         </Field>
 
         <Field label="Deal Video URL">
@@ -564,7 +585,8 @@ export function DealOverviewTab({ deal, dealId, onSave }: DealOverviewTabProps) 
             value={formData.status}
             onChange={(e) => updateField('status', e.target.value)}
           >
-            <option value="draft">Draft</option>
+            <option value="draft">Draft (invisible)</option>
+            <option value="coming_soon">Coming soon</option>
             <option value="live">Live</option>
             <option value="closed">Closed</option>
           </select>
@@ -600,10 +622,10 @@ export function DealOverviewTab({ deal, dealId, onSave }: DealOverviewTabProps) 
           </label>
         </Field>
 
-        {/* Publish / Unpublish — only for existing deals */}
+        {/* Publish / Go live / Unpublish — only for existing deals */}
         {!isNew && (
-          <div className="pt-2 border-t border-gc-border">
-            {formData.status === 'draft' ? (
+          <div className="pt-2 border-t border-gc-border flex flex-wrap gap-2">
+            {formData.status === 'draft' && (
               <button
                 onClick={() => handlePublishClick('publish')}
                 disabled={saving}
@@ -611,7 +633,17 @@ export function DealOverviewTab({ deal, dealId, onSave }: DealOverviewTabProps) 
               >
                 Publish Deal
               </button>
-            ) : formData.status === 'live' ? (
+            )}
+            {formData.status === 'coming_soon' && (
+              <button
+                onClick={() => handlePublishClick('golive')}
+                disabled={saving}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+              >
+                Go live
+              </button>
+            )}
+            {formData.status === 'live' && (
               <button
                 onClick={() => handlePublishClick('unpublish')}
                 disabled={saving}
@@ -619,7 +651,7 @@ export function DealOverviewTab({ deal, dealId, onSave }: DealOverviewTabProps) 
               >
                 Unpublish
               </button>
-            ) : null}
+            )}
           </div>
         )}
       </SectionCard>
@@ -648,17 +680,22 @@ export function DealOverviewTab({ deal, dealId, onSave }: DealOverviewTabProps) 
         </button>
       </div>
 
-      {/* Publish Confirm Dialog */}
-      {showPublishConfirm && (
+      {/* Publish / Go live / Unpublish Confirm Dialog */}
+      {showPublishConfirm && publishAction && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
           <div className="bg-gc-surface border border-gc-border rounded-xl p-6 max-w-md w-full mx-4 space-y-4">
             <h3 className="text-lg font-semibold text-gc-text">
-              {publishAction === 'publish' ? 'Publish Deal?' : 'Unpublish Deal?'}
+              {publishAction === 'publish' && 'Publish Deal?'}
+              {publishAction === 'golive' && 'Go live?'}
+              {publishAction === 'unpublish' && 'Unpublish Deal?'}
             </h3>
             <p className="text-sm text-gc-text-secondary">
-              {publishAction === 'publish'
-                ? 'This will make the deal visible to investors. Make sure all information is accurate before publishing.'
-                : 'This will remove the deal from investor view. Existing links will no longer work.'}
+              {publishAction === 'publish' &&
+                'This will make the deal visible to investors. Make sure all information is accurate before publishing.'}
+              {publishAction === 'golive' &&
+                'Make this deal live? Investors will have full access. Make sure all information is accurate.'}
+              {publishAction === 'unpublish' &&
+                'This will remove the deal from investor view. Existing links will no longer work.'}
             </p>
             <div className="flex justify-end gap-3">
               <button
@@ -673,12 +710,14 @@ export function DealOverviewTab({ deal, dealId, onSave }: DealOverviewTabProps) 
               <button
                 onClick={confirmPublish}
                 className={`px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors ${
-                  publishAction === 'publish'
-                    ? 'bg-emerald-600 hover:bg-emerald-700'
-                    : 'bg-amber-600 hover:bg-amber-700'
+                  publishAction === 'unpublish'
+                    ? 'bg-amber-600 hover:bg-amber-700'
+                    : 'bg-emerald-600 hover:bg-emerald-700'
                 }`}
               >
-                {publishAction === 'publish' ? 'Publish' : 'Unpublish'}
+                {publishAction === 'publish' && 'Publish'}
+                {publishAction === 'golive' && 'Go live'}
+                {publishAction === 'unpublish' && 'Unpublish'}
               </button>
             </div>
           </div>

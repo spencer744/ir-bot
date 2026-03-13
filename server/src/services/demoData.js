@@ -15,7 +15,8 @@ const DEMO_DEAL = {
   target_irr_base: 0.158,
   target_equity_multiple: 1.95,
   target_coc: 0.072,
-  hero_image_url: '',
+  hero_image_url: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1920&q=80',
+  hero_video_url: '',
   video_url: '',
   market_analysis_md: `Indianapolis is the 33rd largest MSA in the United States with a population of over 2.1 million. The metro has experienced steady growth driven by a diversified employment base anchored by healthcare (Eli Lilly, IU Health), logistics (FedEx, Amazon), technology (Salesforce, Infosys), and education (Indiana University, Purdue).
 
@@ -42,6 +43,12 @@ Post-renovation, we target an average rent premium of $175-$225 per unit, which 
           avg_occupancy: 0.91,
           annual_expense_growth: 0.035,
         },
+        returns: {
+          lp_irr: 0.12,
+          equity_multiple: 1.73,
+          avg_coc: 0.065,
+          distribution_per_100k: 173_000,
+        },
       },
       base: {
         label: 'Base',
@@ -50,6 +57,12 @@ Post-renovation, we target an average rent premium of $175-$225 per unit, which 
           exit_cap: 0.053,
           avg_occupancy: 0.94,
           annual_expense_growth: 0.03,
+        },
+        returns: {
+          lp_irr: 0.158,
+          equity_multiple: 1.95,
+          avg_coc: 0.072,
+          distribution_per_100k: 195_000,
         },
       },
       upside: {
@@ -60,6 +73,12 @@ Post-renovation, we target an average rent premium of $175-$225 per unit, which 
           avg_occupancy: 0.96,
           annual_expense_growth: 0.025,
         },
+        returns: {
+          lp_irr: 0.188,
+          equity_multiple: 2.16,
+          avg_coc: 0.078,
+          distribution_per_100k: 216_000,
+        },
       },
       strategic: {
         label: 'Strategic',
@@ -68,6 +87,12 @@ Post-renovation, we target an average rent premium of $175-$225 per unit, which 
           exit_cap: 0.045,
           avg_occupancy: 0.97,
           annual_expense_growth: 0.025,
+        },
+        returns: {
+          lp_irr: 0.205,
+          equity_multiple: 2.28,
+          avg_coc: 0.081,
+          distribution_per_100k: 228_000,
         },
       },
     },
@@ -190,6 +215,13 @@ Post-renovation, we target an average rent premium of $175-$225 per unit, which 
     split_above_hurdle_1: { lp: 0.70, gp: 0.30 },
     catch_up: false,
   },
+  fees: {
+    acquisition_fee_pct: 1.75,
+    loan_guarantee_fee_pct: 0.75,
+    asset_management_fee_pct: 0.5,
+    property_management_fee_pct: 3,
+    disposition_fee_pct: 1,
+  },
   cost_seg_data: {
     year_1_accelerated_depreciation_pct: 0.60,
     total_depreciable_basis: 35_000_000,
@@ -267,6 +299,8 @@ Gray Capital's acquisition basis of $134,615 per unit represents a significant d
     unemployment_rate: 3.4,
     yoy_rent_growth: 3.5,
     vacancy_rate: 4.8,
+    map_image_url: 'https://placehold.co/1200x600/1a1a2e/3B82F6?text=MSA+%26+Submarket+Map',
+    map_caption: 'Indianapolis MSA — Northeast submarket.',
     metro_overview_md: `The Indianapolis-Carmel-Anderson Metropolitan Statistical Area is home to approximately 2.15 million residents, making it the 33rd largest metro in the United States. The region has added over 120,000 residents since 2010, driven by a diversified economy anchored in healthcare, logistics, technology, and advanced manufacturing.\n\nIndianapolis benefits from a central geographic location — within a day's drive of 75% of the U.S. population — which has made it a national logistics hub. The metro's cost of living sits approximately 8% below the national average, while median household income has grown 4.2% annually over the past five years, creating a widening affordability advantage that attracts both residents and employers.`,
     metro_snapshot: {
       msa_population: '2,150,000',
@@ -750,6 +784,34 @@ const DEMO_COMPANY_DATA = {
     phone: '(317) 203-9457',
     website: 'GrayCapitalLLC.com',
     meetings_url: '#',
+  },
+  operations: {
+    property_management: {
+      title: 'Gray Residential',
+      subtitle: 'Property Management',
+      body: 'Our vertically integrated property management company manages 7,500+ units across our portfolio. Gray Residential handles leasing, marketing, maintenance, collections, and capital planning — keeping operations in-house for greater control and alignment with investor goals.',
+      learn_more: 'Learn more about Gray Residential',
+    },
+    asset_management: {
+      title: 'Asset Management Team',
+      subtitle: 'Portfolio Oversight',
+      body: 'Our asset management team oversees each property from acquisition through disposition. They work alongside Gray Residential and Gray Construction to execute business plans, track performance, and report to investors. Team members are assigned by property with clear accountability.',
+    },
+    construction: {
+      title: 'Gray Construction and Design',
+      subtitle: 'Construction Manager',
+      body: 'In-house construction management and design ensure renovation scope, budgets, and timelines are executed efficiently. Gray Construction and Design handles project management, vendor sourcing, and interior design — reducing third-party coordination and cost.',
+    },
+    tech_stack: {
+      title: 'Technology & Systems',
+      subtitle: 'Tech Stack',
+      items: [
+        'Industry-leading property management software for accounting, leasing, and maintenance',
+        'Online resident portals for rent payment and maintenance requests',
+        'Real-time portfolio performance data and investor reporting',
+        'Research and market data via The Gray Report',
+      ],
+    },
   },
 };
 

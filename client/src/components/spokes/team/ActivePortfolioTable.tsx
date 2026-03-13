@@ -69,7 +69,7 @@ export default function ActivePortfolioTable({
       {/* Table container */}
       <div className="bg-gc-surface border border-gc-border rounded-xl overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm whitespace-nowrap">
+          <table className="w-full text-sm whitespace-nowrap min-w-[580px]">
             {/* Header */}
             <thead>
               <tr className="bg-gc-surface-elevated">

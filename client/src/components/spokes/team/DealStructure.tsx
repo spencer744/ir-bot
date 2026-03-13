@@ -70,7 +70,7 @@ export default function DealStructure({ structure }: DealStructureProps) {
         {/* LEFT — Investment Structure */}
         <motion.div
           variants={item}
-          className="bg-gc-surface rounded-xl p-6"
+          className="bg-gc-surface rounded-xl p-4 sm:p-6"
         >
           <h3 className="text-lg font-semibold text-gc-text mb-4">Investment Structure</h3>
           <div>
@@ -83,7 +83,7 @@ export default function DealStructure({ structure }: DealStructureProps) {
         {/* RIGHT — Fee Structure */}
         <motion.div
           variants={item}
-          className="bg-gc-surface rounded-xl p-6"
+          className="bg-gc-surface rounded-xl p-4 sm:p-6"
         >
           <h3 className="text-lg font-semibold text-gc-text mb-4">Fee Structure</h3>
 
@@ -111,7 +111,7 @@ export default function DealStructure({ structure }: DealStructureProps) {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-40px' }}
         transition={{ duration: 0.4, delay: 0.2 }}
-        className="border-l-4 border-gc-accent bg-gc-surface rounded-lg p-6"
+        className="border-l-4 border-gc-accent bg-gc-surface rounded-lg p-4 sm:p-6"
       >
         <p className="text-gc-text-secondary text-sm leading-relaxed">
           <span className="text-2xl font-bold text-gc-positive font-mono-numbers mr-1">14%</span>

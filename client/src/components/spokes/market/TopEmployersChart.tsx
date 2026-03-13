@@ -24,7 +24,8 @@ export default function TopEmployersChart({ data }: TopEmployersChartProps) {
       viewport={{ once: true, margin: '-60px' }}
     >
       <h3 className="text-sm font-semibold text-gc-text mb-4">Top Employers</h3>
-      <div className="h-[320px]">
+      <div className="h-[250px] md:h-[400px] min-h-[200px]">
+        {inView ? (
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={sorted} layout="vertical" margin={{ left: 10, right: 40, top: 5, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke={chartTheme.gridStroke} horizontal={false} />
@@ -41,7 +42,7 @@ export default function TopEmployersChart({ data }: TopEmployersChartProps) {
               tick={{ fill: chartTheme.axisTickColor, fontSize: 11 }}
               axisLine={false}
               tickLine={false}
-              width={140}
+              width={100}
             />
             <Tooltip content={<ChartTooltip formatter={(v) => v.toLocaleString() + ' employees'} />} />
             <Bar
@@ -57,6 +58,9 @@ export default function TopEmployersChart({ data }: TopEmployersChartProps) {
             </Bar>
           </BarChart>
         </ResponsiveContainer>
+        ) : (
+          <div className="w-full h-full" aria-hidden />
+        )}
       </div>
     </motion.div>
   );

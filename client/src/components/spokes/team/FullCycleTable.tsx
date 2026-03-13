@@ -59,7 +59,7 @@ export default function FullCycleTable({ deals }: FullCycleTableProps) {
       {/* Table container */}
       <div className="bg-gc-surface border border-gc-border rounded-xl overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm whitespace-nowrap">
+          <table className="w-full text-sm whitespace-nowrap min-w-[640px]">
             {/* Header */}
             <thead>
               <tr className="bg-gc-surface-elevated">

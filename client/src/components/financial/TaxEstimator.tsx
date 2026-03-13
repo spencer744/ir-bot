@@ -19,7 +19,6 @@ export default function TaxEstimator({ deal, investmentAmount }: Props) {
   const estimates = useMemo(() => {
     const costSeg = deal.cost_seg_data;
     const depreciationPct = costSeg?.year_1_accelerated_depreciation_pct || 0.60;
-    const paperLossPer100k = costSeg?.estimated_year_1_paper_loss_per_100k || 82_000;
 
     const acceleratedDepreciation = Math.round(investmentAmount * depreciationPct);
     const taxSavings = Math.round(acceleratedDepreciation * selectedRate);
@@ -36,7 +35,7 @@ export default function TaxEstimator({ deal, investmentAmount }: Props) {
   const fmt = (n: number) => `$${n.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
 
   return (
-    <div className="bg-gc-surface border border-gc-border rounded-2xl p-6">
+    <div className="bg-gc-surface border border-gc-border rounded-2xl p-4 sm:p-6">
       {/* Tax Bracket Selector */}
       <div className="mb-6">
         <p className="text-sm text-gc-text-secondary mb-3">Your Marginal Tax Rate</p>
@@ -45,7 +44,7 @@ export default function TaxEstimator({ deal, investmentAmount }: Props) {
             <button
               key={b.rate}
               onClick={() => setSelectedRate(b.rate)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              className={`px-4 py-2.5 min-h-[44px] rounded-lg text-sm font-medium transition-all ${
                 selectedRate === b.rate
                   ? 'bg-gc-accent text-white'
                   : 'bg-gc-bg border border-gc-border text-gc-text-secondary hover:border-gc-accent/40'
@@ -59,31 +58,31 @@ export default function TaxEstimator({ deal, investmentAmount }: Props) {
 
       {/* Results */}
       <div className="space-y-4">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center gap-2">
           <span className="text-sm text-gc-text-secondary">Investment Amount</span>
-          <span className="font-mono-numbers text-sm text-gc-text font-medium">{fmt(investmentAmount)}</span>
+          <span className="font-mono-numbers text-sm text-gc-text font-medium shrink-0">{fmt(investmentAmount)}</span>
         </div>
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-start gap-2 max-sm:flex-col">
           <span className="text-sm text-gc-text-secondary">
             Est. Year 1 Accelerated Depreciation
             <span className="text-gc-text-muted ml-1">
               ({(estimates.depreciationPct * 100).toFixed(0)}% via cost segregation)
             </span>
           </span>
-          <span className="font-mono-numbers text-sm text-gc-text font-medium">{fmt(estimates.acceleratedDepreciation)}</span>
+          <span className="font-mono-numbers text-sm text-gc-text font-medium shrink-0">{fmt(estimates.acceleratedDepreciation)}</span>
         </div>
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-start gap-2 max-sm:flex-col">
           <span className="text-sm text-gc-text-secondary">
             Estimated Tax Savings
             <span className="text-gc-text-muted ml-1">
               (at {(selectedRate * 100).toFixed(0)}% rate)
             </span>
           </span>
-          <span className="font-mono-numbers text-sm text-gc-positive font-bold">{fmt(estimates.taxSavings)}</span>
+          <span className="font-mono-numbers text-sm text-gc-positive font-bold shrink-0">{fmt(estimates.taxSavings)}</span>
         </div>
-        <div className="border-t border-gc-border pt-4 flex justify-between items-center">
+        <div className="border-t border-gc-border pt-4 flex justify-between items-center gap-2">
           <span className="text-sm text-gc-text font-semibold">Effective Year 1 Net Cost</span>
-          <span className="font-mono-numbers text-lg text-gc-text font-bold">{fmt(estimates.effectiveNetCost)}</span>
+          <span className="font-mono-numbers text-lg text-gc-text font-bold shrink-0">{fmt(estimates.effectiveNetCost)}</span>
         </div>
       </div>
 

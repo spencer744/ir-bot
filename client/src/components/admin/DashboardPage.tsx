@@ -281,7 +281,7 @@ export default function DashboardPage() {
               id="deal-select"
               value={selectedSlug}
               onChange={(e) => setSelectedSlug(e.target.value)}
-              className="bg-gc-surface border border-gc-border rounded-lg px-3 py-1.5 text-sm text-gc-text focus:outline-none focus:ring-2 focus:ring-gc-accent appearance-none cursor-pointer"
+              className="bg-gc-surface border border-gc-border rounded-lg px-3 py-2.5 min-h-[44px] text-sm text-gc-text focus:outline-none focus:ring-2 focus:ring-gc-accent appearance-none cursor-pointer touch-manipulation"
             >
               {deals.map((d) => (
                 <option key={d.slug} value={d.slug}>
@@ -298,9 +298,9 @@ export default function DashboardPage() {
       </div>
 
       {/* ---- Metric Cards ---- */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {loading ? (
-          Array.from({ length: 5 }).map((_, i) => (
+          Array.from({ length: 4 }).map((_, i) => (
             <MetricCardSkeleton key={i} />
           ))
         ) : (
@@ -309,7 +309,6 @@ export default function DashboardPage() {
               value={String(metrics?.unique_visitors ?? 0)}
               label="Total Visitors"
             />
-            <MetricCard value={'\u2014'} label="Avg Duration" />
             <MetricCard value={chatRate} label="Chat Rate" />
             <MetricCard
               value={String(metrics?.ppm_requests ?? 0)}

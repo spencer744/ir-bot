@@ -1,9 +1,22 @@
 const express = require('express');
 const { supabase } = require('../config/supabase');
-const { requireAuth } = require('../middleware/auth');
 const { DEMO_DEAL } = require('../services/demoData');
+const { hubspotCreateOrUpdateContact } = require('../services/hubspot');
+const { onPPMRequested, onInterestIndicated } = require('../services/workflows');
 
 const router = express.Router();
+
+function sanitize(str) {
+  if (typeof str !== 'string') return '';
+  return str.trim().slice(0, 500);
+}
+
+function parseName(fullName) {
+  const parts = (fullName || '').trim().split(/\s+/);
+  if (parts.length === 0) return { first_name: '', last_name: '' };
+  if (parts.length === 1) return { first_name: parts[0], last_name: '' };
+  return { first_name: parts[0], last_name: parts.slice(1).join(' ') };
+}
 
 // GET /api/deal/:slug — Full deal data
 router.get('/:slug', async (req, res, next) => {
@@ -15,7 +28,7 @@ router.get('/:slug', async (req, res, next) => {
         .from('deals')
         .select('*')
         .eq('slug', slug)
-        .eq('status', 'live')
+        .in('status', ['live', 'coming_soon'])
         .single();
 
       if (error || !deal) {
@@ -96,9 +109,10 @@ router.get('/:slug/media', async (req, res, next) => {
       { id: 'm13', deal_id: DEMO_DEAL.id, type: 'photo', url: 'https://placehold.co/1200x800/1a1a2e/ffffff?text=After+Kitchen', caption: 'Kitchen after renovation', category: 'renovation', sort_order: 13 },
       { id: 'm14', deal_id: DEMO_DEAL.id, type: 'photo', url: 'https://placehold.co/1200x800/1a1a2e/ffffff?text=Aerial+Property', caption: 'Property aerial with surroundings', category: 'aerial', sort_order: 14 },
       { id: 'm15', deal_id: DEMO_DEAL.id, type: 'photo', url: 'https://placehold.co/1200x800/1a1a2e/ffffff?text=Exterior+Buildings', caption: 'Garden-style building exteriors', category: 'exterior', sort_order: 15 },
+      { id: 'mv1', deal_id: DEMO_DEAL.id, type: 'video', url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4', caption: 'Drone flyover', category: 'aerial', sort_order: 16 },
       // Documents
-      { id: 'd1', deal_id: DEMO_DEAL.id, type: 'document', url: '#', caption: 'Investment Deck', category: 'document', sort_order: 20, description: 'Comprehensive overview of the Parkview Commons investment opportunity including property details, market analysis, financial projections, and sponsor track record.', pages: 42, file_size: '8.2 MB', file_type: 'PDF', access_level: 'public' },
-      { id: 'd2', deal_id: DEMO_DEAL.id, type: 'document', url: '#', caption: 'Executive Summary', category: 'document', sort_order: 21, description: 'Two-page overview highlighting key investment metrics, deal structure, business plan thesis, and projected returns.', pages: 2, file_size: '1.4 MB', file_type: 'PDF', access_level: 'public' },
+      { id: 'd1', deal_id: DEMO_DEAL.id, type: 'document', url: '#', caption: 'Investment Deck', category: 'document', sort_order: 20, document_role: 'deck', description: 'Comprehensive overview of the Parkview Commons investment opportunity including property details, market analysis, financial projections, and sponsor track record.', pages: 42, file_size: '8.2 MB', file_type: 'PDF', access_level: 'public' },
+      { id: 'd2', deal_id: DEMO_DEAL.id, type: 'document', url: '#', caption: 'Executive Summary', category: 'document', sort_order: 21, document_role: 'one_pager', description: 'Two-page overview highlighting key investment metrics, deal structure, business plan thesis, and projected returns.', pages: 2, file_size: '1.4 MB', file_type: 'PDF', access_level: 'public' },
       { id: 'd3', deal_id: DEMO_DEAL.id, type: 'document', url: '#', caption: 'Financial Summary', category: 'document', sort_order: 22, description: 'Detailed financial model including acquisition assumptions, renovation budget, projected cash flows, sensitivity analysis, and waterfall distribution schedule.', pages: 18, file_size: '3.6 MB', file_type: 'PDF', access_level: 'public' },
       { id: 'd4', deal_id: DEMO_DEAL.id, type: 'document', url: '#', caption: 'Market Research Report', category: 'document', sort_order: 23, description: 'In-depth analysis of the Indianapolis MSA and northeast submarket including employment data, demographic trends, rent comparables, and supply pipeline from The Gray Report.', pages: 24, file_size: '5.1 MB', file_type: 'PDF', access_level: 'public' },
       { id: 'd5', deal_id: DEMO_DEAL.id, type: 'document', url: '#', caption: 'Track Record Summary', category: 'document', sort_order: 24, description: 'Full-cycle deal performance across all 10 realized investments and 17 active properties. Includes case studies and aggregate return metrics.', pages: 8, file_size: '2.8 MB', file_type: 'PDF', access_level: 'public' },
@@ -147,6 +161,95 @@ router.get('/:slug/business-plan', async (req, res, next) => {
     }
 
     return res.json({ business_plan_data: DEMO_DEAL.business_plan_data || null });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /api/deal/:slug/ppm-request — PPM request form submission
+router.post('/:slug/ppm-request', async (req, res, next) => {
+  try {
+    const { slug } = req.params;
+    const name = sanitize(req.body.name);
+    const email = sanitize(req.body.email).toLowerCase();
+    const accredited = !!req.body.accredited;
+
+    if (!name || !email) {
+      return res.status(400).json({ message: 'Name and email are required.' });
+    }
+
+    const { first_name, last_name } = parseName(name);
+    const dealName = slug === (DEMO_DEAL?.slug || '') || slug === 'demo' ? DEMO_DEAL.name : slug;
+
+    let hubspotContactId = null;
+    if (hubspotCreateOrUpdateContact) {
+      hubspotContactId = await hubspotCreateOrUpdateContact({
+        email,
+        first_name: first_name || 'Unknown',
+        last_name: last_name || 'Investor',
+        deal_slug: slug,
+      }).catch((err) => {
+        console.warn('[Deal] HubSpot contact create/update failed:', err.message);
+        return null;
+      });
+    }
+
+    if (hubspotContactId) {
+      await onPPMRequested({
+        hubspotContactId,
+        investorName: name,
+        investorEmail: email,
+        dealName,
+      }).catch((err) => console.warn('[Deal] PPM workflow failed:', err.message));
+    }
+
+    return res.json({ success: true, message: 'PPM request received.' });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /api/deal/:slug/indicate-interest — Interest indication form submission
+router.post('/:slug/indicate-interest', async (req, res, next) => {
+  try {
+    const { slug } = req.params;
+    const name = sanitize(req.body.name);
+    const email = sanitize(req.body.email).toLowerCase();
+    const amount_range = sanitize(req.body.amount_range);
+    const notes = sanitize(req.body.notes);
+
+    if (!name || !email) {
+      return res.status(400).json({ message: 'Name and email are required.' });
+    }
+
+    const { first_name, last_name } = parseName(name);
+    const dealName = slug === (DEMO_DEAL?.slug || '') || slug === 'demo' ? DEMO_DEAL.name : slug;
+
+    let hubspotContactId = null;
+    if (hubspotCreateOrUpdateContact) {
+      hubspotContactId = await hubspotCreateOrUpdateContact({
+        email,
+        first_name: first_name || 'Unknown',
+        last_name: last_name || 'Investor',
+        deal_slug: slug,
+      }).catch((err) => {
+        console.warn('[Deal] HubSpot contact create/update failed:', err.message);
+        return null;
+      });
+    }
+
+    if (hubspotContactId) {
+      await onInterestIndicated({
+        hubspotContactId,
+        investorName: name,
+        investorEmail: email,
+        dealName,
+        amountRange: amount_range || null,
+        notes: notes || null,
+      }).catch((err) => console.warn('[Deal] Interest workflow failed:', err.message));
+    }
+
+    return res.json({ success: true, message: 'Interest indication received.' });
   } catch (err) {
     next(err);
   }

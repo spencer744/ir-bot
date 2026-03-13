@@ -10,26 +10,30 @@ interface Props {
   ownershipPct: number;
 }
 
-export default function ScenarioViewer({ deal, sensitivityData, scenario, investmentAmount, ownershipPct }: Props) {
-  // Compute scenario returns
+export default function ScenarioViewer({ deal, sensitivityData, scenario, investmentAmount, ownershipPct: _ownershipPct }: Props) {
+  // Read scenario returns from sensitivity_data; fall back to deal targets when missing
   const metrics = useMemo(() => {
-    // Use deal-level targets when no sensitivity data
-    // In production, these would come from scenario-specific data
-    const scenarioMultipliers: Record<ScenarioKey, number> = {
-      downside: 0.8,
-      base: 1.0,
-      upside: 1.2,
-      strategic: 1.4,
-    };
-    const mult = scenarioMultipliers[scenario];
+    const returns = sensitivityData?.scenarios?.[scenario]?.returns;
 
-    const irr = deal.target_irr_base * mult;
-    const equityMultiple = 1 + (deal.target_equity_multiple - 1) * mult;
-    const coc = deal.target_coc * mult;
+    if (returns) {
+      const equityMultiple = returns.equity_multiple;
+      const totalDistributions = investmentAmount * equityMultiple;
+      return {
+        irr: returns.lp_irr,
+        equityMultiple,
+        coc: returns.avg_coc,
+        totalDistributions,
+      };
+    }
+
+    // Fallback when sensitivity data or returns not available
+    const irr = deal.target_irr_base;
+    const equityMultiple = deal.target_equity_multiple;
+    const coc = deal.target_coc;
     const totalDistributions = investmentAmount * equityMultiple;
 
     return { irr, equityMultiple, coc, totalDistributions };
-  }, [deal, scenario, investmentAmount]);
+  }, [deal, sensitivityData, scenario, investmentAmount]);
 
   // Compute waterfall
   const waterfall = useMemo(() => {
@@ -64,7 +68,7 @@ export default function ScenarioViewer({ deal, sensitivityData, scenario, invest
       </div>
 
       {/* Waterfall Breakdown */}
-      <div className="bg-gc-surface border border-gc-border rounded-2xl p-6">
+      <div className="bg-gc-surface border border-gc-border rounded-2xl p-4 sm:p-6">
         <h3 className="text-sm font-semibold text-gc-text mb-4">Waterfall Breakdown</h3>
         <div className="space-y-3">
           <WaterfallRow label="Return of Capital" value={fmt(waterfall.returnOfCapital)} />
@@ -95,7 +99,7 @@ export default function ScenarioViewer({ deal, sensitivityData, scenario, invest
 
       {/* Scenario Assumptions */}
       {sensitivityData?.scenarios?.[scenario] && (
-        <div className="bg-gc-surface border border-gc-border rounded-2xl p-6">
+        <div className="bg-gc-surface border border-gc-border rounded-2xl p-4 sm:p-6">
           <h3 className="text-sm font-semibold text-gc-text mb-3">
             {sensitivityData.scenarios[scenario].label} Scenario Assumptions
           </h3>
@@ -146,11 +150,11 @@ function MetricCard({ label, value, color }: { label: string; value: string; col
 
 function WaterfallRow({ label, value, bold, muted }: { label: string; value: string; bold?: boolean; muted?: boolean }) {
   return (
-    <div className="flex justify-between items-center">
+    <div className="flex justify-between items-center gap-2 max-sm:flex-wrap">
       <span className={`text-sm ${bold ? 'font-semibold text-gc-text' : muted ? 'text-gc-text-muted' : 'text-gc-text-secondary'}`}>
         {label}
       </span>
-      <span className={`font-mono-numbers text-sm ${bold ? 'font-bold text-gc-positive' : muted ? 'text-gc-text-muted' : 'text-gc-text'}`}>
+      <span className={`font-mono-numbers text-sm shrink-0 ${bold ? 'font-bold text-gc-positive' : muted ? 'text-gc-text-muted' : 'text-gc-text'}`}>
         {value}
       </span>
     </div>

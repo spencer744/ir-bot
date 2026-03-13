@@ -31,9 +31,9 @@ export default function UnitMixTable({ unitMix, totalUnits }: UnitMixTableProps)
       transition={{ duration: 0.4 }}
     >
       <h2 className="text-xl font-semibold text-gc-text mb-5">Unit Mix</h2>
-      <div className="bg-gc-surface border border-gc-border rounded-2xl overflow-hidden">
+      <div className="bg-gc-surface border border-gc-border rounded-2xl overflow-hidden relative">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-sm min-w-[480px]">
             <thead>
               <tr className="border-b border-gc-border">
                 <th className="text-left px-4 sm:px-6 py-3 text-gc-text-muted text-xs uppercase tracking-wider font-medium">Type</th>
@@ -73,6 +73,7 @@ export default function UnitMixTable({ unitMix, totalUnits }: UnitMixTableProps)
             </tbody>
           </table>
         </div>
+        <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-gc-surface to-transparent pointer-events-none sm:hidden" />
       </div>
       <p className="text-gc-text-muted text-xs mt-2">
         Total: {totalUnits} units &middot; Average rent premium: ${avgPremium}/unit/month &middot; Annual revenue uplift: ~${((avgPremium * totalCount * 12) / 1000).toFixed(0)}K

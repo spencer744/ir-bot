@@ -273,7 +273,7 @@ export default function InvestorListPage() {
         <div className="flex items-center gap-3">
           {/* Deal filter (placeholder — single deal for now) */}
           <select
-            className="bg-gc-surface border border-gc-border rounded-lg px-3 py-1.5 text-sm text-gc-text focus:outline-none focus:ring-2 focus:ring-gc-accent appearance-none cursor-pointer"
+            className="bg-gc-surface border border-gc-border rounded-lg px-3 py-2.5 min-h-[44px] text-sm text-gc-text focus:outline-none focus:ring-2 focus:ring-gc-accent appearance-none cursor-pointer touch-manipulation"
             defaultValue="all"
           >
             <option value="all">All Deals</option>
@@ -283,7 +283,7 @@ export default function InvestorListPage() {
           <select
             value={tierFilter}
             onChange={(e) => setTierFilter(e.target.value as EngagementTier)}
-            className="bg-gc-surface border border-gc-border rounded-lg px-3 py-1.5 text-sm text-gc-text focus:outline-none focus:ring-2 focus:ring-gc-accent appearance-none cursor-pointer"
+            className="bg-gc-surface border border-gc-border rounded-lg px-3 py-2.5 min-h-[44px] text-sm text-gc-text focus:outline-none focus:ring-2 focus:ring-gc-accent appearance-none cursor-pointer touch-manipulation"
           >
             <option value="all">All Tiers</option>
             <option value="hot">Hot (80+)</option>
@@ -294,10 +294,10 @@ export default function InvestorListPage() {
         </div>
       </div>
 
-      {/* ---- Table ---- */}
+      {/* ---- Table: horizontal scroll on small screens ---- */}
       <div className="bg-gc-surface border border-gc-border rounded-xl overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
+        <div className="overflow-x-auto p-4 sm:p-0">
+          <table className="w-full min-w-[900px]">
             <thead>
               <tr className="text-left text-xs text-gc-text-secondary uppercase tracking-wider border-b border-gc-border font-medium">
                 <SortHeader
@@ -443,7 +443,7 @@ export default function InvestorListPage() {
                     <td className="py-3 px-4">
                       <Link
                         to={`/admin/investors/${inv.id}`}
-                        className="text-sm text-gc-accent-light hover:underline font-medium"
+                        className="inline-block text-sm text-gc-accent-light hover:underline font-medium py-2 px-2 -mx-2 rounded min-h-[44px] flex items-center touch-manipulation"
                       >
                         View
                       </Link>

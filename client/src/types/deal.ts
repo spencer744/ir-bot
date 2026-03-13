@@ -2,7 +2,7 @@ export interface Deal {
   id: string;
   slug: string;
   name: string;
-  status: 'draft' | 'live' | 'closed';
+  status: 'draft' | 'coming_soon' | 'live' | 'closed';
   property_address: string;
   city: string;
   state: string;
@@ -19,15 +19,27 @@ export interface Deal {
   cost_seg_data: CostSegData;
   deal_terms: DealTerms;
   hero_image_url: string;
+  hero_video_url?: string;
   video_url: string;
   market_analysis_md: string;
   business_plan_md: string;
   team_override_md: string | null;
   fundraise_pct: number | null;
   benchmark_rates: BenchmarkRates;
+  fees?: DealFees | null;
   created_at: string;
   updated_at: string;
 }
+
+export interface DealFees {
+  acquisition_fee_pct?: number;
+  loan_guarantee_fee_pct?: number;
+  asset_management_fee_pct?: number;
+  property_management_fee_pct?: number;
+  disposition_fee_pct?: number;
+}
+
+export type DocumentRole = 'deck' | 'one_pager' | 'operating_agreement' | 'other';
 
 export interface DealMedia {
   id: string;
@@ -35,8 +47,13 @@ export interface DealMedia {
   type: 'photo' | 'video' | 'document' | 'floor_plan';
   url: string;
   caption: string;
-  category: 'exterior' | 'interior' | 'amenity' | 'renovation' | 'progress' | 'aerial';
+  category?: string;
   sort_order: number;
+  document_role?: DocumentRole | null;
+  description?: string;
+  file_type?: string;
+  file_size?: string;
+  pages?: number;
 }
 
 export interface ScenarioAssumptions {
@@ -46,9 +63,17 @@ export interface ScenarioAssumptions {
   annual_expense_growth: number;
 }
 
+export interface ScenarioReturns {
+  lp_irr: number;
+  equity_multiple: number;
+  avg_coc: number;
+  distribution_per_100k: number;
+}
+
 export interface Scenario {
   label: string;
   assumptions: ScenarioAssumptions;
+  returns?: ScenarioReturns;
 }
 
 export interface SensitivityRow {

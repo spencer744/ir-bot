@@ -1,6 +1,6 @@
 // HubSpot integration service
 // Creates/updates contacts and syncs investor profile data.
-// Requires HUBSPOT_ACCESS_TOKEN env var. Gracefully no-ops when missing.
+// Requires HUBSPOT_API_KEY env var. Gracefully no-ops when missing.
 
 const hubspot = require('@hubspot/api-client');
 
@@ -8,7 +8,7 @@ let client = null;
 
 function getClient() {
   if (client) return client;
-  const token = process.env.HUBSPOT_ACCESS_TOKEN;
+  const token = process.env.HUBSPOT_API_KEY;
   if (!token) return null;
   client = new hubspot.Client({ accessToken: token });
   return client;
@@ -125,7 +125,7 @@ async function hubspotUpdateContactProperties(email, properties) {
  * Check whether HubSpot integration is configured.
  */
 function isEnabled() {
-  return !!process.env.HUBSPOT_ACCESS_TOKEN;
+  return !!process.env.HUBSPOT_API_KEY;
 }
 
 /**

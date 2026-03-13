@@ -33,7 +33,7 @@ export const api = {
     email: string;
     phone?: string;
     deal_slug: string;
-  }) => request<{ token: string; investor_id: string; session_id: string }>(
+  }) => request<{ token: string; investor_id: string; session_id: string; hubspot_contact_id: string | null }>(
     '/auth/register', { method: 'POST', body: JSON.stringify(data) }
   ),
 
@@ -53,6 +53,7 @@ export const api = {
       syndication_experience: string | null;
       target_range: string | null;
       lead_source: string | null;
+      hubspot_contact_id: string | null;
     } | null;
   }>(
     '/auth/verify', { method: 'POST' }
@@ -64,6 +65,12 @@ export const api = {
   getDealMedia: (slug: string) => request<{ media: any[] }>(`/deal/${slug}/media`),
   getDealMarket: (slug: string) => request<{ market_data: any }>(`/deal/${slug}/market`),
   getDealBusinessPlan: (slug: string) => request<{ business_plan_data: any }>(`/deal/${slug}/business-plan`),
+
+  ppmRequest: (slug: string, data: { name: string; email: string; accredited: boolean }) =>
+    request<{ success: boolean }>(`/deal/${slug}/ppm-request`, { method: 'POST', body: JSON.stringify(data) }),
+
+  indicateInterest: (slug: string, data: { name: string; email: string; amount_range: string; notes?: string }) =>
+    request<{ success: boolean }>(`/deal/${slug}/indicate-interest`, { method: 'POST', body: JSON.stringify(data) }),
 
   // Chat
   sendMessage: (data: {
@@ -106,4 +113,7 @@ export const api = {
 
   // Benchmarks
   getBenchmarks: () => request<any>('/benchmarks'),
+
+  // Public config (CTA URLs)
+  getConfig: () => request<{ meetingsUrl: string; investmentPortalUrl: string; institutionalFormUrl: string; hubspotPortalId?: string }>('/config'),
 };

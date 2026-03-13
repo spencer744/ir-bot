@@ -78,7 +78,7 @@ export default function Differentiators({ items }: DifferentiatorsProps) {
             <motion.div
               key={diff.title}
               variants={item}
-              className="bg-gc-surface-elevated rounded-xl p-8"
+              className="bg-gc-surface-elevated rounded-xl p-5 sm:p-8"
             >
               <Icon className="w-10 h-10 text-gc-accent" />
               <h3 className="font-bold text-xl text-gc-text mt-4">

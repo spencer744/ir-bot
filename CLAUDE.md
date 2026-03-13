@@ -110,9 +110,9 @@ Every external service is independently optional:
 | 16 | Chatbot UI + API | ✅ Functional (streaming SSE, 3-layer prompt) |
 | 22-24 | HubSpot + Analytics + Engagement | ✅ Functional (hubspot.js, analytics.js, engagement.js, workflows.js, useAnalytics.ts) |
 | 25-29 | Admin Interface | ✅ Functional (dashboard, deal CRUD, 6 editor tabs, KB manager, investor list/detail) |
-| 30-32 | Polish (mobile, animations, QA) | 🔲 Not started |
+| 30-32 | Polish (mobile, animations, QA) | ✅ Functional (rate limiting, ErrorBoundary, mobile responsive, skeleton loaders, disclaimers) |
 
-**Total codebase:** ~8,000+ lines across 70+ components, 35 KB files, 8 service modules.
+**Total codebase:** ~8,500+ lines across 75+ components, 35 KB files, 8 service modules.
 
 ---
 
@@ -138,9 +138,16 @@ Upside:            #34D399 (green)
 Strategic:         #A78BFA (purple)
 ```
 
-Typography: Inter (headings 700-800, body 400-500), JetBrains Mono (data/numbers)
+Typography: Khula (primary sans), Inter fallback; JetBrains Mono (data/numbers). Logo wordmark: "GRAY" bold, "CAPITAL" regular, 0.18em letter-spacing.
 Animations: Framer Motion `whileInView`, staggered children, 0.4-0.6s duration
 Theme: Dark, premium, immersive (Apple-inspired)
+
+**Brand (Gray Capital):** Full guidelines in `GrayCapital_Brand_SKILL.md`. Brand palette available as `--color-gc-brand-teal` (#003437) and `--color-gc-brand-white` (#FFFFFF) for optional use.
+
+### Brand Implementation
+- **Logo:** Shared `client/src/components/shared/Logo.tsx` — `Logo` (variant, theme, tagline) and `LogoWordmark`. Image at `/logo-graycapital.png`; falls back to wordmark if image missing or fails to load.
+- **Asset:** Copy Gray Capital logo (white on dark) to `client/public/logo-graycapital.png` for full logo and favicon. App works without it (wordmark fallback).
+- **Placement:** Gate (vertical + "Interactive Deal Room"); Intake welcome (wordmark); StickyBar, ChatHeader, App 404, Disclaimer (wordmark); Admin login/sidebar (Logo with taglines).
 
 ---
 
@@ -190,9 +197,9 @@ This project is built using detailed chunk prompts stored in the outputs folder.
 - Chunk 16: Chatbot UI + Anthropic API + three-layer prompt assembly
 - Chunks 22-24: HubSpot integration + event tracking + engagement scoring + workflow triggers
 - Chunks 25-29: Admin interface (dashboard, deal CRUD, 6 editor tabs, KB manager, investor list/detail)
+- Chunks 30-32: Mobile polish, rate limiting, ErrorBoundary, skeleton loaders, disclaimers, console cleanup
 
-**Next chunks to build:**
-- Chunks 30-32: Mobile polish, animation pass, QA + security review
+**All chunks complete.** MVP feature-complete.
 
 ---
 
@@ -226,6 +233,7 @@ This project is built using detailed chunk prompts stored in the outputs folder.
 - **Dark theme everywhere.** No white backgrounds, no light mode.
 - **Mobile-first.** All components must be responsive. Chat goes full-screen on mobile.
 - **Compliance-aware.** Disclaimers on projections, "past performance" caveats on track record, 506(c) language.
+- **Keep CLAUDE.md current.** When adding significant features, conventions, or assets, update this file directly — don't ask, just add.
 
 ---
 
@@ -252,13 +260,35 @@ After completing implementation tasks, always verify changes against the running
 
 ---
 
+## Deal CSV Import System
+
+Admins can import deals from Gray Capital's Excel acquisition models via two CSV files.
+
+**Workflow:** Excel model → AI converts using Skill file → admin uploads CSVs → deal auto-populated.
+
+| Component | File | Purpose |
+|-----------|------|---------|
+| CSV Parser | `server/src/services/csvParser.js` | Parses both CSV formats, validates, transforms to deal JSON |
+| Import Route | `server/src/routes/dealImport.js` | `POST /api/admin/deals/import` (multipart), `GET .../template/:name` |
+| Import Modal | `client/src/components/admin/DealImportModal.tsx` | File picker, client-side preview, upload |
+| Templates | `server/templates/deal_overview.csv`, `deal_sensitivity.csv` | Example CSVs with Hudson Square data |
+| Skill File | `.cursor/skills-cursor/deal-import/SKILL.md` | Teaches AI to convert Excel models to CSVs |
+
+**CSV 1 — `deal_overview.csv`:** Two-column `field,value` format. ~40 fields covering property details, capital structure, waterfall terms, fees, cost seg, benchmarks, and narrative text.
+
+**CSV 2 — `deal_sensitivity.csv`:** Sectioned with `[section_name]` markers. Sections: scenarios (4 rows), sensitivity tables (rent_growth_vs_irr, exit_cap_vs_irr, occupancy_vs_irr, rent_growth_x_exit_cap), annual_cash_flows (scenario × year), unit_mix.
+
+**Admin UI:** Deal List → "Import from CSV" button → modal with two file drop zones, client-side preview, download template links.
+
+---
+
 ## Known Issues / Areas to Address Later
 1. Backend is plain JS (no TypeScript) — works but less safe
 2. Chat history is in-memory (Map in chat.js) — lost on restart
 3. No test coverage — critical for a financial product
-4. No rate limiting on endpoints
+4. ~~No rate limiting on endpoints~~ — ✅ Fixed (auth 10/min, chat 20/min, general 100/min)
 5. No input validation library (Joi/Zod)
-6. No error boundary on frontend
+6. ~~No error boundary on frontend~~ — ✅ Fixed (ErrorBoundary.tsx wraps App)
 7. No CI/CD or Docker config
 
-These are engineering hardening tasks for post-MVP. Don't try to fix them while building features.
+Remaining engineering hardening tasks for post-MVP.

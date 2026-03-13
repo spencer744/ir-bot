@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDeal } from '../../context/DealContext';
 import { useAnalytics } from '../../hooks/useAnalytics';
+import { useConfig } from '../../hooks/useConfig';
+import { api } from '../../lib/api';
 import {
   FileText,
   Download,
@@ -33,13 +35,20 @@ interface DocMedia {
   file_size?: string;
   file_type?: string;
   access_level?: 'public' | 'restricted';
+  document_role?: 'deck' | 'one_pager' | 'operating_agreement' | 'other' | null;
 }
 
 /* -------------------------------------------------- */
 /*  Sub-components                                     */
 /* -------------------------------------------------- */
 
+function isDocumentAvailable(url: string | undefined): boolean {
+  return Boolean(url && url !== '#');
+}
+
 function DocumentCard({ doc, index, onDownload }: { doc: DocMedia; index: number; onDownload?: (docId: string, docTitle: string) => void }) {
+  const available = isDocumentAvailable(doc.url);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
@@ -60,8 +69,15 @@ function DocumentCard({ doc, index, onDownload }: { doc: DocMedia; index: number
             <h3 className="text-gc-text font-semibold text-sm leading-tight">
               {doc.caption}
             </h3>
-            <span className="text-[10px] font-medium bg-gc-surface-elevated text-gc-text-muted px-2 py-0.5 rounded-full shrink-0 uppercase tracking-wider">
-              {doc.file_type || 'PDF'}
+            <span className="flex items-center gap-2 shrink-0">
+              {!available && (
+                <span className="text-[10px] font-medium bg-amber-500/15 text-amber-400 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                  Coming Soon
+                </span>
+              )}
+              <span className="text-[10px] font-medium bg-gc-surface-elevated text-gc-text-muted px-2 py-0.5 rounded-full uppercase tracking-wider">
+                {doc.file_type || 'PDF'}
+              </span>
             </span>
           </div>
           <p className="text-gc-text-secondary text-xs leading-relaxed mb-3">
@@ -88,15 +104,35 @@ function DocumentCard({ doc, index, onDownload }: { doc: DocMedia; index: number
 
       {/* Action row */}
       <div className="flex items-center gap-2 mt-4 pt-3 border-t border-gc-border/50">
-        <button className="flex items-center gap-1.5 text-gc-accent hover:text-gc-accent-hover text-xs font-medium transition-colors">
-          <Eye className="w-3.5 h-3.5" />
-          Preview
-        </button>
-        <span className="text-gc-border mx-1">|</span>
-        <button onClick={() => onDownload?.(doc.id, doc.caption)} className="flex items-center gap-1.5 text-gc-accent hover:text-gc-accent-hover text-xs font-medium transition-colors">
-          <Download className="w-3.5 h-3.5" />
-          Download
-        </button>
+        {available ? (
+          <>
+            <a
+              href={doc.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 text-gc-accent hover:text-gc-accent-hover text-xs font-medium transition-colors"
+            >
+              <Eye className="w-3.5 h-3.5" />
+              Preview
+            </a>
+            <span className="text-gc-border mx-1">|</span>
+            <a
+              href={doc.url}
+              download
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => onDownload?.(doc.id, doc.caption)}
+              className="flex items-center gap-1.5 text-gc-accent hover:text-gc-accent-hover text-xs font-medium transition-colors"
+            >
+              <Download className="w-3.5 h-3.5" />
+              Download
+            </a>
+          </>
+        ) : (
+          <span className="text-gc-text-muted text-xs">
+            Document will be available for download soon.
+          </span>
+        )}
       </div>
     </motion.div>
   );
@@ -105,18 +141,34 @@ function DocumentCard({ doc, index, onDownload }: { doc: DocMedia; index: number
 function PPMRequestModal({
   open,
   onClose,
+  slug,
+  trackPPMRequested,
 }: {
   open: boolean;
   onClose: () => void;
+  slug: string;
+  trackPPMRequested: () => void;
 }) {
   const [step, setStep] = useState<'form' | 'success'>('form');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [accredited, setAccredited] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setStep('success');
+    setError(null);
+    setSubmitting(true);
+    try {
+      await api.ppmRequest(slug, { name, email, accredited });
+      trackPPMRequested();
+      setStep('success');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Request failed. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleClose = () => {
@@ -134,7 +186,7 @@ function PPMRequestModal({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 max-md:p-0 bg-black/70 backdrop-blur-sm"
           onClick={handleClose}
         >
           <motion.div
@@ -142,7 +194,7 @@ function PPMRequestModal({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.2 }}
-            className="bg-gc-surface border border-gc-border rounded-2xl w-full max-w-md overflow-hidden"
+            className="bg-gc-surface border border-gc-border rounded-2xl w-full max-w-md max-md:max-w-none max-md:m-0 max-md:rounded-none max-md:h-full overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {step === 'form' ? (
@@ -164,7 +216,7 @@ function PPMRequestModal({
                   </div>
                   <button
                     onClick={handleClose}
-                    className="text-gc-text-muted hover:text-gc-text transition-colors"
+                    className="text-gc-text-muted hover:text-gc-text transition-colors p-1"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -218,13 +270,23 @@ function PPMRequestModal({
                     </span>
                   </label>
 
+                  {error && (
+                    <p className="text-red-400 text-xs">{error}</p>
+                  )}
+
                   <button
                     type="submit"
-                    disabled={!name || !email || !accredited}
+                    disabled={!name || !email || !accredited || submitting}
                     className="w-full bg-gc-accent hover:bg-gc-accent-hover disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium py-2.5 rounded-lg text-sm transition-colors flex items-center justify-center gap-2"
                   >
-                    <Send className="w-4 h-4" />
-                    Request PPM via DocuSign
+                    {submitting ? (
+                      'Submitting...'
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4" />
+                        Request PPM via DocuSign
+                      </>
+                    )}
                   </button>
                 </form>
 
@@ -276,24 +338,54 @@ function PPMRequestModal({
   );
 }
 
+const AMOUNT_OPTIONS: { value: string; label: string }[] = [
+  { value: '100000', label: '$100,000' },
+  { value: '150000', label: '$150,000' },
+  { value: '250000', label: '$250,000' },
+  { value: '500000', label: '$500,000' },
+  { value: '1000000', label: '$1,000,000+' },
+];
+
 function IndicateInterestModal({
   open,
   onClose,
   dealName,
+  slug,
+  trackInterestIndicated,
 }: {
   open: boolean;
   onClose: () => void;
   dealName: string;
+  slug: string;
+  trackInterestIndicated: (amountRange: string) => void;
 }) {
   const [step, setStep] = useState<'form' | 'success'>('form');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [amount, setAmount] = useState('');
   const [notes, setNotes] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setStep('success');
+    setError(null);
+    setSubmitting(true);
+    const amountLabel = AMOUNT_OPTIONS.find((o) => o.value === amount)?.label ?? amount;
+    try {
+      await api.indicateInterest(slug, {
+        name,
+        email,
+        amount_range: amountLabel,
+        notes: notes || undefined,
+      });
+      trackInterestIndicated(amountLabel);
+      setStep('success');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Request failed. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleClose = () => {
@@ -312,7 +404,7 @@ function IndicateInterestModal({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 max-md:p-0 bg-black/70 backdrop-blur-sm"
           onClick={handleClose}
         >
           <motion.div
@@ -320,7 +412,7 @@ function IndicateInterestModal({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.2 }}
-            className="bg-gc-surface border border-gc-border rounded-2xl w-full max-w-md overflow-hidden"
+            className="bg-gc-surface border border-gc-border rounded-2xl w-full max-w-md max-md:max-w-none max-md:m-0 max-md:rounded-none max-md:h-full overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {step === 'form' ? (
@@ -339,7 +431,7 @@ function IndicateInterestModal({
                   </div>
                   <button
                     onClick={handleClose}
-                    className="text-gc-text-muted hover:text-gc-text transition-colors"
+                    className="text-gc-text-muted hover:text-gc-text transition-colors p-1"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -385,11 +477,11 @@ function IndicateInterestModal({
                       <option value="" className="text-gc-text-muted">
                         Select amount
                       </option>
-                      <option value="100000">$100,000</option>
-                      <option value="150000">$150,000</option>
-                      <option value="250000">$250,000</option>
-                      <option value="500000">$500,000</option>
-                      <option value="1000000">$1,000,000+</option>
+                      {AMOUNT_OPTIONS.map((o) => (
+                        <option key={o.value} value={o.value}>
+                          {o.label}
+                        </option>
+                      ))}
                     </select>
                   </div>
                   <div>
@@ -406,12 +498,16 @@ function IndicateInterestModal({
                     />
                   </div>
 
+                  {error && (
+                    <p className="text-red-400 text-xs">{error}</p>
+                  )}
+
                   <button
                     type="submit"
-                    disabled={!name || !email || !amount}
+                    disabled={!name || !email || !amount || submitting}
                     className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium py-2.5 rounded-lg text-sm transition-colors"
                   >
-                    Submit Interest
+                    {submitting ? 'Submitting...' : 'Submit Interest'}
                   </button>
                 </form>
 
@@ -466,7 +562,8 @@ function IndicateInterestModal({
 
 export default function DocumentsSpoke() {
   const { deal, media, setCurrentSection } = useDeal();
-  const { trackSectionView, trackPPMRequested, trackInterestIndicated, trackDocumentDownload, trackScheduleCallClicked } = useAnalytics();
+  const { trackSectionView, trackPPMRequested, trackInterestIndicated, trackDocumentDownload, trackScheduleCallClicked, trackEvent } = useAnalytics();
+  const { meetingsUrl, investmentPortalUrl, institutionalFormUrl } = useConfig();
   const [ppmOpen, setPpmOpen] = useState(false);
   const [interestOpen, setInterestOpen] = useState(false);
 
@@ -475,6 +572,10 @@ export default function DocumentsSpoke() {
   if (!deal) return null;
 
   const documents = media.filter((m) => m.type === 'document') as DocMedia[];
+  const deckDoc = documents.find((d) => d.document_role === 'deck');
+  const onePagerDoc = documents.find((d) => d.document_role === 'one_pager');
+  const hasDeck = deckDoc && isDocumentAvailable(deckDoc.url);
+  const hasOnePager = onePagerDoc && isDocumentAvailable(onePagerDoc.url);
 
   return (
     <div className="min-h-screen pt-20 pb-12">
@@ -505,6 +606,41 @@ export default function DocumentsSpoke() {
             Due diligence materials for {deal.name}
           </p>
         </motion.div>
+
+        {/* ---- Download Deck / One-pager (sticky featured) ---- */}
+        {(hasDeck || hasOnePager) && (
+          <motion.section
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35 }}
+            className="mb-8 flex flex-wrap gap-3"
+          >
+            {hasDeck && (
+              <a
+                href={deckDoc!.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => trackDocumentDownload(deckDoc!.id, deckDoc!.caption)}
+                className="inline-flex items-center gap-2 bg-gc-accent hover:bg-gc-accent-hover text-white font-medium py-3 px-6 rounded-xl transition-colors"
+              >
+                <Download className="w-5 h-5" />
+                Download Deck
+              </a>
+            )}
+            {hasOnePager && (
+              <a
+                href={onePagerDoc!.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => trackDocumentDownload(onePagerDoc!.id, onePagerDoc!.caption)}
+                className="inline-flex items-center gap-2 bg-gc-surface-elevated hover:bg-gc-border border border-gc-border text-gc-text font-medium py-3 px-6 rounded-xl transition-colors"
+              >
+                <Download className="w-5 h-5" />
+                Download One-pager
+              </a>
+            )}
+          </motion.section>
+        )}
 
         {/* ---- Available Documents ---- */}
         <section className="mb-12">
@@ -578,7 +714,7 @@ export default function DocumentsSpoke() {
                   </span>
                 </div>
                 <button
-                  onClick={() => { setPpmOpen(true); trackPPMRequested(); }}
+                  onClick={() => setPpmOpen(true)}
                   className="bg-gc-accent hover:bg-gc-accent-hover text-white font-medium py-2.5 px-6 rounded-lg text-sm transition-colors inline-flex items-center gap-2"
                 >
                   <Lock className="w-4 h-4" />
@@ -607,15 +743,28 @@ export default function DocumentsSpoke() {
               non-binding.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              {investmentPortalUrl && (
+                <a
+                  href={investmentPortalUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3 px-8 rounded-lg text-sm transition-colors inline-flex items-center gap-2"
+                >
+                  <ArrowRight className="w-4 h-4" />
+                  Make a commitment
+                </a>
+              )}
               <button
-                onClick={() => { setInterestOpen(true); trackInterestIndicated('unknown'); }}
-                className="bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3 px-8 rounded-lg text-sm transition-colors inline-flex items-center gap-2"
+                onClick={() => setInterestOpen(true)}
+                className={investmentPortalUrl ? "bg-gc-surface-elevated hover:bg-gc-border border border-gc-border text-gc-text font-medium py-3 px-6 rounded-lg text-sm transition-colors inline-flex items-center gap-2" : "bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3 px-8 rounded-lg text-sm transition-colors inline-flex items-center gap-2"}
               >
                 <ArrowRight className="w-4 h-4" />
                 Indicate Interest
               </button>
               <a
-                href="#"
+                href={meetingsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
                 onClick={() => trackScheduleCallClicked()}
                 className="text-gc-accent hover:text-gc-accent-hover text-sm font-medium transition-colors inline-flex items-center gap-1.5"
               >
@@ -623,24 +772,51 @@ export default function DocumentsSpoke() {
                 Schedule a Call Instead
               </a>
             </div>
+            {institutionalFormUrl && (
+              <p className="text-gc-text-muted text-xs mt-4">
+                <a
+                  href={institutionalFormUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gc-accent hover:underline"
+                  onClick={() => trackEvent({ eventType: 'institutional_cta_clicked' })}
+                >
+                  I&apos;m an institutional investor or LP interested in investing $2 million or more.
+                </a>
+              </p>
+            )}
           </div>
         </motion.section>
 
         {/* Disclaimer */}
-        <p className="text-gc-text-muted text-xs leading-relaxed">
-          All documents are confidential and for the sole use of prospective
-          accredited investors evaluating this investment opportunity. Do not
-          distribute, reproduce, or forward without express written consent from
-          Gray Capital LLC.
-        </p>
+        <div className="space-y-2">
+          <p className="text-gc-text-muted text-xs leading-relaxed">
+            Offers are made only through a Private Placement Memorandum (PPM) to
+            accredited investors as defined by SEC Regulation D, Rule 501. The PPM
+            contains complete details regarding risks, fees, and terms of the offering.
+          </p>
+          <p className="text-gc-text-muted text-xs leading-relaxed">
+            All documents are confidential and for the sole use of prospective
+            accredited investors evaluating this investment opportunity. Do not
+            distribute, reproduce, or forward without express written consent from
+            Gray Capital LLC.
+          </p>
+        </div>
       </div>
 
       {/* Modals */}
-      <PPMRequestModal open={ppmOpen} onClose={() => setPpmOpen(false)} />
+      <PPMRequestModal
+        open={ppmOpen}
+        onClose={() => setPpmOpen(false)}
+        slug={deal.slug}
+        trackPPMRequested={trackPPMRequested}
+      />
       <IndicateInterestModal
         open={interestOpen}
         onClose={() => setInterestOpen(false)}
         dealName={deal.name}
+        slug={deal.slug}
+        trackInterestIndicated={trackInterestIndicated}
       />
     </div>
   );

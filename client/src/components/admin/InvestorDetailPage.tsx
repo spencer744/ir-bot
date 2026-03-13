@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, ExternalLink } from 'lucide-react';
 import { useAdminApi } from '../../hooks/useAdminApi';
+import { useConfig } from '../../hooks/useConfig';
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -415,6 +416,12 @@ export default function InvestorDetailPage() {
     [investor.first_name, investor.last_name].filter(Boolean).join(' ') ||
     'Unknown Investor';
 
+  const { hubspotPortalId } = useConfig();
+  const hubspotUrl =
+    hubspotPortalId && investor.hubspot_contact_id
+      ? `https://app.hubspot.com/contacts/${hubspotPortalId}/contact/${investor.hubspot_contact_id}`
+      : null;
+
   return (
     <div className="space-y-6">
       {/* ---- Back Link ---- */}
@@ -438,6 +445,25 @@ export default function InvestorDetailPage() {
                 <span className="ml-3">{investor.phone}</span>
               )}
             </p>
+            {investor.hubspot_contact_id && (
+              <p className="text-sm mt-2">
+                {hubspotUrl ? (
+                  <a
+                    href={hubspotUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-gc-accent hover:text-gc-accent-hover"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    Open in HubSpot
+                  </a>
+                ) : (
+                  <span className="text-gc-text-muted">
+                    HubSpot ID: {investor.hubspot_contact_id}
+                  </span>
+                )}
+              </p>
+            )}
 
             {/* Intake badges */}
             <div className="flex flex-wrap gap-2 mt-3">

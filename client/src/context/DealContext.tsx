@@ -80,7 +80,7 @@ export function DealProvider({ children }: { children: ReactNode }) {
           const inv = res.investor;
           setInvestor(inv ? {
             id: inv.id,
-            hubspot_contact_id: null,
+            hubspot_contact_id: inv.hubspot_contact_id ?? null,
             email: inv.email,
             first_name: inv.first_name,
             last_name: inv.last_name,
@@ -128,15 +128,6 @@ export function DealProvider({ children }: { children: ReactNode }) {
         setSessionRestored(true);
       });
   }, []);
-
-  // Heartbeat for session duration
-  useEffect(() => {
-    if (!session?.id) return;
-    const interval = setInterval(() => {
-      api.heartbeat(session.id).catch(() => {});
-    }, 30000);
-    return () => clearInterval(interval);
-  }, [session?.id]);
 
   const setCurrentSection = (section: string) => {
     setCurrentSectionState(section);
@@ -186,7 +177,7 @@ export function DealProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('gc_session_id', res.session_id);
     setInvestor({
       id: res.investor_id,
-      hubspot_contact_id: null,
+      hubspot_contact_id: res.hubspot_contact_id ?? null,
       email: data.email,
       first_name: data.first_name,
       last_name: data.last_name,

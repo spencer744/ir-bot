@@ -1,5 +1,4 @@
 import { useMemo } from 'react';
-import { motion } from 'framer-motion';
 import {
   BarChart,
   Bar,
@@ -76,8 +75,8 @@ export default function DistributionTimeline({ deal, sensitivityData, scenario, 
   const totalDistributions = data.reduce((sum, d) => sum + d.cashFlow, 0);
 
   return (
-    <div className="bg-gc-surface border border-gc-border rounded-2xl p-6">
-      <div className="flex justify-between items-baseline mb-4">
+    <div className="bg-gc-surface border border-gc-border rounded-2xl p-4 sm:p-6">
+      <div className="flex justify-between items-baseline mb-4 gap-2 flex-wrap">
         <p className="text-gc-text-secondary text-xs">
           ${(investmentAmount / 1_000).toFixed(0)}K Invested &middot; {scenario === 'downside' ? 'Conservative' : scenario.charAt(0).toUpperCase() + scenario.slice(1)} Case
         </p>
@@ -86,7 +85,7 @@ export default function DistributionTimeline({ deal, sensitivityData, scenario, 
         </p>
       </div>
 
-      <div className="h-64 sm:h-80">
+      <div className="h-[250px] sm:h-[350px]">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
             <XAxis
@@ -110,7 +109,7 @@ export default function DistributionTimeline({ deal, sensitivityData, scenario, 
                 color: '#F0F0F5',
                 fontSize: '12px',
               }}
-              formatter={(value: number) => [fmt(value), 'Distribution']}
+              formatter={(value: number | undefined) => [value != null ? fmt(value) : '', 'Distribution']}
             />
             <Bar dataKey="cashFlow" radius={[6, 6, 0, 0]} maxBarSize={48}>
               {data.map((entry, i) => (

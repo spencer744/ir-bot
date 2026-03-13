@@ -22,6 +22,8 @@ interface ContactInfo {
 interface InvestorRelationsCTAProps {
   contacts: Contact[];
   contactInfo: ContactInfo;
+  /** Override from app config (HubSpot meeting link) */
+  meetingsUrl?: string;
 }
 
 /* -------------------------------------------------- */
@@ -45,7 +47,9 @@ const item = {
 export default function InvestorRelationsCTA({
   contacts,
   contactInfo,
+  meetingsUrl: meetingsUrlProp,
 }: InvestorRelationsCTAProps) {
+  const meetingsUrl = meetingsUrlProp || contactInfo.meetings_url;
   return (
     <section>
       {/* Section header */}
@@ -112,7 +116,7 @@ export default function InvestorRelationsCTA({
         className="text-center"
       >
         <a
-          href={contactInfo.meetings_url}
+          href={meetingsUrl || '#'}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-block bg-gc-accent hover:bg-gc-accent-hover text-white font-medium py-3 px-8 rounded-lg transition-colors"
@@ -121,10 +125,13 @@ export default function InvestorRelationsCTA({
         </a>
 
         {/* Company info line */}
-        <p className="text-xs text-[#8B8FA3] mt-4">
-          {contactInfo.address} &nbsp;|&nbsp; {contactInfo.phone} &nbsp;|&nbsp;{' '}
-          {contactInfo.website}
-        </p>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-0 text-xs text-[#8B8FA3] mt-4">
+          <span>{contactInfo.address}</span>
+          <span className="hidden sm:inline">&nbsp;|&nbsp;</span>
+          <span>{contactInfo.phone}</span>
+          <span className="hidden sm:inline">&nbsp;|&nbsp;</span>
+          <span>{contactInfo.website}</span>
+        </div>
       </motion.div>
     </section>
   );

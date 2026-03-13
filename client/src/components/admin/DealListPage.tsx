@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAdminApi } from '../../hooks/useAdminApi';
+import DealImportModal from './DealImportModal';
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -52,13 +53,16 @@ function StatusBadge({ status }: { status: string }) {
   let classes = 'bg-gc-surface-elevated text-gc-text-secondary';
   if (normalized === 'live') {
     classes = 'bg-emerald-500/10 text-emerald-400';
+  } else if (normalized === 'coming_soon') {
+    classes = 'bg-blue-500/10 text-blue-400';
   } else if (normalized === 'closed') {
     classes = 'bg-amber-500/10 text-amber-400';
   }
 
+  const label = normalized === 'coming_soon' ? 'Coming soon' : normalized;
   return (
     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${classes}`}>
-      {normalized}
+      {label}
     </span>
   );
 }
@@ -91,6 +95,7 @@ export default function DealListPage() {
 
   const [deals, setDeals] = useState<Deal[]>([]);
   const [loading, setLoading] = useState(true);
+  const [importOpen, setImportOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -115,17 +120,27 @@ export default function DealListPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gc-text">Deals</h1>
-        <button
-          onClick={() => navigate('/admin/deals/new')}
-          className="bg-gc-accent hover:bg-gc-accent-hover text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-        >
-          New Deal
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setImportOpen(true)}
+            className="border border-gc-border text-gc-text-secondary hover:text-gc-text hover:bg-gc-surface-elevated px-4 py-2.5 min-h-[44px] rounded-lg text-sm font-medium transition-colors touch-manipulation"
+          >
+            Import from CSV
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate('/admin/deals/new')}
+            className="bg-gc-accent hover:bg-gc-accent-hover text-white px-4 py-2.5 min-h-[44px] rounded-lg text-sm font-medium transition-colors touch-manipulation"
+          >
+            New Deal
+          </button>
+        </div>
       </div>
 
-      {/* Table */}
-      <div className="bg-gc-surface border border-gc-border rounded-xl p-6 overflow-x-auto">
-        <table className="w-full">
+      {/* Table: horizontal scroll on small screens */}
+      <div className="bg-gc-surface border border-gc-border rounded-xl p-4 sm:p-6 overflow-x-auto">
+        <table className="w-full min-w-[640px]">
           <thead>
             <tr className="text-left text-xs text-gc-text-secondary uppercase tracking-wider border-b border-gc-border">
               <th className="pb-3 pr-4">Name</th>
@@ -180,18 +195,18 @@ export default function DealListPage() {
                     </span>
                   </td>
                   <td className="py-3">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <Link
                         to={`/admin/deals/${deal.id}`}
-                        className="text-sm text-gc-accent-light hover:underline font-medium"
+                        className="inline-flex items-center min-h-[44px] px-3 py-2 rounded-lg text-sm text-gc-accent-light hover:bg-gc-accent-light/10 font-medium touch-manipulation"
                       >
                         Edit
                       </Link>
                       <a
-                        href={`/deals/${deal.slug}`}
+                        href={`/deals/${deal.slug}?lp_preview=1`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-sm text-gc-text-secondary hover:text-gc-text hover:underline"
+                        className="inline-flex items-center min-h-[44px] px-3 py-2 rounded-lg text-sm text-gc-text-secondary hover:text-gc-text hover:bg-gc-surface-elevated touch-manipulation"
                       >
                         Preview
                       </a>
@@ -203,6 +218,15 @@ export default function DealListPage() {
           </tbody>
         </table>
       </div>
+
+      <DealImportModal
+        open={importOpen}
+        onClose={() => setImportOpen(false)}
+        onImported={(dealId) => {
+          setImportOpen(false);
+          navigate(`/admin/deals/${dealId}`);
+        }}
+      />
     </div>
   );
 }

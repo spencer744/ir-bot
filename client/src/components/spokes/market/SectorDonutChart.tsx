@@ -24,7 +24,8 @@ export default function SectorDonutChart({ data }: SectorDonutChartProps) {
       viewport={{ once: true, margin: '-60px' }}
     >
       <h3 className="text-sm font-semibold text-gc-text mb-4">Employment by Sector</h3>
-      <div className="h-[320px]">
+      <div className="h-[250px] md:h-[400px] min-h-[200px]">
+        {inView ? (
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
@@ -53,6 +54,9 @@ export default function SectorDonutChart({ data }: SectorDonutChartProps) {
             />
           </PieChart>
         </ResponsiveContainer>
+        ) : (
+          <div className="w-full h-full" aria-hidden />
+        )}
       </div>
     </motion.div>
   );

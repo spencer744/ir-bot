@@ -74,7 +74,7 @@ export default function CaseStudies({ studies }: CaseStudiesProps) {
               initial="hidden"
               whileInView="show"
               viewport={{ once: true, margin: '-60px' }}
-              className="bg-gc-surface rounded-xl p-8"
+              className="bg-gc-surface rounded-xl p-5 sm:p-8"
             >
               {/* Header: Name + Strategy Badge */}
               <div className="flex flex-wrap items-center gap-3 mb-6">

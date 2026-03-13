@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useDeal } from '../../context/DealContext';
+import Logo from '../shared/Logo';
 
 interface GateProps {
   dealSlug: string;
@@ -89,19 +90,18 @@ export default function Gate({ dealSlug, dealName, heroImage }: GateProps) {
       >
         {/* Logo */}
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gc-text tracking-tight">GRAY CAPITAL</h1>
-          <p className="text-gc-text-secondary text-sm mt-1">Interactive Deal Room</p>
+          <Logo variant="vertical" theme="dark" tagline="Interactive Deal Room" />
         </div>
 
         {/* Form Card */}
-        <div className="bg-gc-surface border border-gc-border rounded-2xl p-8">
+        <div className="bg-gc-surface border border-gc-border rounded-2xl p-5 sm:p-8">
           <h2 className="text-xl font-semibold text-gc-text mb-1">{dealName}</h2>
           <p className="text-gc-text-secondary text-sm mb-6">
             Enter your details to access the deal room.
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-medium text-gc-text-secondary mb-1.5">
                   First Name
@@ -111,7 +111,7 @@ export default function Gate({ dealSlug, dealName, heroImage }: GateProps) {
                   required
                   value={form.first_name}
                   onChange={e => { setForm(f => ({ ...f, first_name: e.target.value })); setFieldErrors(fe => ({ ...fe, first_name: '' })); }}
-                  className={`w-full bg-gc-bg border rounded-lg px-3 py-2.5 text-sm text-gc-text placeholder:text-gc-text-muted focus:border-gc-accent focus:ring-1 focus:ring-gc-accent transition-colors ${fieldErrors.first_name ? 'border-gc-negative' : 'border-gc-border'}`}
+                  className={`w-full bg-gc-bg border rounded-lg px-3 py-2.5 text-base text-gc-text placeholder:text-gc-text-muted focus:border-gc-accent focus:ring-1 focus:ring-gc-accent transition-colors ${fieldErrors.first_name ? 'border-gc-negative' : 'border-gc-border'}`}
                   placeholder="John"
                 />
                 {fieldErrors.first_name && <p className="text-gc-negative text-[10px] mt-1">{fieldErrors.first_name}</p>}
@@ -125,7 +125,7 @@ export default function Gate({ dealSlug, dealName, heroImage }: GateProps) {
                   required
                   value={form.last_name}
                   onChange={e => { setForm(f => ({ ...f, last_name: e.target.value })); setFieldErrors(fe => ({ ...fe, last_name: '' })); }}
-                  className={`w-full bg-gc-bg border rounded-lg px-3 py-2.5 text-sm text-gc-text placeholder:text-gc-text-muted focus:border-gc-accent focus:ring-1 focus:ring-gc-accent transition-colors ${fieldErrors.last_name ? 'border-gc-negative' : 'border-gc-border'}`}
+                  className={`w-full bg-gc-bg border rounded-lg px-3 py-2.5 text-base text-gc-text placeholder:text-gc-text-muted focus:border-gc-accent focus:ring-1 focus:ring-gc-accent transition-colors ${fieldErrors.last_name ? 'border-gc-negative' : 'border-gc-border'}`}
                   placeholder="Smith"
                 />
                 {fieldErrors.last_name && <p className="text-gc-negative text-[10px] mt-1">{fieldErrors.last_name}</p>}
@@ -141,7 +141,7 @@ export default function Gate({ dealSlug, dealName, heroImage }: GateProps) {
                 required
                 value={form.email}
                 onChange={e => { setForm(f => ({ ...f, email: e.target.value })); setFieldErrors(fe => ({ ...fe, email: '' })); }}
-                className={`w-full bg-gc-bg border rounded-lg px-3 py-2.5 text-sm text-gc-text placeholder:text-gc-text-muted focus:border-gc-accent focus:ring-1 focus:ring-gc-accent transition-colors ${fieldErrors.email ? 'border-gc-negative' : 'border-gc-border'}`}
+                className={`w-full bg-gc-bg border rounded-lg px-3 py-2.5 text-base text-gc-text placeholder:text-gc-text-muted focus:border-gc-accent focus:ring-1 focus:ring-gc-accent transition-colors ${fieldErrors.email ? 'border-gc-negative' : 'border-gc-border'}`}
                 placeholder="john@example.com"
               />
               {fieldErrors.email && <p className="text-gc-negative text-[10px] mt-1">{fieldErrors.email}</p>}
@@ -155,17 +155,17 @@ export default function Gate({ dealSlug, dealName, heroImage }: GateProps) {
                 type="tel"
                 value={form.phone}
                 onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
-                className="w-full bg-gc-bg border border-gc-border rounded-lg px-3 py-2.5 text-sm text-gc-text placeholder:text-gc-text-muted focus:border-gc-accent focus:ring-1 focus:ring-gc-accent transition-colors"
+                className="w-full bg-gc-bg border border-gc-border rounded-lg px-3 py-2.5 text-base text-gc-text placeholder:text-gc-text-muted focus:border-gc-accent focus:ring-1 focus:ring-gc-accent transition-colors"
                 placeholder="(555) 123-4567"
               />
             </div>
 
-            <label className="flex items-start gap-3 pt-2 cursor-pointer">
+            <label className="flex items-start gap-3 pt-2 cursor-pointer min-h-[44px]">
               <input
                 type="checkbox"
                 checked={form.accredited}
                 onChange={e => setForm(f => ({ ...f, accredited: e.target.checked }))}
-                className="mt-0.5 w-4 h-4 rounded border-gc-border bg-gc-bg text-gc-accent focus:ring-gc-accent focus:ring-offset-0"
+                className="mt-0.5 w-5 h-5 min-w-[20px] rounded border-gc-border bg-gc-bg text-gc-accent focus:ring-gc-accent focus:ring-offset-0"
               />
               <span className="text-xs text-gc-text-secondary leading-relaxed">
                 I confirm that I am an accredited investor as defined by SEC Regulation D, Rule 501.

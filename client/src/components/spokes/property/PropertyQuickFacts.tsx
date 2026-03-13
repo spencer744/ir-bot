@@ -28,7 +28,7 @@ const item = {
   show: { opacity: 1, y: 0, transition: { duration: 0.35 } },
 };
 
-export default function PropertyQuickFacts({ facts, totalUnits, purchasePrice, address }: PropertyQuickFactsProps) {
+export default function PropertyQuickFacts({ facts, totalUnits, purchasePrice, address: _address }: PropertyQuickFactsProps) {
   const pricePerUnit = Math.round(purchasePrice / totalUnits);
 
   const stats = [

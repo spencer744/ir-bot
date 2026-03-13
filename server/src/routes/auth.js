@@ -98,18 +98,26 @@ router.post('/register', async (req, res, next) => {
       deal_slug,
     });
 
-    // Push to HubSpot (async, non-blocking)
-    hubspotCreateOrUpdateContact({
-      email,
-      first_name,
-      last_name,
-      phone,
-      deal_slug,
-    }).catch(err => {
+    let contactId = null;
+    try {
+      contactId = await hubspotCreateOrUpdateContact({
+        email,
+        first_name,
+        last_name,
+        phone,
+        deal_slug,
+      });
+      if (supabase && contactId) {
+        await supabase
+          .from('investors')
+          .update({ hubspot_contact_id: contactId })
+          .eq('id', investor_id);
+      }
+    } catch (err) {
       console.warn('[HubSpot] Contact sync failed:', err.message);
-    });
+    }
 
-    res.json({ token, investor_id, session_id });
+    res.json({ token, investor_id, session_id, hubspot_contact_id: contactId || null });
   } catch (err) {
     next(err);
   }
@@ -125,7 +133,7 @@ router.post('/verify', requireAuth, async (req, res, next) => {
     if (supabase && investor_id) {
       const { data } = await supabase
         .from('investors')
-        .select('id, email, first_name, last_name, phone, investment_goal, syndication_experience, target_range, lead_source')
+        .select('id, email, first_name, last_name, phone, investment_goal, syndication_experience, target_range, lead_source, hubspot_contact_id')
         .eq('id', investor_id)
         .single();
       investor = data;

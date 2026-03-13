@@ -9,25 +9,10 @@ interface TrackEventParams {
 }
 
 export function useAnalytics() {
-  const {
-    deal,
-    investor,
-    session,
-    currentSection,
-    sectionsVisited,
-    chatMessages,
-  } = useDeal();
+  const { deal, investor, session, currentSection } = useDeal();
 
   const heartbeatIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const sessionStartRef = useRef<number>(Date.now());
   const financialExplorerUsedRef = useRef(false);
-
-  // Sync session start time from session data if available
-  useEffect(() => {
-    if (session?.started_at) {
-      sessionStartRef.current = new Date(session.started_at).getTime();
-    }
-  }, [session?.started_at]);
 
   const trackEvent = useCallback(
     (params: TrackEventParams) => {
@@ -107,19 +92,11 @@ export function useAnalytics() {
     [trackEvent],
   );
 
-  // Extended heartbeat
+  // Heartbeat — session_id + context for workflow evaluation
   useEffect(() => {
     if (!session?.id) return;
 
     const sendHeartbeat = () => {
-      const totalSeconds = Math.floor(
-        (Date.now() - sessionStartRef.current) / 1000,
-      );
-
-      const chatMessageCount = chatMessages.filter(
-        (m) => m.role === 'user',
-      ).length;
-
       const token = localStorage.getItem('gc_session_token');
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
@@ -132,15 +109,13 @@ export function useAnalytics() {
         method: 'POST',
         headers,
         body: JSON.stringify({
-          sessionId: session.id,
+          session_id: session.id,
           investorId: investor?.id,
           dealSlug: deal?.slug,
-          currentSection,
-          sectionsVisited,
-          chatMessageCount,
-          financialExplorerUsed: financialExplorerUsedRef.current,
-          videoWatchedPct: session.video_watched_pct ?? 0,
-          totalSeconds,
+          hubspotContactId: investor?.hubspot_contact_id ?? undefined,
+          investorName: investor ? `${investor.first_name || ''} ${investor.last_name || ''}`.trim() : undefined,
+          investorEmail: investor?.email,
+          dealName: deal?.name,
         }),
       }).catch(() => {});
     };
@@ -153,15 +128,7 @@ export function useAnalytics() {
         heartbeatIntervalRef.current = null;
       }
     };
-  }, [
-    session?.id,
-    session?.video_watched_pct,
-    investor?.id,
-    deal?.slug,
-    currentSection,
-    sectionsVisited,
-    chatMessages,
-  ]);
+  }, [session?.id, investor?.id, deal?.slug]);
 
   return {
     trackEvent,

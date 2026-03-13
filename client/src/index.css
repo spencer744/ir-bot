@@ -23,7 +23,11 @@
   --color-gc-warning: #FBBF24;
   --color-gc-negative: #F87171;
 
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  /* Brand palette (Gray Capital) — Dark Teal + White */
+  --color-gc-brand-teal: #003437;
+  --color-gc-brand-white: #FFFFFF;
+
+  --font-sans: 'Khula', 'Inter', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
 }
 
@@ -70,4 +74,18 @@ body {
 :focus-visible {
   outline: 2px solid var(--color-gc-accent);
   outline-offset: 2px;
+}
+
+/* ============================================
+   REDUCED MOTION — Accessibility
+   Disables all CSS animations and transitions
+   for users who prefer reduced motion.
+   Also neutralizes Framer Motion via CSS override.
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

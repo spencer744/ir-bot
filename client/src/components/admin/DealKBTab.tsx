@@ -70,7 +70,7 @@ function EditorSkeleton() {
 /*  Main Component                                                     */
 /* ------------------------------------------------------------------ */
 
-export function DealKBTab({ deal, dealId, onSave }: DealKBTabProps) {
+export function DealKBTab({ deal, dealId: _dealId, onSave: _onSave }: DealKBTabProps) {
   const api = useAdminApi();
 
   const slug = deal?.slug;

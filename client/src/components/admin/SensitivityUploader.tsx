@@ -249,6 +249,15 @@ export function SensitivityUploader({ dealId, onUploadComplete }: SensitivityUpl
   /*  Render                                                          */
   /* ================================================================ */
 
+  const parseErrorNode: React.ReactNode =
+    parseError !== null && parseError !== ''
+      ? ((
+          <div className="mt-4 p-3 bg-gc-negative/10 border border-gc-negative/30 rounded-lg">
+            <p className="text-sm text-gc-negative">{parseError}</p>
+          </div>
+        ) as React.ReactNode)
+      : null;
+
   return (
     <div className="bg-gc-surface border border-gc-border rounded-xl p-6">
       <h2 className="text-lg font-semibold text-gc-text mb-4">Upload Sensitivity Data</h2>
@@ -302,11 +311,7 @@ export function SensitivityUploader({ dealId, onUploadComplete }: SensitivityUpl
       </div>
 
       {/* Parse error */}
-      {parseError && (
-        <div className="mt-4 p-3 bg-gc-negative/10 border border-gc-negative/30 rounded-lg">
-          <p className="text-sm text-gc-negative">{parseError}</p>
-        </div>
-      )}
+      {parseErrorNode}
 
       {/* Validation results */}
       {validationChecks.length > 0 && (
@@ -335,7 +340,7 @@ export function SensitivityUploader({ dealId, onUploadComplete }: SensitivityUpl
       )}
 
       {/* Scenario Preview Table */}
-      {parsedData && allChecksPassed && (() => {
+      {parsedData != null && allChecksPassed ? (() => {
         const data = parsedData as Record<string, any>;
         const scenarios = data.scenarios;
         if (!scenarios || typeof scenarios !== 'object') return null;
@@ -389,7 +394,7 @@ export function SensitivityUploader({ dealId, onUploadComplete }: SensitivityUpl
             </div>
           </div>
         );
-      })()}
+      })() : null}
 
       {/* Confirm Upload button */}
       {validationChecks.length > 0 && (

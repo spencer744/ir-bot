@@ -60,7 +60,7 @@ export default function Testimonials({ testimonials }: TestimonialsProps) {
           <motion.div
             key={`${t.name}-${t.attribution}`}
             variants={item}
-            className="bg-gc-surface rounded-xl p-8"
+            className="bg-gc-surface rounded-xl p-5 sm:p-8"
           >
             {/* Decorative opening quote */}
             <span
