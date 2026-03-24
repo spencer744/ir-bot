@@ -7,7 +7,7 @@ interface ConfigResponse {
   institutionalFormUrl: string;
 }
 
-function CopyButton({ value, label }: { value: string; label: string }) {
+function CopyButton({ value, label: _label }: { value: string; label: string }) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
