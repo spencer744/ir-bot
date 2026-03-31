@@ -2,14 +2,90 @@
  * Workflow Automation Service
  *
  * Checks engagement scores and fires HubSpot actions when thresholds are
- * crossed.  Uses an in-memory Map to prevent duplicate alerts per investor.
+ * crossed.  Uses Supabase (investors.workflow_triggers JSONB) as the durable
+ * dedup layer, with an in-memory Map as a fast secondary layer for the
+ * lifetime of the current process.  Falls back to in-memory-only when
+ * Supabase is unavailable.
  */
 
 const hubspot = require('./hubspot');
+const { supabase } = require('../config/supabase');
 const { getEngagementTier, SCORE_THRESHOLDS } = require('./engagement');
 
-// investorId -> Set of triggered tier names (e.g. 'high', 'very_high')
+// investorId -> Set of triggered tier names (in-process dedup layer)
 const triggeredThresholds = new Map();
+
+// ---------------------------------------------------------------------------
+// Durable threshold helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Check whether a threshold has already been fired for this investor.
+ * Queries Supabase first; falls back to the in-memory map on error.
+ */
+async function hasThresholdTriggered(investorId, thresholdName) {
+  // Fast path: already tracked in this process
+  if (triggeredThresholds.get(investorId)?.has(thresholdName)) return true;
+
+  if (!supabase || !investorId) return false;
+
+  try {
+    const { data } = await supabase
+      .from('investors')
+      .select('workflow_triggers')
+      .eq('id', investorId)
+      .single();
+
+    const triggers = data?.workflow_triggers;
+    if (Array.isArray(triggers) && triggers.includes(thresholdName)) {
+      // Sync back into in-memory map so subsequent calls are instant
+      if (!triggeredThresholds.has(investorId)) {
+        triggeredThresholds.set(investorId, new Set());
+      }
+      triggeredThresholds.get(investorId).add(thresholdName);
+      return true;
+    }
+    return false;
+  } catch (err) {
+    console.warn('[Workflows] Supabase threshold check failed, falling back to in-memory:', err.message);
+    return false;
+  }
+}
+
+/**
+ * Persist a fired threshold to Supabase and update the in-memory map.
+ */
+async function recordThresholdTriggered(investorId, thresholdName) {
+  // Update in-memory map
+  if (!triggeredThresholds.has(investorId)) {
+    triggeredThresholds.set(investorId, new Set());
+  }
+  triggeredThresholds.get(investorId).add(thresholdName);
+
+  if (!supabase || !investorId) return;
+
+  try {
+    const { data } = await supabase
+      .from('investors')
+      .select('workflow_triggers')
+      .eq('id', investorId)
+      .single();
+
+    const existing = Array.isArray(data?.workflow_triggers) ? data.workflow_triggers : [];
+    if (!existing.includes(thresholdName)) {
+      await supabase
+        .from('investors')
+        .update({ workflow_triggers: [...existing, thresholdName] })
+        .eq('id', investorId);
+    }
+  } catch (err) {
+    console.warn('[Workflows] Supabase threshold persist failed, using in-memory only:', err.message);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Core workflow evaluation
+// ---------------------------------------------------------------------------
 
 /**
  * Evaluate engagement score against thresholds and trigger HubSpot actions.
@@ -25,48 +101,45 @@ async function evaluateWorkflows({
 }) {
   if (!hubspot.isEnabled()) return;
 
-  const tier = getEngagementTier(engagementScore);
-
-  if (!triggeredThresholds.has(investorId)) {
-    triggeredThresholds.set(investorId, new Set());
-  }
-  const triggered = triggeredThresholds.get(investorId);
-
   // --- HIGH threshold (score > 50) ---
-  if (engagementScore > SCORE_THRESHOLDS.HIGH && !triggered.has('high')) {
-    triggered.add('high');
+  if (engagementScore > SCORE_THRESHOLDS.HIGH) {
+    const alreadyFired = await hasThresholdTriggered(investorId, 'high');
+    if (!alreadyFired) {
+      await recordThresholdTriggered(investorId, 'high');
 
-    await hubspot.createNote(
-      hubspotContactId,
-      `Engaged Investor Alert: ${investorName} (${investorEmail}) has reached an engagement score of ${engagementScore} on ${dealName}. Consider prioritising outreach.`
-    );
+      await hubspot.createNote(
+        hubspotContactId,
+        `Engaged Investor Alert: ${investorName} (${investorEmail}) has reached an engagement score of ${engagementScore} on ${dealName}. Consider prioritising outreach.`
+      );
 
-    console.log(
-      `[Workflows] HIGH threshold triggered for investor ${investorId} (${investorName}) — score ${engagementScore}`
-    );
+      console.log(
+        `[Workflows] HIGH threshold triggered for investor ${investorId} (${investorName}) — score ${engagementScore}`
+      );
+    }
   }
 
   // --- VERY HIGH threshold (score > 80) ---
-  if (engagementScore > SCORE_THRESHOLDS.VERY_HIGH && !triggered.has('very_high')) {
-    triggered.add('very_high');
+  if (engagementScore > SCORE_THRESHOLDS.VERY_HIGH) {
+    const alreadyFired = await hasThresholdTriggered(investorId, 'very_high');
+    if (!alreadyFired) {
+      await recordThresholdTriggered(investorId, 'very_high');
 
-    await hubspot.createTask(
-      hubspotContactId,
-      `High-Intent Investor: ${investorName}`,
-      `${investorName} (${investorEmail}) has reached an engagement score of ${engagementScore} on ${dealName}. Recommend outreach within 24h.`,
-      'HIGH'
-    );
+      await hubspot.createTask(
+        hubspotContactId,
+        `High-Intent Investor: ${investorName}`,
+        `${investorName} (${investorEmail}) has reached an engagement score of ${engagementScore} on ${dealName}. Recommend outreach within 24h.`,
+        'HIGH'
+      );
 
-    await hubspot.updateContactPropertiesById(hubspotContactId, {
-      gc_deal_room_engagement_score: String(engagementScore),
-    });
+      await hubspot.updateContactPropertiesById(hubspotContactId, {
+        gc_deal_room_engagement_score: String(engagementScore),
+      });
 
-    console.log(
-      `[Workflows] VERY_HIGH threshold triggered for investor ${investorId} (${investorName}) — score ${engagementScore}`
-    );
+      console.log(
+        `[Workflows] VERY_HIGH threshold triggered for investor ${investorId} (${investorName}) — score ${engagementScore}`
+      );
+    }
   }
-
-  triggeredThresholds.set(investorId, triggered);
 }
 
 /**
