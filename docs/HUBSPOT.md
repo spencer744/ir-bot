@@ -93,6 +93,68 @@ HubSpot private apps are subject to **per-portal rate limits**. See [HubSpot API
 
 ---
 
+## Dormancy Data Feed
+
+The API exposes a dormant investors endpoint for use as a HubSpot workflow data feed:
+
+```
+GET /api/analytics/admin/dormant-investors?days=14
+```
+
+**Auth:** Requires admin JWT (`requireAdmin`).
+
+**Query params:**
+- `days` (optional, default: 14) — Investors with no heartbeat in this many days.
+
+**Response:**
+```json
+{
+  "dormant_investors": [
+    {
+      "investor_id": "uuid",
+      "email": "investor@example.com",
+      "name": "John Smith",
+      "last_seen": "2026-03-15T14:30:00Z",
+      "deal_slug": "parkview-commons",
+      "engagement_score": 42
+    }
+  ],
+  "count": 3,
+  "days": 14,
+  "cutoff": "2026-03-17T03:25:00Z"
+}
+```
+
+**HubSpot workflow integration:**
+- Set up a scheduled workflow or Zap to call this endpoint daily
+- For each dormant investor, trigger a re-engagement email sequence
+- Use `engagement_score` to prioritize: high-score dormant investors are most valuable
+- Use `deal_slug` to personalize the re-engagement content
+
+---
+
+## Investor Readiness
+
+The engagement scoring system classifies investors into readiness tiers, synced to HubSpot via the `gc_investor_readiness` contact property:
+
+| Tier | Criteria | HubSpot Action |
+|------|----------|----------------|
+| **hot** | Score ≥ 80 OR PPM requested | High-priority IR outreach |
+| **warm** | Score ≥ 60 AND sections ≥ 4 | Standard follow-up sequence |
+| **cold** | Everything else | Nurture sequence |
+
+The scoring formula:
+- `sections_viewed × 8` (max 48)
+- `+ min(chat_messages × 5, 25)`
+- `+ min(floor(time_seconds/60) × 2, 15)`
+- `+ ppm_requested ? 20 : 0`
+- `+ interest_indicated ? 25 : 0`
+- Capped at 100
+
+Properties synced per heartbeat: `gc_deal_room_engagement_score`, `gc_deal_room_sections_viewed`, `gc_deal_room_time_spent`, `gc_deal_room_chat_messages`, `gc_deal_room_last_visit`, `gc_investor_readiness`.
+
+---
+
 ## Optional / future
 
 - **Manual “Sync to HubSpot” button** — Only add if product requests it; not in current scope.

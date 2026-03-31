@@ -386,4 +386,68 @@ router.get('/admin/investor/:investorId/timeline', async (req, res, next) => {
   }
 });
 
+// GET /api/analytics/admin/dormant-investors — Investors with no heartbeat in N days
+router.get('/admin/dormant-investors', async (req, res, next) => {
+  try {
+    const days = Math.max(1, parseInt(req.query.days, 10) || 14);
+    const cutoffDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+
+    if (!supabase) {
+      return res.json({ dormant_investors: [], days, cutoff: cutoffDate });
+    }
+
+    // Find sessions whose last_active_at is before the cutoff
+    // Grouped by investor — take the most recent session per investor
+    const { data: sessions, error } = await supabase
+      .from('sessions')
+      .select(`
+        investor_id,
+        engagement_score,
+        last_active_at,
+        deal_id,
+        investors (
+          id,
+          email,
+          first_name,
+          last_name
+        ),
+        deals (
+          slug
+        )
+      `)
+      .lt('last_active_at', cutoffDate)
+      .order('last_active_at', { ascending: false });
+
+    if (error) throw error;
+
+    // Deduplicate by investor — keep most recent session
+    const investorMap = new Map();
+    for (const s of (sessions || [])) {
+      const inv = s.investors;
+      if (!inv?.id) continue;
+      if (investorMap.has(inv.id)) continue; // already have their most recent
+
+      investorMap.set(inv.id, {
+        investor_id: inv.id,
+        email: inv.email,
+        name: `${inv.first_name || ''} ${inv.last_name || ''}`.trim() || 'Unknown',
+        last_seen: s.last_active_at,
+        deal_slug: s.deals?.slug || null,
+        engagement_score: s.engagement_score || 0,
+      });
+    }
+
+    const dormant = Array.from(investorMap.values());
+
+    res.json({
+      dormant_investors: dormant,
+      count: dormant.length,
+      days,
+      cutoff: cutoffDate,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 module.exports = router;
