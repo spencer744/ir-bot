@@ -275,6 +275,79 @@ router.get('/admin/dashboard/:dealSlug', async (req, res, next) => {
   }
 });
 
+// GET /api/analytics/admin/analytics/:dealSlug — Paginated analytics events for a deal
+router.get('/admin/analytics/:dealSlug', async (req, res, next) => {
+  try {
+    const { dealSlug } = req.params;
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+    const perPage = Math.min(Math.max(1, parseInt(req.query.per_page, 10) || 50), 200);
+    const from = req.query.from || null; // ISO date string
+    const to = req.query.to || null;     // ISO date string
+
+    const offset = (page - 1) * perPage;
+
+    if (supabase) {
+      let query = supabase
+        .from('analytics_events')
+        .select('*', { count: 'exact' })
+        .eq('deal_slug', dealSlug)
+        .order('created_at', { ascending: false });
+
+      if (from) query = query.gte('created_at', from);
+      if (to) query = query.lte('created_at', to);
+
+      query = query.range(offset, offset + perPage - 1);
+
+      const { data, error, count } = await query;
+      if (error) throw error;
+
+      const totalPages = Math.ceil((count || 0) / perPage);
+
+      return res.json({
+        deal_slug: dealSlug,
+        events: data || [],
+        pagination: {
+          page,
+          per_page: perPage,
+          total: count || 0,
+          total_pages: totalPages,
+          has_prev: page > 1,
+          has_next: page < totalPages,
+        },
+      });
+    }
+
+    // Demo mode — simple pagination over in-memory events
+    const allEvents = getDemoEvents()
+      .filter(e => e.deal_slug === dealSlug)
+      .reverse();
+
+    const filtered = allEvents.filter(e => {
+      if (from && e.created_at < from) return false;
+      if (to && e.created_at > to) return false;
+      return true;
+    });
+
+    const paginated = filtered.slice(offset, offset + perPage);
+    const totalPages = Math.ceil(filtered.length / perPage);
+
+    res.json({
+      deal_slug: dealSlug,
+      events: paginated,
+      pagination: {
+        page,
+        per_page: perPage,
+        total: filtered.length,
+        total_pages: totalPages,
+        has_prev: page > 1,
+        has_next: page < totalPages,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // GET /api/analytics/admin/investor/:investorId/timeline — Per-investor event timeline
 router.get('/admin/investor/:investorId/timeline', async (req, res, next) => {
   try {

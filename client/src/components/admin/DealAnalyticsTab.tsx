@@ -204,6 +204,45 @@ export function DealAnalyticsTab({ deal, dealId, onSave: _onSave }: DealAnalytic
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dealId]);
 
+  /* ---- Paginated events ---- */
+  const [events, setEvents] = useState<any[]>([]);
+  const [eventsLoading, setEventsLoading] = useState(false);
+  const [eventsPage, setEventsPage] = useState(1);
+  const [eventsPagination, setEventsPagination] = useState<{
+    total: number;
+    total_pages: number;
+    has_prev: boolean;
+    has_next: boolean;
+  } | null>(null);
+  const [showEvents, setShowEvents] = useState(false);
+
+  useEffect(() => {
+    if (!slug || !showEvents) return;
+    let cancelled = false;
+    setEventsLoading(true);
+
+    api
+      .get(`/api/analytics/admin/analytics/${slug}?page=${eventsPage}&per_page=25`)
+      .then((data: any) => {
+        if (!cancelled) {
+          setEvents(data?.events ?? []);
+          setEventsPagination(data?.pagination ?? null);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setEvents([]);
+          setEventsPagination(null);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setEventsLoading(false);
+      });
+
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slug, eventsPage, showEvents]);
+
   /* ================================================================ */
   /*  Render                                                          */
   /* ================================================================ */
@@ -348,6 +387,77 @@ export function DealAnalyticsTab({ deal, dealId, onSave: _onSave }: DealAnalytic
               </tbody>
             </table>
           </div>
+        )}
+      </div>
+
+      {/* ---- Event Log with Pagination ---- */}
+      <div className="bg-gc-surface border border-gc-border rounded-xl p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-gc-text">Event Log</h2>
+          {!showEvents && (
+            <button
+              onClick={() => setShowEvents(true)}
+              className="text-sm text-gc-accent hover:text-gc-accent-light transition-colors"
+            >
+              Load Events →
+            </button>
+          )}
+        </div>
+
+        {showEvents && (
+          <>
+            {eventsLoading ? (
+              <TableSkeleton />
+            ) : events.length === 0 ? (
+              <p className="text-gc-text-secondary text-sm">No events recorded.</p>
+            ) : (
+              <>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-gc-border">
+                        <th className="text-left py-2 pr-3 text-gc-text-secondary font-medium">Type</th>
+                        <th className="text-left py-2 pr-3 text-gc-text-secondary font-medium hidden sm:table-cell">Section</th>
+                        <th className="text-left py-2 pr-3 text-gc-text-secondary font-medium">Time</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {events.map((evt: any, i: number) => (
+                        <tr key={evt.id || i} className="border-b border-gc-border/50">
+                          <td className="py-2 pr-3 text-gc-text text-xs font-mono">{evt.event_type}</td>
+                          <td className="py-2 pr-3 text-gc-text-secondary text-xs hidden sm:table-cell">{evt.section || '—'}</td>
+                          <td className="py-2 pr-3 text-gc-text-muted text-xs">{evt.created_at ? new Date(evt.created_at).toLocaleString() : '—'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Pagination controls */}
+                {eventsPagination && eventsPagination.total_pages > 1 && (
+                  <div className="flex items-center justify-between mt-4 pt-3 border-t border-gc-border">
+                    <button
+                      onClick={() => setEventsPage(p => Math.max(1, p - 1))}
+                      disabled={!eventsPagination.has_prev}
+                      className="text-sm text-gc-accent hover:text-gc-accent-light disabled:text-gc-text-muted disabled:cursor-not-allowed transition-colors"
+                    >
+                      ← Prev
+                    </button>
+                    <span className="text-xs text-gc-text-secondary">
+                      Page {eventsPage} of {eventsPagination.total_pages} ({eventsPagination.total} events)
+                    </span>
+                    <button
+                      onClick={() => setEventsPage(p => p + 1)}
+                      disabled={!eventsPagination.has_next}
+                      className="text-sm text-gc-accent hover:text-gc-accent-light disabled:text-gc-text-muted disabled:cursor-not-allowed transition-colors"
+                    >
+                      Next →
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+          </>
         )}
       </div>
     </div>
