@@ -46,7 +46,7 @@ export default function StickyBar() {
           transition={{ duration: 0.25 }}
           className="fixed top-0 left-0 right-0 z-50 bg-gc-bg/90 backdrop-blur-md border-b border-gc-border"
         >
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-col gap-2 md:gap-0 md:flex-row md:items-center md:justify-between md:h-14 min-h-14">
+          <div className="w-full px-4 sm:px-6 py-3 flex flex-col gap-2 md:gap-0 md:flex-row md:items-center md:justify-between md:h-14 min-h-14">
             {/* Row 1 on mobile: left + CTA. On desktop: left block only (SectionNav and right follow in same row) */}
             <div className="flex items-center justify-between md:justify-start gap-3 min-w-0 shrink-0">
               <div className="flex items-center gap-3 sm:gap-4 min-w-0">
