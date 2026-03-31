@@ -233,3 +233,17 @@ T3-A through T3-F as prioritized by real investor feedback
 ---
 
 _Ready to build Sprint 1 on your go-ahead._
+
+---
+
+## Decisions Confirmed (March 31, 2026)
+
+1. **Institutional tier** — Yes, actively targeting family offices. **T3-C moves to Sprint 1** (institutional fast track — skip intake quiz, route directly to Financial Explorer + Team + Documents).
+
+2. **Orlando's role** — HubSpot + dev contractor. He handles HubSpot workflow implementation (engagement scoring triggers, dormancy flow, PPM workflow, interest indicated deal creation). Sprint 1 code items are built by Nix. Orlando wires the HubSpot side after code ships.
+
+3. **Deal data** — Load Fairmont or Century for testing once deal is confirmed. KB Generator workflow documented in `docs/KB-GENERATOR.md`.
+
+4. **506 compliance** — Run everything by SEC counsel before launch. Checkbox accreditation is fine for 506(b); 506(c) requires verification documents.
+
+5. **KB generation** — Skill created. Three options: Claude Projects (recommended), paste into chat, or Nix generates from SharePoint. Documented in `docs/KB-GENERATOR.md`. Griffin owns content review.
