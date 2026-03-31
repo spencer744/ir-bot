@@ -22,18 +22,104 @@ if (process.env.ANTHROPIC_API_KEY) {
   anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 }
 
-// In-memory chat history per session (production: use DB)
+// In-memory chat history fallback per session
 const chatHistories = new Map();
+
+/**
+ * Load chat history from Supabase. Falls back to in-memory Map.
+ * @param {string} sessionId
+ * @returns {Promise<Array<{role: string, content: string}>>}
+ */
+async function loadChatHistory(sessionId) {
+  if (!sessionId) return [];
+
+  // Try Supabase first
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('chat_messages')
+        .select('role, content')
+        .eq('session_id', sessionId)
+        .order('created_at', { ascending: true });
+
+      if (!error && data && data.length > 0) {
+        return data.map(m => ({ role: m.role, content: m.content }));
+      }
+    } catch (err) {
+      console.warn('[Chat] Supabase history load failed, using in-memory fallback:', err.message);
+    }
+  }
+
+  // Fallback to in-memory
+  return (chatHistories.get(sessionId) || []).slice();
+}
+
+/**
+ * Save a pair of messages (user + assistant) to Supabase.
+ * Falls back to in-memory if Supabase fails.
+ * @param {string} sessionId
+ * @param {string} userMessage
+ * @param {string} assistantMessage
+ * @param {object|null} hubspotExtract
+ */
+async function saveChatMessages(sessionId, userMessage, assistantMessage, hubspotExtract) {
+  if (!sessionId) return;
+
+  // Always update in-memory as fast fallback
+  if (!chatHistories.has(sessionId)) {
+    chatHistories.set(sessionId, []);
+  }
+  chatHistories.get(sessionId).push(
+    { role: 'user', content: userMessage },
+    { role: 'assistant', content: assistantMessage }
+  );
+
+  // Persist to Supabase
+  if (supabase) {
+    try {
+      const { error } = await supabase.from('chat_messages').insert([
+        { session_id: sessionId, role: 'user', content: userMessage },
+        { session_id: sessionId, role: 'assistant', content: assistantMessage, hubspot_properties_extracted: hubspotExtract },
+      ]);
+      if (error) {
+        console.warn('[Chat] Supabase message save failed:', error.message);
+      }
+    } catch (err) {
+      console.warn('[Chat] Supabase message save error:', err.message);
+    }
+  }
+
+  // Update chat_message_count on session
+  if (supabase) {
+    try {
+      const { data: session } = await supabase
+        .from('sessions')
+        .select('chat_message_count')
+        .eq('id', sessionId)
+        .single();
+
+      if (session) {
+        await supabase
+          .from('sessions')
+          .update({ chat_message_count: (session.chat_message_count || 0) + 1 })
+          .eq('id', sessionId);
+      }
+    } catch (err) {
+      // Non-critical
+    }
+  }
+}
 
 /**
  * POST /api/chat -- Send message to AI advisor
  *
- * Body: { message, chatHistory?, session? }
+ * Body: { message, session? }
  * Supports SSE streaming (Accept: text/event-stream) or JSON response.
+ * Chat history is loaded server-side — client chatHistory is ignored.
  */
 router.post('/', requireAuth, async (req, res, next) => {
   try {
-    const { message, chatHistory = [], session = {} } = req.body;
+    const { message, session = {} } = req.body;
 
     if (!message || typeof message !== 'string') {
       return res.status(400).json({ error: 'Message is required' });
@@ -46,13 +132,8 @@ router.post('/', requireAuth, async (req, res, next) => {
     const dealSlug = session.dealSlug || 'parkview-commons';
     const sessionId = session.sessionId || null;
 
-    // --- Manage server-side chat history ---
-    if (sessionId) {
-      if (!chatHistories.has(sessionId)) {
-        chatHistories.set(sessionId, []);
-      }
-      chatHistories.get(sessionId).push({ role: 'user', content: message });
-    }
+    // --- Load server-side chat history (Supabase → in-memory fallback) ---
+    const history = await loadChatHistory(sessionId);
 
     // --- LAYER 2: Select and load KB modules ---
     const investorProfile = {
@@ -117,9 +198,8 @@ router.post('/', requireAuth, async (req, res, next) => {
       '```json\n' + JSON.stringify(sessionContext, null, 2) + '\n```',
     ].join('\n');
 
-    // --- BUILD MESSAGES ARRAY ---
-    // Use client-provided chatHistory, trimmed to last 20
-    const trimmedHistory = chatHistory.slice(-20);
+    // --- BUILD MESSAGES ARRAY from server-side history ---
+    const trimmedHistory = history.slice(-20);
     const messages = [
       ...trimmedHistory.map(msg => ({
         role: msg.role,
@@ -136,15 +216,13 @@ router.post('/', requireAuth, async (req, res, next) => {
       const demoResponse = getDemoResponse(message, DEMO_DEAL);
       const parsed = parseResponseCommands(demoResponse);
 
-      if (sessionId && chatHistories.has(sessionId)) {
-        chatHistories.get(sessionId).push({ role: 'assistant', content: parsed.cleanText });
-      }
+      // Save messages
+      await saveChatMessages(sessionId, message, parsed.cleanText, null);
 
       if (useStreaming) {
         res.setHeader('Content-Type', 'text/event-stream');
         res.setHeader('Cache-Control', 'no-cache');
         res.setHeader('Connection', 'keep-alive');
-        // Send full text as one chunk in demo mode
         res.write(`data: ${JSON.stringify({ type: 'text', text: parsed.cleanText })}\n\n`);
         res.write(`data: ${JSON.stringify({ type: 'done', cleanText: parsed.cleanText })}\n\n`);
         return res.end();
@@ -199,18 +277,8 @@ router.post('/', requireAuth, async (req, res, next) => {
       res.write(`data: ${JSON.stringify({ type: 'done', cleanText: parsed.cleanText })}\n\n`);
       res.end();
 
-      // Store in server history
-      if (sessionId && chatHistories.has(sessionId)) {
-        chatHistories.get(sessionId).push({ role: 'assistant', content: parsed.cleanText });
-      }
-
-      // Store in DB
-      if (supabase && sessionId) {
-        supabase.from('chat_messages').insert([
-          { session_id: sessionId, role: 'user', content: message },
-          { session_id: sessionId, role: 'assistant', content: parsed.cleanText, hubspot_properties_extracted: parsed.hubspotExtract },
-        ]).catch(() => {});
-      }
+      // Save both messages to Supabase + in-memory
+      await saveChatMessages(sessionId, message, parsed.cleanText, parsed.hubspotExtract);
     } else {
       // --- NON-STREAMING RESPONSE ---
       const response = await anthropic.messages.create({
@@ -227,23 +295,13 @@ router.post('/', requireAuth, async (req, res, next) => {
 
       const parsed = parseResponseCommands(fullResponse);
 
-      // Store in server history
-      if (sessionId && chatHistories.has(sessionId)) {
-        chatHistories.get(sessionId).push({ role: 'assistant', content: parsed.cleanText });
-      }
-
       // HubSpot sync
       if (parsed.hubspotExtract) {
         syncHubspot(req, parsed.hubspotExtract);
       }
 
-      // Store in DB
-      if (supabase && sessionId) {
-        supabase.from('chat_messages').insert([
-          { session_id: sessionId, role: 'user', content: message },
-          { session_id: sessionId, role: 'assistant', content: parsed.cleanText, hubspot_properties_extracted: parsed.hubspotExtract },
-        ]).catch(() => {});
-      }
+      // Save both messages
+      await saveChatMessages(sessionId, message, parsed.cleanText, parsed.hubspotExtract);
 
       res.json({
         response: parsed.cleanText,
@@ -263,7 +321,7 @@ router.post('/', requireAuth, async (req, res, next) => {
     // If API auth fails, fall back to demo
     if (error.status === 401 || error.status === 403) {
       return res.json({
-        response: "I'm currently in demo mode \u2014 the AI service isn't connected yet. Once connected, I'll be able to answer detailed questions about Parkview Commons, Gray Capital's track record, tax benefits, and more. For now, feel free to explore the deal room sections directly.",
+        response: "I'm currently in demo mode — the AI service isn't connected yet. Once connected, I'll be able to answer detailed questions about Parkview Commons, Gray Capital's track record, tax benefits, and more. For now, feel free to explore the deal room sections directly.",
         hubspot_extract: null,
         navigate: null,
         demo_mode: true,
@@ -329,10 +387,6 @@ router.post('/intake', async (req, res, next) => {
 
 /**
  * Parse structured command blocks from the assistant's response.
- * Commands use ::: fenced blocks:
- *   :::hubspot\n{json}\n:::
- *   :::navigate\n{json}\n:::
- *   :::data_request\n{json}\n:::
  */
 function parseResponseCommands(text) {
   let cleanText = text;
@@ -340,7 +394,6 @@ function parseResponseCommands(text) {
   let navigate = null;
   let dataRequest = null;
 
-  // Parse :::hubspot blocks
   const hubspotMatch = text.match(/:::hubspot\s*\n([\s\S]*?)\n:::/);
   if (hubspotMatch) {
     try {
@@ -352,7 +405,6 @@ function parseResponseCommands(text) {
     }
   }
 
-  // Parse :::navigate blocks
   const navMatch = text.match(/:::navigate\s*\n([\s\S]*?)\n:::/);
   if (navMatch) {
     try {
@@ -363,7 +415,6 @@ function parseResponseCommands(text) {
     }
   }
 
-  // Parse :::data_request blocks
   const dataMatch = text.match(/:::data_request\s*\n([\s\S]*?)\n:::/);
   if (dataMatch) {
     try {
@@ -374,7 +425,6 @@ function parseResponseCommands(text) {
     }
   }
 
-  // Also handle legacy formats for backwards compat
   const legacyNav = cleanText.match(/NAVIGATE:(\w+)/);
   if (legacyNav && !navigate) {
     navigate = { section: legacyNav[1] };
@@ -416,7 +466,7 @@ function getDemoResponse(message, deal) {
   const lower = message.toLowerCase();
 
   if (lower.match(/return|irr|multiple|yield|project/)) {
-    return `For ${deal.name}, we're targeting a ${(deal.target_irr_base * 100).toFixed(1)}% IRR and ${deal.target_equity_multiple}x equity multiple under our Base Case scenario. The Conservative scenario projects lower returns with more defensive assumptions, while the Upside and Strategic scenarios model higher rent growth and tighter exit caps. You can explore all four scenarios interactively in the Financial Explorer \u2014 would you like me to take you there?\n\nThese are projections based on current assumptions \u2014 actual results may differ.`;
+    return `For ${deal.name}, we're targeting a ${(deal.target_irr_base * 100).toFixed(1)}% IRR and ${deal.target_equity_multiple}x equity multiple under our Base Case scenario. The Conservative scenario projects lower returns with more defensive assumptions, while the Upside and Strategic scenarios model higher rent growth and tighter exit caps. You can explore all four scenarios interactively in the Financial Explorer — would you like me to take you there?\n\nThese are projections based on current assumptions — actual results may differ.`;
   }
 
   if (lower.match(/tax|depreci|k-?1|cost seg|deduct/)) {
@@ -424,11 +474,11 @@ function getDemoResponse(message, deal) {
   }
 
   if (lower.match(/track record|past|perform|history|previous/)) {
-    return "Gray Capital has realized 5 deals with a weighted average IRR of 18.4% and a 1.92x equity multiple. Zero capital losses across 8+ years. Our best performer was Riverside Terrace at 22.1% IRR. Our most instructive was Timber Ridge \u2014 navigated COVID and still delivered 17.2%.\n\nPast performance is not indicative of future results.";
+    return "Gray Capital has realized 5 deals with a weighted average IRR of 18.4% and a 1.92x equity multiple. Zero capital losses across 8+ years. Our best performer was Riverside Terrace at 22.1% IRR. Our most instructive was Timber Ridge — navigated COVID and still delivered 17.2%.\n\nPast performance is not indicative of future results.";
   }
 
   if (lower.match(/fee|cost|promote|charge|expense|how.*make money/)) {
-    return "Full transparency: 2% acquisition fee, 2% annual asset management fee, 5% construction management fee, and 1% disposition fee. Our promote is 30% of profits above the 8% preferred return \u2014 and there's no GP catch-up, which is more investor-friendly than most sponsors. We believe in alignment \u2014 we invest our own capital alongside our LPs in every deal.";
+    return "Full transparency: 2% acquisition fee, 2% annual asset management fee, 5% construction management fee, and 1% disposition fee. Our promote is 30% of profits above the 8% preferred return — and there's no GP catch-up, which is more investor-friendly than most sponsors. We believe in alignment — we invest our own capital alongside our LPs in every deal.";
   }
 
   if (lower.match(/risk|downside|lose|protect|worst/)) {
@@ -436,11 +486,11 @@ function getDemoResponse(message, deal) {
   }
 
   if (lower.match(/process|how.*invest|start|next step|subscribe/)) {
-    return "Here's how it works: 1) You're already exploring the deal room \u2014 great start. 2) Schedule a call with Griffin or Blake if you have questions. 3) Request and review the PPM. 4) Complete subscription docs via DocuSign. 5) Wire funds. The whole process typically takes 1-2 weeks from decision to funded. Want me to take you to the Documents section to request the PPM?";
+    return "Here's how it works: 1) You're already exploring the deal room — great start. 2) Schedule a call with Griffin or Blake if you have questions. 3) Request and review the PPM. 4) Complete subscription docs via DocuSign. 5) Wire funds. The whole process typically takes 1-2 weeks from decision to funded. Want me to take you to the Documents section to request the PPM?";
   }
 
   if (lower.match(/who|team|spencer|manage/)) {
-    return `Gray Capital was founded by Spencer Gray and is headquartered in Indianapolis. The firm is vertically integrated \u2014 Gray Capital handles acquisitions, asset management, and capital markets, while Gray Residential is our in-house property management company with 85 employees.\n\nGriffin Taylor and Blake Morrison on our Investor Relations team are your primary contacts. Would you like to learn more about the team?`;
+    return `Gray Capital was founded by Spencer Gray and is headquartered in Indianapolis. The firm is vertically integrated — Gray Capital handles acquisitions, asset management, and capital markets, while Gray Residential is our in-house property management company with 85 employees.\n\nGriffin Taylor and Blake Morrison on our Investor Relations team are your primary contacts. Would you like to learn more about the team?`;
   }
 
   return `That's a great question. I'm here to help you understand every aspect of ${deal.name} and Gray Capital's approach. We're targeting a ${(deal.target_irr_base * 100).toFixed(1)}% IRR on this ${deal.total_units}-unit value-add deal in ${deal.city}, ${deal.state}.\n\nFeel free to ask about the financials, our team and track record, the property itself, market dynamics, tax benefits, or the investment process. What interests you most?`;

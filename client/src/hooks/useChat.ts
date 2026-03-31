@@ -78,10 +78,7 @@ export function useChat() {
 
     setIsLoading(true);
 
-    const historyForApi = chatMessages
-      .filter(m => m.id !== 'welcome' || m.role === 'assistant')
-      .map(m => ({ role: m.role, content: m.content }));
-
+    // Chat history is now loaded server-side from Supabase — no client-provided history
     const sessionPayload = {
       investorName: investor?.first_name || undefined,
       investorEmail: investor?.email || undefined,
@@ -116,7 +113,6 @@ export function useChat() {
         headers,
         body: JSON.stringify({
           message: text.trim(),
-          chatHistory: historyForApi,
           session: sessionPayload,
         }),
         signal: abortRef.current.signal,
