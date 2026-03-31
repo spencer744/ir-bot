@@ -5,10 +5,11 @@ import { useDeal } from '../../context/DealContext';
 import { SPOKES } from '../../constants/spokes';
 import SpokeCard from './SpokeCard';
 import DealTermsCard from './DealTermsCard';
+import IndicateInterestCard from './IndicateInterestCard';
 import { isEmbedVideoUrl, getEmbedVideoUrl } from '../../utils/videoUrl';
 
 export default function Hub() {
-  const { deal, setCurrentSection, trackEvent } = useDeal();
+  const { deal, setCurrentSection, trackEvent, sectionsVisited } = useDeal();
   const [heroVideoFailed, setHeroVideoFailed] = useState(false);
 
   if (!deal) return null;
@@ -207,6 +208,10 @@ export default function Hub() {
               onClick={() => handleSpokeClick(spoke.id)}
             />
           ))}
+          <IndicateInterestCard
+            index={SPOKES.length}
+            visible={sectionsVisited.filter(s => s !== 'hub').length >= 3}
+          />
         </div>
       </section>
 

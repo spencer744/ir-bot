@@ -3,6 +3,8 @@ const { supabase } = require('../config/supabase');
 const { DEMO_DEAL } = require('../services/demoData');
 const { hubspotCreateOrUpdateContact } = require('../services/hubspot');
 const { onPPMRequested, onInterestIndicated } = require('../services/workflows');
+const { createDeal, createNote, updateContactPropertiesById } = require('../services/hubspot');
+const { requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -250,6 +252,105 @@ router.post('/:slug/indicate-interest', async (req, res, next) => {
     }
 
     return res.json({ success: true, message: 'Interest indication received.' });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /api/deal/:slug/interest — Indicate Interest (authenticated, Supabase + HubSpot Deal)
+router.post('/:slug/interest', requireAuth, async (req, res, next) => {
+  try {
+    const { slug } = req.params;
+    const { amount, timeline, notes } = req.body;
+    const { investor_id, email } = req.investor;
+
+    if (!amount || typeof amount !== 'string') {
+      return res.status(400).json({ message: 'Amount is required.' });
+    }
+
+    const sanitizedNotes = typeof notes === 'string' ? notes.slice(0, 500) : '';
+    const sanitizedTimeline = typeof timeline === 'string' ? timeline.slice(0, 100) : '';
+    const dealName = slug === (DEMO_DEAL?.slug || '') ? DEMO_DEAL.name : slug;
+
+    // 1. Save to Supabase investor_interests table
+    if (supabase) {
+      const { error } = await supabase.from('investor_interests').insert({
+        investor_id,
+        deal_slug: slug,
+        amount,
+        timeline: sanitizedTimeline || null,
+        notes: sanitizedNotes || null,
+      });
+      if (error) console.warn('[Deal] investor_interests insert failed:', error.message);
+
+      // Mark session as interest_indicated
+      const sessionId = req.investor.session_id;
+      if (sessionId) {
+        await supabase
+          .from('sessions')
+          .update({ interest_indicated: true })
+          .eq('id', sessionId);
+      }
+    }
+
+    // 2. Get investor details for HubSpot
+    let investorName = '';
+    let hubspotContactId = null;
+
+    if (supabase && investor_id) {
+      const { data: inv } = await supabase
+        .from('investors')
+        .select('first_name, last_name, hubspot_contact_id')
+        .eq('id', investor_id)
+        .single();
+
+      if (inv) {
+        investorName = `${inv.first_name || ''} ${inv.last_name || ''}`.trim();
+        hubspotContactId = inv.hubspot_contact_id;
+      }
+    }
+
+    // 3. Create HubSpot Deal object
+    if (hubspotContactId) {
+      const dealId = await createDeal(hubspotContactId, {
+        dealname: `${investorName} — ${dealName} Interest`,
+        amount: amount.replace(/[^0-9.]/g, '') || '0',
+        dealstage: 'qualifiedtobuy',
+        gc_deal_room_indicated_amount: amount,
+        gc_deal_room_interest_timeline: sanitizedTimeline,
+      });
+
+      // 4. Create HubSpot note
+      await createNote(
+        hubspotContactId,
+        `Interest Indicated via Deal Room:\n\n` +
+        `Deal: ${dealName}\n` +
+        `Amount: ${amount}\n` +
+        `Timeline: ${sanitizedTimeline || 'Not specified'}\n` +
+        `Notes: ${sanitizedNotes || 'None'}\n\n` +
+        `Investor: ${investorName} (${email})`
+      );
+
+      // 5. Update contact properties
+      await updateContactPropertiesById(hubspotContactId, {
+        gc_interest_indicated: 'true',
+        gc_indicated_amount_range: amount,
+      });
+    }
+
+    // Also fire existing workflow
+    if (hubspotContactId) {
+      await onInterestIndicated({
+        hubspotContactId,
+        investorName,
+        investorEmail: email,
+        dealName,
+        amountRange: amount,
+        notes: sanitizedNotes,
+      }).catch(() => {});
+    }
+
+    res.json({ success: true, message: 'Interest indication received.' });
   } catch (err) {
     next(err);
   }

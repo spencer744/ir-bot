@@ -249,6 +249,40 @@ async function createNote(contactId, body) {
   }
 }
 
+/**
+ * Create a HubSpot Deal and associate it with a contact.
+ * @param {string|number} contactId - HubSpot contact record ID
+ * @param {object} dealProps - { dealname, amount, pipeline, dealstage, ... }
+ * @returns {string|null} HubSpot deal ID
+ */
+async function createDeal(contactId, dealProps) {
+  const hs = getClient();
+  if (!hs) return null;
+  if (!contactId) return null;
+
+  try {
+    const dealResponse = await hs.crm.deals.basicApi.create({
+      properties: {
+        ...dealProps,
+        hs_timestamp: new Date().toISOString(),
+      },
+    });
+
+    const dealId = dealResponse.id;
+
+    // Associate deal with contact
+    await hs.crm.deals.associationsApi.create(dealId, 'contacts', contactId, [
+      { associationCategory: 'HUBSPOT_DEFINED', associationTypeId: 3 },
+    ]);
+
+    console.log(`[HubSpot] Created deal ${dealId} ("${dealProps.dealname}") for contact ${contactId}`);
+    return dealId;
+  } catch (err) {
+    console.error(`[HubSpot] Failed to create deal for contact ${contactId}:`, err.message);
+    return null;
+  }
+}
+
 module.exports = {
   isEnabled,
   hubspotCreateOrUpdateContact,
@@ -257,4 +291,5 @@ module.exports = {
   syncEngagement,
   createTask,
   createNote,
+  createDeal,
 };
