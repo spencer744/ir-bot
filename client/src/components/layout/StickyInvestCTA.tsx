@@ -3,7 +3,7 @@ import { useAnalytics } from '../../hooks/useAnalytics';
 
 export default function StickyInvestCTA() {
   const { investmentPortalUrl, institutionalFormUrl, meetingsUrl } = useConfig();
-  const { trackEvent } = useAnalytics();
+  const { trackEvent, trackScheduleCallClicked } = useAnalytics();
 
   const showInstitutional = institutionalFormUrl && institutionalFormUrl.length > 0;
 
@@ -24,6 +24,7 @@ export default function StickyInvestCTA() {
           href={meetingsUrl}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={trackScheduleCallClicked}
           className="text-gc-text-secondary hover:text-gc-text"
         >
           Schedule a call

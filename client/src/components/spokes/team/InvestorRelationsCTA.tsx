@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { User } from 'lucide-react';
+import { useAnalytics } from '../../../hooks/useAnalytics';
 
 /* -------------------------------------------------- */
 /*  Types                                              */
@@ -50,6 +51,7 @@ export default function InvestorRelationsCTA({
   meetingsUrl: meetingsUrlProp,
 }: InvestorRelationsCTAProps) {
   const meetingsUrl = meetingsUrlProp || contactInfo.meetings_url;
+  const { trackScheduleCallClicked } = useAnalytics();
   return (
     <section>
       {/* Section header */}
@@ -119,6 +121,7 @@ export default function InvestorRelationsCTA({
           href={meetingsUrl || '#'}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={trackScheduleCallClicked}
           className="inline-block bg-gc-accent hover:bg-gc-accent-hover text-white font-medium py-3 px-8 rounded-lg transition-colors"
         >
           Schedule a Call
