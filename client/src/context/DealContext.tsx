@@ -15,6 +15,8 @@ interface DealContextValue {
   investor: Investor | null;
   session: Session | null;
   isAuthenticated: boolean;
+  isReturning: boolean;
+  lastSectionsVisited: string[];
   intakeAnswers: IntakeAnswers;
   intakeCompleted: boolean;
   sessionRestored: boolean;
@@ -55,6 +57,8 @@ export function DealProvider({ children }: { children: ReactNode }) {
   const [investor, setInvestor] = useState<Investor | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isReturning, setIsReturning] = useState(false);
+  const [lastSectionsVisited, setLastSectionsVisited] = useState<string[]>([]);
   const [intakeAnswers, setIntakeAnswers] = useState<IntakeAnswers>({});
   const [intakeCompleted, setIntakeCompleted] = useState(false);
   const [sessionRestored, setSessionRestored] = useState(false);
@@ -102,6 +106,11 @@ export function DealProvider({ children }: { children: ReactNode }) {
             engagement_score: 0,
           });
           setIsAuthenticated(true);
+          // Track returning visitor status
+          if (res.is_returning) {
+            setIsReturning(true);
+            setLastSectionsVisited(res.last_sections_visited || []);
+          }
           // If investor has intake data from DB, or localStorage flag is set, mark intake as completed
           if (inv?.investment_goal || inv?.syndication_experience || inv?.target_range || inv?.lead_source) {
             setIntakeAnswers({
@@ -243,6 +252,8 @@ export function DealProvider({ children }: { children: ReactNode }) {
         investor,
         session,
         isAuthenticated,
+        isReturning,
+        lastSectionsVisited,
         intakeAnswers,
         intakeCompleted,
         sessionRestored,

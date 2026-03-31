@@ -43,6 +43,8 @@ export const api = {
     session_id: string;
     email: string;
     deal_slug: string;
+    is_returning: boolean;
+    last_sections_visited: string[];
     investor: {
       id: string;
       email: string;

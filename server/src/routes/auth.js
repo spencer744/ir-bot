@@ -130,6 +130,9 @@ router.post('/verify', requireAuth, async (req, res, next) => {
 
     // If Supabase is available, pull fresh investor data
     let investor = null;
+    let is_returning = false;
+    let last_sections_visited = [];
+
     if (supabase && investor_id) {
       const { data } = await supabase
         .from('investors')
@@ -137,6 +140,28 @@ router.post('/verify', requireAuth, async (req, res, next) => {
         .eq('id', investor_id)
         .single();
       investor = data;
+
+      // Detect returning investor: check for prior sessions
+      const { data: sessions } = await supabase
+        .from('sessions')
+        .select('id, sections_viewed')
+        .eq('investor_id', investor_id)
+        .order('started_at', { ascending: false })
+        .limit(10);
+
+      if (sessions && sessions.length > 1) {
+        // More than 1 session = returning visitor (current session + at least one prior)
+        is_returning = true;
+
+        // Collect all sections from prior sessions
+        const allSections = new Set();
+        for (const s of sessions) {
+          if (Array.isArray(s.sections_viewed)) {
+            s.sections_viewed.forEach(sec => allSections.add(sec));
+          }
+        }
+        last_sections_visited = Array.from(allSections);
+      }
     }
 
     res.json({
@@ -146,6 +171,8 @@ router.post('/verify', requireAuth, async (req, res, next) => {
       email,
       deal_slug,
       investor,
+      is_returning,
+      last_sections_visited,
     });
   } catch (err) {
     next(err);

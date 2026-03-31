@@ -36,6 +36,8 @@ export function useChat() {
     setCurrentSection,
     sectionsVisited,
     intakeAnswers,
+    isReturning,
+    lastSectionsVisited,
   } = useDeal();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -92,6 +94,8 @@ export function useChat() {
       dealSlug: deal?.slug || 'parkview-commons',
       dealName: deal?.name || 'Parkview Commons',
       sessionId: session?.id || undefined,
+      isReturning: isReturning || false,
+      lastSectionsVisited: lastSectionsVisited || [],
     };
 
     const assistantMsgId = `assistant-${Date.now()}`;
@@ -209,6 +213,7 @@ export function useChat() {
   }, [
     isLoading, chatMessages, addChatMessage, investor, session, deal,
     currentSection, sectionsVisited, intakeAnswers, setCurrentSection,
+    isReturning, lastSectionsVisited,
   ]);
 
   function handleNavigation(navData: { section: string }) {

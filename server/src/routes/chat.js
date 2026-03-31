@@ -2,6 +2,7 @@ const express = require('express');
 const Anthropic = require('@anthropic-ai/sdk');
 const fs = require('fs');
 const path = require('path');
+const { buildSystemPrompt } = require('../services/systemPrompt');
 const { supabase } = require('../config/supabase');
 const { requireAuth } = require('../middleware/auth');
 const { selectKBModules, loadKBFiles } = require('../services/kbSelector');
@@ -187,8 +188,15 @@ router.post('/', requireAuth, async (req, res, next) => {
     ].join('\n');
 
     // --- ASSEMBLE FULL SYSTEM PROMPT ---
+    // Use returning visitor context if provided in session
+    const basePrompt = buildSystemPrompt({
+      is_returning: session.isReturning || false,
+      first_name: session.investorName || '',
+      last_sections_visited: session.lastSectionsVisited || [],
+    });
+
     const fullSystemPrompt = [
-      SYSTEM_PROMPT,
+      basePrompt,
       '\n\n---\n\n## KNOWLEDGE BASE CONTEXT\n',
       'The following reference materials are relevant to this conversation:\n\n',
       ...kbFiles.map(kb => `### Source: ${kb.path}\n${kb.content}\n\n---\n`),

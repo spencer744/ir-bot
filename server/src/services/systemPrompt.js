@@ -109,4 +109,48 @@ Where section_name is one of: property, market, financials, business, team, docu
 Use when the investor asks about something in a specific section or when showing visuals would help.
 `;
 
-module.exports = { SYSTEM_PROMPT };
+/**
+ * Build the system prompt, optionally prepending returning-visitor context.
+ * @param {object} opts
+ * @param {boolean} opts.is_returning - Whether the investor is a returning visitor
+ * @param {string} opts.first_name - Investor's first name
+ * @param {string[]} opts.last_sections_visited - Sections explored in prior visits
+ * @returns {string} The full system prompt
+ */
+function buildSystemPrompt({ is_returning = false, first_name = '', last_sections_visited = [] } = {}) {
+  if (!is_returning || !first_name) {
+    return SYSTEM_PROMPT;
+  }
+
+  const sectionLabels = {
+    property: 'Property Deep Dive',
+    market: 'Market Analysis',
+    financials: 'Financial Explorer',
+    business: 'Business Plan',
+    'business-plan': 'Business Plan',
+    team: 'Team & Track Record',
+    documents: 'Documents',
+    hub: 'Hub',
+  };
+
+  const visitedLabels = last_sections_visited
+    .filter(s => s !== 'hub')
+    .map(s => sectionLabels[s] || s);
+
+  const sectionsText = visitedLabels.length > 0
+    ? `They previously explored: ${visitedLabels.join(', ')}.`
+    : 'They have not explored any specific sections yet.';
+
+  const returningContext = [
+    '\n\n## RETURNING VISITOR CONTEXT\n',
+    `This is a returning investor named ${first_name}. They have visited the deal room before.`,
+    sectionsText,
+    `Greet them warmly by name, acknowledge their return, and reference what they've explored.`,
+    `Suggest sections they haven't visited yet to deepen their research.`,
+    'Keep it natural — one sentence of greeting, then be helpful.\n',
+  ].join('\n');
+
+  return returningContext + '\n' + SYSTEM_PROMPT;
+}
+
+module.exports = { SYSTEM_PROMPT, buildSystemPrompt };
