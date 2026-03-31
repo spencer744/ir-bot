@@ -282,10 +282,41 @@ Admins can import deals from Gray Capital's Excel acquisition models via two CSV
 
 ---
 
+## Campaign Features (Chunks A-H)
+
+| Chunk | Feature | Status |
+|-------|---------|--------|
+| A | Chat persistence (Supabase-backed, in-memory fallback) | ✅ Shipped |
+| B | Return visitor AI experience (personalized greeting) | ✅ Shipped |
+| C | Engagement scoring → HubSpot investor readiness | ✅ Shipped |
+| D | Indicate Interest flow (modal, Supabase, HubSpot Deal) | ✅ Shipped |
+| E | Research Progress Bar (animated, completion event) | ✅ Shipped |
+| F | Intake → HubSpot field alignment (6 questions) | ✅ Shipped |
+| G | Analytics pagination + Supabase index | ✅ Shipped |
+| H | Dormancy endpoint + HUBSPOT.md docs | ✅ Shipped |
+
+### Key Changes
+- **Chat history** is now server-side (Supabase → in-memory fallback). Client no longer sends chatHistory (injection risk removed).
+- **Engagement scoring** formula: sections×8(max 48) + chat×5(max 25) + time×2(max 15) + PPM(20) + interest(25) = max 100.
+- **Investor readiness**: hot (score≥80 OR ppm_requested), warm (score≥60 AND sections≥4), cold. Synced to `gc_investor_readiness`.
+- **Indicate Interest** card appears after 3+ spokes visited. Creates HubSpot Deal + note.
+- **Research Progress Bar** above spoke cards with color transitions (slate→amber→emerald). Fires `gc_full_research_completed` event.
+- **Intake form** now has 6 questions mapped to HubSpot properties.
+- **Analytics** paginated with ?page&per_page&from&to params. Index on deal_slug+created_at.
+- **Dormancy endpoint** GET /api/analytics/admin/dormant-investors?days=14 for HubSpot workflow feed.
+
+### Migrations Added
+- 009: session ppm_requested + interest_indicated flags
+- 010: investor_interests table
+- 011: investor target_hold_period + key_concerns columns
+- 012: idx_deal_events_deal_slug composite index
+
+---
+
 ## Known Issues / Areas to Address Later
 1. Backend is plain JS (no TypeScript) — works but less safe
-2. Chat history is in-memory (Map in chat.js) — lost on restart
-3. No test coverage — critical for a financial product
+2. ~~Chat history is in-memory (Map in chat.js) — lost on restart~~ — ✅ Fixed (Supabase-backed with in-memory fallback)
+3. No test coverage — critical for a financial product (verification scripts in scripts/)
 4. ~~No rate limiting on endpoints~~ — ✅ Fixed (auth 10/min, chat 20/min, general 100/min)
 5. No input validation library (Joi/Zod)
 6. ~~No error boundary on frontend~~ — ✅ Fixed (ErrorBoundary.tsx wraps App)
