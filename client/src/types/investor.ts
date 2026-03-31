@@ -43,9 +43,14 @@ export interface GateFormData {
   accredited_confirmed: boolean;
 }
 
+export type TargetHoldPeriod = '3_years' | '5_years' | '7_years' | '10_plus';
+export type KeyConcern = 'liquidity' | 'market_risk' | 'tax_impact' | 'capital_preservation';
+
 export interface IntakeAnswers {
   investment_goal?: InvestmentGoal | string;
   syndication_experience?: SyndicationExperience | string;
   target_range?: TargetRange | string;
   lead_source?: LeadSource | string;
+  target_hold_period?: TargetHoldPeriod | string;
+  key_concerns?: KeyConcern | string;
 }

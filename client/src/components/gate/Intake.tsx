@@ -41,6 +41,26 @@ const QUESTIONS: IntakeQuestion[] = [
     ],
   },
   {
+    key: 'target_hold_period',
+    text: "What's your ideal investment hold period?",
+    options: [
+      { label: '3 years', value: '3_years' },
+      { label: '5 years', value: '5_years' },
+      { label: '7 years', value: '7_years' },
+      { label: '10+ years', value: '10_plus' },
+    ],
+  },
+  {
+    key: 'key_concerns',
+    text: "What's your biggest concern with private real estate?",
+    options: [
+      { label: 'Liquidity', value: 'liquidity' },
+      { label: 'Market Risk', value: 'market_risk' },
+      { label: 'Tax Impact', value: 'tax_impact' },
+      { label: 'Capital Preservation', value: 'capital_preservation' },
+    ],
+  },
+  {
     key: 'lead_source',
     text: 'How did you hear about Gray Capital?',
     options: [

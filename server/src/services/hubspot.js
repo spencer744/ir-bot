@@ -82,14 +82,20 @@ async function hubspotUpdateContactProperties(email, properties) {
   if (!hs) return null;
 
   // Map our field names to HubSpot property names
+  const fieldMap = {
+    investment_goal: 'gc_investment_goal',
+    syndication_experience: 'gc_syndication_experience',
+    target_range: 'gc_target_range',
+    lead_source: 'gc_lead_source',
+    target_hold_period: 'gc_target_hold_period',
+    tax_bracket_indicated: 'gc_tax_bracket',
+    key_concerns: 'gc_key_concerns',
+  };
+
   const hsProps = {};
-  if (properties.investment_goal) hsProps.gc_investment_goal = properties.investment_goal;
-  if (properties.syndication_experience) hsProps.gc_syndication_experience = properties.syndication_experience;
-  if (properties.target_range) hsProps.gc_target_range = properties.target_range;
-  if (properties.lead_source) hsProps.gc_lead_source = properties.lead_source;
-  if (properties.target_hold_period) hsProps.gc_target_hold_period = properties.target_hold_period;
-  if (properties.tax_bracket_indicated) hsProps.gc_tax_bracket = properties.tax_bracket_indicated;
-  if (properties.key_concerns) hsProps.gc_key_concerns = properties.key_concerns;
+  for (const [key, hsProp] of Object.entries(fieldMap)) {
+    if (properties[key]) hsProps[hsProp] = properties[key];
+  }
 
   if (Object.keys(hsProps).length === 0) return null;
 

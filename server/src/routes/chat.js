@@ -354,14 +354,18 @@ router.post('/intake', async (req, res, next) => {
         .single();
 
       if (session?.investor_id) {
+        const updateFields = {};
+        if (answers.investment_goal) updateFields.investment_goal = answers.investment_goal;
+        if (answers.syndication_experience) updateFields.syndication_experience = answers.syndication_experience;
+        if (answers.target_range) updateFields.target_range = answers.target_range;
+        if (answers.lead_source) updateFields.lead_source = answers.lead_source;
+        // New fields stored in JSONB or text columns
+        if (answers.target_hold_period) updateFields.target_hold_period = answers.target_hold_period;
+        if (answers.key_concerns) updateFields.key_concerns = answers.key_concerns;
+
         const { data: investor } = await supabase
           .from('investors')
-          .update({
-            investment_goal: answers.investment_goal || null,
-            syndication_experience: answers.syndication_experience || null,
-            target_range: answers.target_range || null,
-            lead_source: answers.lead_source || null,
-          })
+          .update(updateFields)
           .eq('id', session.investor_id)
           .select('email')
           .single();
@@ -382,7 +386,10 @@ router.post('/intake', async (req, res, next) => {
     }
 
     if (investorEmail && answers) {
-      hubspotUpdateContactProperties(investorEmail, answers).catch(err => {
+      // Send all mapped fields including new ones
+      hubspotUpdateContactProperties(investorEmail, {
+        ...answers,
+      }).catch(err => {
         console.warn('[HubSpot] Intake sync failed:', err.message);
       });
     }
