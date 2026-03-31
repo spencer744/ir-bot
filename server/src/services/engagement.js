@@ -1,18 +1,18 @@
 /**
  * Engagement Scoring Service
  *
- * Calculates investor engagement scores based on session activity.
- *
  * Formula:
- *   score = (sections_viewed × 10)
- *         + (minutes_spent × 2)
- *         + (chat_messages × 5)
- *         + (video_watched_pct × 0.5)
- *         + (financial_explorer_used × 15)
+ *   sections_viewed × 8 (max 48)
+ * + min(chat_messages × 5, 25)
+ * + min(floor(time_seconds / 60) × 2, 15)
+ * + ppm_requested ? 20 : 0
+ * + interest_indicated ? 25 : 0
+ * Capped at 100.
  *
- * Thresholds:
- *   > 50: Notify IR team
- *   > 80: Auto-create HubSpot task
+ * Investor Readiness:
+ *   score >= 80 OR ppm_requested → "hot"
+ *   score >= 60 AND sections >= 4 → "warm"
+ *   else → "cold"
  */
 
 const SCORE_THRESHOLDS = {
@@ -24,19 +24,25 @@ const SCORE_THRESHOLDS = {
 
 function calculateEngagementScore({
   sectionsViewed = [],
-  minutesSpent = 0,
   chatMessages = 0,
-  videoWatchedPct = 0,
-  financialExplorerUsed = false,
+  timeSeconds = 0,
+  ppmRequested = false,
+  interestIndicated = false,
 }) {
-  const score =
-    (sectionsViewed.length * 10) +
-    (minutesSpent * 2) +
-    (chatMessages * 5) +
-    (videoWatchedPct * 0.5) +
-    (financialExplorerUsed ? 15 : 0);
+  const sectionScore = Math.min(sectionsViewed.length * 8, 48);
+  const chatScore = Math.min(chatMessages * 5, 25);
+  const timeScore = Math.min(Math.floor(timeSeconds / 60) * 2, 15);
+  const ppmScore = ppmRequested ? 20 : 0;
+  const interestScore = interestIndicated ? 25 : 0;
 
-  return Math.round(score * 100) / 100;
+  const raw = sectionScore + chatScore + timeScore + ppmScore + interestScore;
+  return Math.min(raw, 100);
+}
+
+function getInvestorReadiness({ score = 0, sectionsViewed = [], ppmRequested = false }) {
+  if (score >= 80 || ppmRequested) return 'hot';
+  if (score >= 60 && sectionsViewed.length >= 4) return 'warm';
+  return 'cold';
 }
 
 function getEngagementTier(score) {
@@ -46,4 +52,4 @@ function getEngagementTier(score) {
   return 'low';
 }
 
-module.exports = { calculateEngagementScore, getEngagementTier, SCORE_THRESHOLDS };
+module.exports = { calculateEngagementScore, getInvestorReadiness, getEngagementTier, SCORE_THRESHOLDS };

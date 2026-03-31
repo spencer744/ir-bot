@@ -149,7 +149,7 @@ async function updateContactPropertiesById(contactId, properties) {
 /**
  * Sync engagement metrics to a HubSpot contact.
  * @param {string|number} contactId - HubSpot contact record ID
- * @param {Object} engagement - { totalSeconds, sectionsViewed, chatMessageCount, engagementScore, videoWatchedPct }
+ * @param {Object} engagement - { totalSeconds, sectionsViewed, chatMessageCount, engagementScore, readiness }
  */
 async function syncEngagement(contactId, engagement) {
   const hs = getClient();
@@ -159,22 +159,23 @@ async function syncEngagement(contactId, engagement) {
   const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
 
   const properties = {
-    gc_deal_room_time_spent: String(engagement.totalSeconds || 0),
+    gc_deal_room_engagement_score: String(engagement.engagementScore || 0),
     gc_deal_room_sections_viewed: Array.isArray(engagement.sectionsViewed)
       ? engagement.sectionsViewed.join(';')
       : String(engagement.sectionsViewed || ''),
+    gc_deal_room_time_spent: String(engagement.totalSeconds || 0),
     gc_deal_room_chat_messages: String(engagement.chatMessageCount || 0),
-    gc_deal_room_engagement_score: String(engagement.engagementScore || 0),
     gc_deal_room_last_visit: today,
   };
 
-  if (engagement.videoWatchedPct !== undefined) {
-    properties.gc_deal_room_video_watched_pct = String(engagement.videoWatchedPct);
+  // Set investor readiness tier
+  if (engagement.readiness) {
+    properties.gc_investor_readiness = engagement.readiness;
   }
 
   try {
     await updateContactPropertiesById(contactId, properties);
-    console.log(`[HubSpot] Synced engagement for contact ${contactId}`);
+    console.log(`[HubSpot] Synced engagement for contact ${contactId} (score: ${engagement.engagementScore}, readiness: ${engagement.readiness || 'n/a'})`);
   } catch (err) {
     console.error(`[HubSpot] Failed to sync engagement for contact ${contactId}:`, err.message);
   }

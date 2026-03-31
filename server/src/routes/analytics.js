@@ -1,7 +1,8 @@
 const express = require('express');
 const { supabase } = require('../config/supabase');
 const { trackEvent, EVENT_TYPES, getDemoEvents } = require('../services/analytics');
-const { calculateEngagementScore } = require('../services/engagement');
+const { calculateEngagementScore, getInvestorReadiness } = require('../services/engagement');
+const { syncEngagement } = require('../services/hubspot');
 const { evaluateWorkflows, onScheduleCallClicked } = require('../services/workflows');
 const { requireAdmin, requireAuth } = require('../middleware/auth');
 
@@ -90,7 +91,7 @@ router.post('/event', requireAuth, async (req, res, next) => {
   }
 });
 
-// POST /api/analytics/heartbeat — Update session duration
+// POST /api/analytics/heartbeat — Update session duration + engagement scoring + HubSpot sync
 router.post('/heartbeat', requireAuth, async (req, res, next) => {
   try {
     const {
@@ -106,20 +107,28 @@ router.post('/heartbeat', requireAuth, async (req, res, next) => {
     if (supabase && session_id) {
       const { data: session } = await supabase
         .from('sessions')
-        .select('started_at, total_seconds, sections_viewed, chat_message_count, financial_explorer_used, video_watched_pct')
+        .select('started_at, total_seconds, sections_viewed, chat_message_count, financial_explorer_used, video_watched_pct, ppm_requested, interest_indicated')
         .eq('id', session_id)
         .single();
 
       if (session) {
         const elapsed = Math.floor((Date.now() - new Date(session.started_at).getTime()) / 1000);
+        const sectionsViewed = session.sections_viewed || [];
 
-        // Calculate engagement score via the engagement service
+        // Calculate engagement score with the new formula
         const engagementScore = calculateEngagementScore({
-          sectionsViewed: session.sections_viewed || [],
-          minutesSpent: elapsed / 60,
+          sectionsViewed,
           chatMessages: session.chat_message_count || 0,
-          videoWatchedPct: session.video_watched_pct || 0,
-          financialExplorerUsed: !!session.financial_explorer_used,
+          timeSeconds: elapsed,
+          ppmRequested: !!session.ppm_requested,
+          interestIndicated: !!session.interest_indicated,
+        });
+
+        // Determine investor readiness tier
+        const readiness = getInvestorReadiness({
+          score: engagementScore,
+          sectionsViewed,
+          ppmRequested: !!session.ppm_requested,
         });
 
         // Update session in Supabase
@@ -131,6 +140,19 @@ router.post('/heartbeat', requireAuth, async (req, res, next) => {
             last_active_at: new Date().toISOString(),
           })
           .eq('id', session_id);
+
+        // Sync engagement metrics to HubSpot
+        if (hubspotContactId) {
+          syncEngagement(hubspotContactId, {
+            totalSeconds: elapsed,
+            sectionsViewed,
+            chatMessageCount: session.chat_message_count || 0,
+            engagementScore,
+            readiness,
+          }).catch(err => {
+            console.warn('[Analytics] HubSpot engagement sync failed:', err.message);
+          });
+        }
 
         // Evaluate workflow thresholds (HubSpot actions)
         await evaluateWorkflows({
