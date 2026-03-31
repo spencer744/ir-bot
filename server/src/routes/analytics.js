@@ -2,13 +2,13 @@ const express = require('express');
 const { supabase } = require('../config/supabase');
 const { trackEvent, EVENT_TYPES, getDemoEvents } = require('../services/analytics');
 const { calculateEngagementScore } = require('../services/engagement');
-const { evaluateWorkflows } = require('../services/workflows');
-const { requireAdmin } = require('../middleware/auth');
+const { evaluateWorkflows, onScheduleCallClicked } = require('../services/workflows');
+const { requireAdmin, requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
 
 // POST /api/analytics/event — Track page/section views and interactions
-router.post('/event', async (req, res, next) => {
+router.post('/event', requireAuth, async (req, res, next) => {
   try {
     const { event, section, metadata, session_id, investorId, dealSlug } = req.body;
 
@@ -53,6 +53,37 @@ router.post('/event', async (req, res, next) => {
       }
     }
 
+    // Fire HubSpot note when investor clicks schedule-a-call CTA
+    if (event === 'schedule_call_clicked') {
+      if (supabase && session_id) {
+        supabase
+          .from('sessions')
+          .select('investor_id, investors(email, first_name, last_name, hubspot_contact_id)')
+          .eq('id', session_id)
+          .single()
+          .then(({ data }) => {
+            if (data?.investors) {
+              const inv = data.investors;
+              onScheduleCallClicked({
+                hubspotContactId: inv.hubspot_contact_id,
+                investorName: `${inv.first_name || ''} ${inv.last_name || ''}`.trim(),
+                investorEmail: inv.email,
+                dealName: metadata?.dealName || dealSlug || '',
+              }).catch(() => {});
+            }
+          })
+          .catch(() => {});
+      } else {
+        // No Supabase — fire with whatever metadata the client sent
+        onScheduleCallClicked({
+          hubspotContactId: metadata?.hubspotContactId || null,
+          investorName: metadata?.investorName || '',
+          investorEmail: metadata?.investorEmail || '',
+          dealName: metadata?.dealName || dealSlug || '',
+        }).catch(() => {});
+      }
+    }
+
     res.json({ success: true });
   } catch (err) {
     next(err);
@@ -60,7 +91,7 @@ router.post('/event', async (req, res, next) => {
 });
 
 // POST /api/analytics/heartbeat — Update session duration
-router.post('/heartbeat', async (req, res, next) => {
+router.post('/heartbeat', requireAuth, async (req, res, next) => {
   try {
     const {
       session_id,

@@ -3,6 +3,7 @@ const Anthropic = require('@anthropic-ai/sdk');
 const fs = require('fs');
 const path = require('path');
 const { supabase } = require('../config/supabase');
+const { requireAuth } = require('../middleware/auth');
 const { selectKBModules, loadKBFiles } = require('../services/kbSelector');
 const { hubspotUpdateContactProperties } = require('../services/hubspot');
 const { DEMO_DEAL } = require('../services/demoData');
@@ -30,12 +31,16 @@ const chatHistories = new Map();
  * Body: { message, chatHistory?, session? }
  * Supports SSE streaming (Accept: text/event-stream) or JSON response.
  */
-router.post('/', async (req, res, next) => {
+router.post('/', requireAuth, async (req, res, next) => {
   try {
     const { message, chatHistory = [], session = {} } = req.body;
 
     if (!message || typeof message !== 'string') {
       return res.status(400).json({ error: 'Message is required' });
+    }
+
+    if (message.length > 2000) {
+      return res.status(400).json({ error: 'Message exceeds maximum length of 2000 characters.' });
     }
 
     const dealSlug = session.dealSlug || 'parkview-commons';
@@ -304,7 +309,7 @@ router.post('/intake', async (req, res, next) => {
       if (token) {
         try {
           const jwt = require('jsonwebtoken');
-          const decoded = jwt.verify(token, process.env.JWT_SECRET || 'dev-secret-change-me');
+          const decoded = jwt.verify(token, process.env.JWT_SECRET);
           investorEmail = decoded.email;
         } catch {}
       }
@@ -395,7 +400,7 @@ function syncHubspot(req, hubspotExtract) {
   if (!token) return;
   try {
     const jwt = require('jsonwebtoken');
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'dev-secret-change-me');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     if (decoded.email && hubspotExtract?.properties) {
       hubspotUpdateContactProperties(decoded.email, hubspotExtract.properties).catch(err => {
         console.warn('[HubSpot] Chat extract sync failed:', err.message);
