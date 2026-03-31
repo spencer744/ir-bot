@@ -6,6 +6,7 @@ import { SPOKES } from '../../constants/spokes';
 import SpokeCard from './SpokeCard';
 import DealTermsCard from './DealTermsCard';
 import IndicateInterestCard from './IndicateInterestCard';
+import ResearchProgressBar from './ResearchProgressBar';
 import { isEmbedVideoUrl, getEmbedVideoUrl } from '../../utils/videoUrl';
 
 export default function Hub() {
@@ -198,6 +199,8 @@ export default function Hub() {
           <h2 className="text-2xl sm:text-3xl font-bold text-gc-text mb-2">Explore the Deal</h2>
           <p className="text-gc-text-secondary">Dive deep into every aspect of this investment.</p>
         </motion.div>
+
+        <ResearchProgressBar />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {SPOKES.map((spoke, i) => (
