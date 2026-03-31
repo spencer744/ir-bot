@@ -1,10 +1,12 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const multer = require('multer');
+const bcrypt = require('bcryptjs');
 const { supabase } = require('../config/supabase');
 const { generateToken, requireAdmin } = require('../middleware/auth');
-const { getKBInventory } = require('../services/kbSelector');
+const { getKBInventory, refreshCache } = require('../services/kbSelector');
 
 const router = express.Router();
 
@@ -154,21 +156,12 @@ router.post('/login', async (req, res, next) => {
     const adminEmails = process.env.ADMIN_EMAILS;
     const adminPassword = process.env.ADMIN_PASSWORD;
 
-    // If neither env var is set, use demo credentials
-    const isDemoMode = !adminEmails && !adminPassword;
-
-    if (isDemoMode) {
-      if (
-        email.toLowerCase() === 'admin@graycapital.com' &&
-        password === 'admin'
-      ) {
-        const token = generateToken({ email: email.toLowerCase(), is_admin: true });
-        return res.json({ token, email: email.toLowerCase() });
-      }
-      return res.status(401).json({ message: 'Invalid credentials' });
+    if (!adminEmails || !adminPassword) {
+      return res.status(500).json({
+        message: 'Admin credentials not configured. Set ADMIN_EMAILS and ADMIN_PASSWORD environment variables.',
+      });
     }
 
-    // Production mode: validate against env vars
     const allowedEmails = adminEmails
       .split(',')
       .map((e) => e.trim().toLowerCase())
@@ -178,7 +171,20 @@ router.post('/login', async (req, res, next) => {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    if (password !== adminPassword) {
+    // Compare password: bcrypt hash if stored as $2b$..., else constant-time plaintext compare.
+    // Production deployments should pre-hash the password with bcrypt.
+    let passwordMatch = false;
+    if (adminPassword.startsWith('$2b$')) {
+      passwordMatch = await bcrypt.compare(password, adminPassword);
+    } else {
+      const submittedBuf = Buffer.from(password);
+      const storedBuf = Buffer.from(adminPassword);
+      if (submittedBuf.length === storedBuf.length) {
+        passwordMatch = crypto.timingSafeEqual(submittedBuf, storedBuf);
+      }
+    }
+
+    if (!passwordMatch) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
@@ -711,6 +717,9 @@ router.post('/knowledge-base', async (req, res, next) => {
 
     const estimatedTokens = Math.ceil(content.length / 4);
 
+    // Refresh the KB cache so the updated file is served immediately
+    refreshCache().catch((err) => console.warn('[KB] Cache refresh failed after save:', err.message));
+
     res.json({ success: true, path: normalizedPath, tokens: estimatedTokens });
   } catch (err) {
     next(err);
@@ -738,6 +747,10 @@ router.delete('/knowledge-base/*path', async (req, res, next) => {
     }
 
     fs.unlinkSync(fullPath);
+
+    // Refresh the KB cache so the deleted file is no longer served
+    refreshCache().catch((err) => console.warn('[KB] Cache refresh failed after delete:', err.message));
+
     res.json({ success: true });
   } catch (err) {
     next(err);
