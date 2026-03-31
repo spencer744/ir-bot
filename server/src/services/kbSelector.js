@@ -3,6 +3,60 @@ const path = require('path');
 
 const KB_BASE_PATH = path.join(__dirname, '../../kb');
 
+// ---------------------------------------------------------------------------
+// Module-level cache: filePath (relative to KB_BASE_PATH) -> content string
+// Populated eagerly at require-time so every chat request reads from memory.
+// ---------------------------------------------------------------------------
+const kbCache = new Map();
+
+function _scanAndCache(dir) {
+  const fullDir = path.join(KB_BASE_PATH, dir);
+  if (!fs.existsSync(fullDir)) return;
+  const items = fs.readdirSync(fullDir);
+  for (const item of items) {
+    const itemPath = dir ? path.join(dir, item) : item;
+    const fullPath = path.join(KB_BASE_PATH, itemPath);
+    const stat = fs.statSync(fullPath);
+    if (stat.isDirectory()) {
+      _scanAndCache(itemPath);
+    } else if (item.endsWith('.md')) {
+      try {
+        kbCache.set(itemPath, fs.readFileSync(fullPath, 'utf-8'));
+      } catch (err) {
+        console.warn(`[KB] Failed to cache ${itemPath}:`, err.message);
+      }
+    }
+  }
+}
+
+// Build cache at startup
+_scanAndCache('');
+console.log(`[KB] Cached ${kbCache.size} knowledge-base files at startup.`);
+
+/**
+ * Re-read all KB files from disk (async).
+ * Call this after admin saves/deletes a KB file so the cache stays fresh.
+ */
+async function refreshCache() {
+  const inventory = getKBInventory(); // re-scan directory tree for file list
+  const allPaths = [...new Set([...kbCache.keys(), ...inventory.map((f) => f.path)])];
+
+  await Promise.all(
+    allPaths.map(async (filePath) => {
+      const fullPath = path.join(KB_BASE_PATH, filePath);
+      try {
+        const content = await fs.promises.readFile(fullPath, 'utf-8');
+        kbCache.set(filePath, content);
+      } catch {
+        // File deleted — remove from cache
+        kbCache.delete(filePath);
+      }
+    })
+  );
+
+  console.log(`[KB] Cache refreshed — ${kbCache.size} files loaded.`);
+}
+
 // Topic → file mapping (regex patterns)
 const TOPIC_MAP = {
   // GRAY CAPITAL COMPANY
@@ -155,7 +209,8 @@ function selectKBModules(message, currentSection, investorProfile, dealSlug) {
 }
 
 /**
- * Load KB file contents from disk.
+ * Load KB file contents, reading from the in-memory cache.
+ * Falls back to disk for any file not yet cached.
  * Returns array of { path, content, tokens (estimated) }
  */
 async function loadKBFiles(filePaths) {
@@ -172,21 +227,28 @@ async function loadKBFiles(filePaths) {
   });
 
   for (const filePath of prioritized) {
-    try {
-      const fullPath = path.join(KB_BASE_PATH, filePath);
-      const content = fs.readFileSync(fullPath, 'utf-8');
-      const estimatedTokens = Math.ceil(content.length / 4); // rough estimate
-
-      if (totalTokens + estimatedTokens > TOKEN_BUDGET) {
-        console.log(`KB token budget reached. Skipping: ${filePath}`);
-        break;
+    // Serve from cache; fall back to disk if somehow missing
+    let content = kbCache.get(filePath);
+    if (content === undefined) {
+      try {
+        const fullPath = path.join(KB_BASE_PATH, filePath);
+        content = fs.readFileSync(fullPath, 'utf-8');
+        kbCache.set(filePath, content);
+      } catch {
+        console.warn(`KB file not found: ${filePath}`);
+        continue;
       }
-
-      results.push({ path: filePath, content, tokens: estimatedTokens });
-      totalTokens += estimatedTokens;
-    } catch (err) {
-      console.warn(`KB file not found: ${filePath}`);
     }
+
+    const estimatedTokens = Math.ceil(content.length / 4); // rough estimate
+
+    if (totalTokens + estimatedTokens > TOKEN_BUDGET) {
+      console.log(`KB token budget reached. Skipping: ${filePath}`);
+      break;
+    }
+
+    results.push({ path: filePath, content, tokens: estimatedTokens });
+    totalTokens += estimatedTokens;
   }
 
   return results;
@@ -203,17 +265,17 @@ function getKBInventory() {
     if (!fs.existsSync(fullDir)) return;
     const items = fs.readdirSync(fullDir);
     for (const item of items) {
-      const itemPath = path.join(dir, item);
+      const itemPath = dir ? path.join(dir, item) : item;
       const fullPath = path.join(KB_BASE_PATH, itemPath);
       const stat = fs.statSync(fullPath);
 
       if (stat.isDirectory()) {
         scanDir(itemPath);
       } else if (item.endsWith('.md')) {
-        const content = fs.readFileSync(fullPath, 'utf-8');
+        const content = kbCache.get(itemPath) || '';
         inventory.push({
           path: itemPath,
-          category: dir.split(/[/\\]/)[0], // firm, faq, reference, deal
+          category: itemPath.split(/[/\\]/)[0], // firm, faq, reference, deal
           title: content.split('\n')[0].replace(/^#\s*/, ''),
           size_bytes: stat.size,
           estimated_tokens: Math.ceil(content.length / 4),
@@ -227,4 +289,4 @@ function getKBInventory() {
   return inventory;
 }
 
-module.exports = { selectKBModules, loadKBFiles, getKBInventory };
+module.exports = { selectKBModules, loadKBFiles, getKBInventory, refreshCache };
