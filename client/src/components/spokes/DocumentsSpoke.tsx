@@ -143,16 +143,20 @@ function PPMRequestModal({
   onClose,
   slug,
   trackPPMRequested,
+  prefillName,
+  prefillEmail,
 }: {
   open: boolean;
   onClose: () => void;
   slug: string;
   trackPPMRequested: () => void;
+  prefillName?: string;
+  prefillEmail?: string;
 }) {
   const [step, setStep] = useState<'form' | 'success'>('form');
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [accredited, setAccredited] = useState(false);
+  const [name, setName] = useState(prefillName || '');
+  const [email, setEmail] = useState(prefillEmail || '');
+  const [accredited, setAccredited] = useState(!!prefillEmail); // Skip re-checking if already verified
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -173,9 +177,9 @@ function PPMRequestModal({
 
   const handleClose = () => {
     setStep('form');
-    setName('');
-    setEmail('');
-    setAccredited(false);
+    setName(prefillName || '');
+    setEmail(prefillEmail || '');
+    setAccredited(!!prefillEmail);
     onClose();
   };
 
@@ -561,7 +565,7 @@ function IndicateInterestModal({
 /* -------------------------------------------------- */
 
 export default function DocumentsSpoke() {
-  const { deal, media, setCurrentSection } = useDeal();
+  const { deal, media, investor, setCurrentSection } = useDeal();
   const { trackSectionView, trackPPMRequested, trackInterestIndicated, trackDocumentDownload, trackScheduleCallClicked, trackEvent } = useAnalytics();
   const { meetingsUrl, investmentPortalUrl, institutionalFormUrl } = useConfig();
   const [ppmOpen, setPpmOpen] = useState(false);
@@ -810,6 +814,8 @@ export default function DocumentsSpoke() {
         onClose={() => setPpmOpen(false)}
         slug={deal.slug}
         trackPPMRequested={trackPPMRequested}
+        prefillName={investor ? `${investor.first_name} ${investor.last_name}`.trim() : undefined}
+        prefillEmail={investor?.email}
       />
       <IndicateInterestModal
         open={interestOpen}

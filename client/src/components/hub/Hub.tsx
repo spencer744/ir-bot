@@ -7,6 +7,7 @@ import SpokeCard from './SpokeCard';
 import DealTermsCard from './DealTermsCard';
 import IndicateInterestCard from './IndicateInterestCard';
 import ResearchProgressBar from './ResearchProgressBar';
+import RisksSection from './RisksSection';
 import { isEmbedVideoUrl, getEmbedVideoUrl } from '../../utils/videoUrl';
 
 export default function Hub() {
@@ -186,6 +187,9 @@ export default function Hub() {
           </div>
         </section>
       ) : null}
+
+      {/* Risks & Considerations */}
+      <RisksSection />
 
       {/* Spoke Navigation Cards */}
       <section id="spokes" className="max-w-6xl mx-auto px-4 sm:px-6 pb-16">

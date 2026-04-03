@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { LogoWordmark } from '../shared/Logo';
 
 export default function Disclaimer() {
@@ -14,7 +15,16 @@ export default function Disclaimer() {
           future results. All projections are forward-looking estimates and subject to change.
           Consult your financial, tax, and legal advisors before investing.
         </p>
-        <p className="text-gc-text-muted text-[10px] text-center mt-3">
+        <div className="flex justify-center gap-4 mt-3">
+          <Link to="/legal/terms" className="text-gc-text-muted text-[10px] hover:text-gc-text-secondary transition-colors">
+            Terms of Use
+          </Link>
+          <span className="text-gc-text-muted text-[10px]">|</span>
+          <Link to="/legal/privacy" className="text-gc-text-muted text-[10px] hover:text-gc-text-secondary transition-colors">
+            Privacy Policy
+          </Link>
+        </div>
+        <p className="text-gc-text-muted text-[10px] text-center mt-2">
           &copy; {new Date().getFullYear()} Gray Capital. All rights reserved.
         </p>
       </div>

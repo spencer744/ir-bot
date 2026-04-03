@@ -1,0 +1,25 @@
+[build]
+builder = "nixpacks"
+
+# ── Server service ──────────────────────────────────────────────────────────
+# In Railway: add a second service pointing to this repo with root = "server"
+# Start command: npm install && npm start
+# Port: 3001
+
+# ── Client service ──────────────────────────────────────────────────────────
+# In Railway: add a service pointing to this repo with root = "client"
+# Build command: npm install && npm run build
+# Start command: npx serve -s dist -l $PORT
+# Port: auto-assigned
+
+# ── Required environment variables (set per-service in Railway dashboard) ──
+# ANTHROPIC_API_KEY
+# SUPABASE_URL
+# SUPABASE_ANON_KEY
+# SUPABASE_SERVICE_KEY
+# HUBSPOT_API_KEY
+# JWT_SECRET
+# NODE_ENV=production
+# SENTRY_DSN
+# CLIENT_URL=https://<your-client-domain>   (server service only)
+# PORT is injected automatically by Railway

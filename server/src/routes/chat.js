@@ -26,6 +26,50 @@ if (process.env.ANTHROPIC_API_KEY) {
 // In-memory chat history fallback per session
 const chatHistories = new Map();
 
+// ── Token Usage Tracking ────────────────────────────────────────────────────
+// Per-session token usage (in-memory, backed by Supabase when available)
+const sessionTokenUsage = new Map(); // sessionId → { tokens: number, warned: boolean }
+
+const TOKEN_SOFT_LIMIT = 12_000;
+const TOKEN_HARD_LIMIT = 15_000;
+const WARNING_MESSAGE = '\n\n---\n*You\'re approaching your session limit for this conversation. For deeper questions, [schedule a call with our team](https://calendly.com/graycapital) — we\'re happy to go as deep as you\'d like.*';
+
+async function getSessionTokens(sessionId) {
+  if (!sessionId) return 0;
+  // Try Supabase first
+  if (supabase) {
+    try {
+      const { data } = await supabase
+        .from('sessions')
+        .select('token_usage')
+        .eq('id', sessionId)
+        .single();
+      if (data && typeof data.token_usage === 'number') {
+        sessionTokenUsage.set(sessionId, { tokens: data.token_usage, warned: (data.token_usage >= TOKEN_SOFT_LIMIT) });
+        return data.token_usage;
+      }
+    } catch {}
+  }
+  return (sessionTokenUsage.get(sessionId) || { tokens: 0 }).tokens;
+}
+
+async function addSessionTokens(sessionId, tokens) {
+  if (!sessionId) return;
+  const current = sessionTokenUsage.get(sessionId) || { tokens: 0, warned: false };
+  current.tokens += tokens;
+  sessionTokenUsage.set(sessionId, current);
+  // Persist to Supabase
+  if (supabase) {
+    try {
+      await supabase
+        .from('sessions')
+        .update({ token_usage: current.tokens })
+        .eq('id', sessionId);
+    } catch {}
+  }
+  return current.tokens;
+}
+
 /**
  * Load chat history from Supabase. Falls back to in-memory Map.
  * @param {string} sessionId
@@ -133,6 +177,16 @@ router.post('/', requireAuth, async (req, res, next) => {
     const dealSlug = session.dealSlug || 'parkview-commons';
     const sessionId = session.sessionId || null;
 
+    // ── Token rate limiting check ─────────────────────────────────
+    const currentTokens = await getSessionTokens(sessionId);
+    if (currentTokens >= TOKEN_HARD_LIMIT) {
+      return res.status(429).json({
+        error: 'session_limit_reached',
+        message: "You've had a thorough conversation with our AI advisor. Ready to talk to the team?",
+        cta: { label: 'Schedule a Call', url: 'https://calendly.com/graycapital' },
+      });
+    }
+
     // --- Load server-side chat history (Supabase → in-memory fallback) ---
     const history = await loadChatHistory(sessionId);
 
@@ -193,6 +247,7 @@ router.post('/', requireAuth, async (req, res, next) => {
       is_returning: session.isReturning || false,
       first_name: session.investorName || '',
       last_sections_visited: session.lastSectionsVisited || [],
+      is_institutional: session.isInstitutional || false,
     });
 
     const fullSystemPrompt = [
@@ -261,15 +316,37 @@ router.post('/', requireAuth, async (req, res, next) => {
         messages: messages,
       });
 
+      let streamTokensUsed = 0;
       for await (const event of stream) {
         if (event.type === 'content_block_delta' && event.delta?.text) {
           fullResponse += event.delta.text;
           res.write(`data: ${JSON.stringify({ type: 'text', text: event.delta.text })}\n\n`);
         }
+        // Track usage from stream final message
+        if (event.type === 'message_delta' && event.usage) {
+          streamTokensUsed = event.usage.output_tokens || 0;
+        }
+        if (event.type === 'message_start' && event.message?.usage) {
+          streamTokensUsed += event.message.usage.input_tokens || 0;
+        }
       }
 
       // Parse structured commands from the full response
       const parsed = parseResponseCommands(fullResponse);
+
+      // ── Token tracking ──
+      const estTokens = streamTokensUsed > 0 ? streamTokensUsed : Math.ceil((fullSystemPrompt.length + message.length + fullResponse.length) / 4);
+      const streamNewTotal = await addSessionTokens(sessionId, estTokens);
+      const streamState = sessionTokenUsage.get(sessionId) || { tokens: streamNewTotal, warned: false };
+
+      let streamFinalText = parsed.cleanText;
+      if (streamNewTotal >= TOKEN_SOFT_LIMIT && !streamState.warned) {
+        const warningChunk = WARNING_MESSAGE;
+        res.write(`data: ${JSON.stringify({ type: 'text', text: warningChunk })}\n\n`);
+        streamFinalText += warningChunk;
+        streamState.warned = true;
+        sessionTokenUsage.set(sessionId, streamState);
+      }
 
       if (parsed.hubspotExtract) {
         res.write(`data: ${JSON.stringify({ type: 'hubspot_extract', data: parsed.hubspotExtract })}\n\n`);
@@ -282,11 +359,11 @@ router.post('/', requireAuth, async (req, res, next) => {
         res.write(`data: ${JSON.stringify({ type: 'data_request', data: parsed.dataRequest })}\n\n`);
       }
 
-      res.write(`data: ${JSON.stringify({ type: 'done', cleanText: parsed.cleanText })}\n\n`);
+      res.write(`data: ${JSON.stringify({ type: 'done', cleanText: streamFinalText })}\n\n`);
       res.end();
 
       // Save both messages to Supabase + in-memory
-      await saveChatMessages(sessionId, message, parsed.cleanText, parsed.hubspotExtract);
+      await saveChatMessages(sessionId, message, streamFinalText, parsed.hubspotExtract);
     } else {
       // --- NON-STREAMING RESPONSE ---
       const response = await anthropic.messages.create({
@@ -303,13 +380,26 @@ router.post('/', requireAuth, async (req, res, next) => {
 
       const parsed = parseResponseCommands(fullResponse);
 
+      // ── Token tracking ──
+      const tokensUsed = response.usage ? (response.usage.input_tokens + response.usage.output_tokens) : Math.ceil((fullSystemPrompt.length + message.length + fullResponse.length) / 4);
+      const newTotal = await addSessionTokens(sessionId, tokensUsed);
+      const sessionState = sessionTokenUsage.get(sessionId) || { tokens: newTotal, warned: false };
+
+      // Soft warning — append to response if approaching limit and not yet warned
+      let finalText = parsed.cleanText;
+      if (newTotal >= TOKEN_SOFT_LIMIT && !sessionState.warned) {
+        finalText += WARNING_MESSAGE;
+        sessionState.warned = true;
+        sessionTokenUsage.set(sessionId, sessionState);
+      }
+
       // HubSpot sync
       if (parsed.hubspotExtract) {
         syncHubspot(req, parsed.hubspotExtract);
       }
 
       // Save both messages
-      await saveChatMessages(sessionId, message, parsed.cleanText, parsed.hubspotExtract);
+      await saveChatMessages(sessionId, message, finalText, parsed.hubspotExtract);
 
       res.json({
         response: parsed.cleanText,

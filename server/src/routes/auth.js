@@ -33,22 +33,31 @@ router.post('/register', async (req, res, next) => {
 
     let investor_id = uuidv4();
     let session_id = uuidv4();
+    let is_returning = false;
+    let prior_investment_count = 0;
 
     if (supabase) {
       // Check if investor exists — upsert name/phone if returning
       const { data: existing } = await supabase
         .from('investors')
-        .select('id')
+        .select('id, first_name')
         .eq('email', email)
         .single();
 
       if (existing) {
         investor_id = existing.id;
+        is_returning = true;
         // Update name/phone in case they changed
         await supabase
           .from('investors')
-          .update({ first_name, last_name, phone })
+          .update({ first_name: first_name || existing.first_name, last_name: last_name || undefined, phone: phone || undefined })
           .eq('id', investor_id);
+        // Count prior sessions for context
+        const { count } = await supabase
+          .from('sessions')
+          .select('id', { count: 'exact', head: true })
+          .eq('investor_id', investor_id);
+        prior_investment_count = count || 0;
       } else {
         const { data: newInvestor, error: invError } = await supabase
           .from('investors')
@@ -96,6 +105,8 @@ router.post('/register', async (req, res, next) => {
       session_id,
       email,
       deal_slug,
+      is_returning,
+      prior_investment_count,
     });
 
     let contactId = null;
@@ -117,7 +128,7 @@ router.post('/register', async (req, res, next) => {
       console.warn('[HubSpot] Contact sync failed:', err.message);
     }
 
-    res.json({ token, investor_id, session_id, hubspot_contact_id: contactId || null });
+    res.json({ token, investor_id, session_id, hubspot_contact_id: contactId || null, is_returning, prior_investment_count });
   } catch (err) {
     next(err);
   }
@@ -176,6 +187,64 @@ router.post('/verify', requireAuth, async (req, res, next) => {
     });
   } catch (err) {
     next(err);
+  }
+});
+
+// GET /api/auth/check-email — Returning investor fast-pass lookup
+router.get('/check-email', async (req, res) => {
+  const email = (req.query.email || '').toLowerCase().trim();
+  if (!email || !EMAIL_RE.test(email)) {
+    return res.json({ exists: false });
+  }
+  if (!supabase) {
+    return res.json({ exists: false });
+  }
+  try {
+    const { data } = await supabase
+      .from('investors')
+      .select('first_name')
+      .eq('email', email)
+      .single();
+    if (data) {
+      return res.json({ exists: true, first_name: data.first_name });
+    }
+    return res.json({ exists: false });
+  } catch {
+    return res.json({ exists: false });
+  }
+});
+
+// GET /api/auth/check-investor — Alias with richer response for T1-A fast-pass
+// Returns: { exists, name, priorCount }
+router.get('/check-investor', async (req, res) => {
+  const email = (req.query.email || '').toLowerCase().trim();
+  if (!email || !EMAIL_RE.test(email)) {
+    return res.json({ exists: false });
+  }
+  if (!supabase) {
+    return res.json({ exists: false });
+  }
+  try {
+    const { data: investor } = await supabase
+      .from('investors')
+      .select('first_name, last_name, id')
+      .eq('email', email)
+      .single();
+    if (!investor) return res.json({ exists: false });
+
+    // Count prior sessions
+    const { count } = await supabase
+      .from('sessions')
+      .select('id', { count: 'exact', head: true })
+      .eq('investor_id', investor.id);
+
+    return res.json({
+      exists: true,
+      name: investor.first_name,
+      priorCount: count || 0,
+    });
+  } catch {
+    return res.json({ exists: false });
   }
 });
 

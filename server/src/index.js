@@ -1,4 +1,5 @@
 require('dotenv').config();
+const Sentry = require('@sentry/node');
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -13,6 +14,16 @@ const adminRoutes = require('./routes/admin');
 const configRoutes = require('./routes/config');
 const publicRoutes = require('./routes/public');
 const teamRoutes = require('./routes/team');
+
+// Initialize Sentry before anything else
+if (process.env.SENTRY_DSN) {
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    environment: process.env.NODE_ENV || 'development',
+    tracesSampleRate: 0.1,
+  });
+  console.log('[Sentry] Error monitoring initialized');
+}
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -66,6 +77,11 @@ app.use('/api', publicRoutes);
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
+
+// Sentry error handler (must be before other error handlers)
+if (process.env.SENTRY_DSN) {
+  app.use(Sentry.expressErrorHandler());
+}
 
 // Error handler
 app.use((err, req, res, next) => {

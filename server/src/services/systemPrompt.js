@@ -117,9 +117,21 @@ Use when the investor asks about something in a specific section or when showing
  * @param {string[]} opts.last_sections_visited - Sections explored in prior visits
  * @returns {string} The full system prompt
  */
-function buildSystemPrompt({ is_returning = false, first_name = '', last_sections_visited = [] } = {}) {
+function buildSystemPrompt({ is_returning = false, first_name = '', last_sections_visited = [], is_institutional = false } = {}) {
+  let prefix = '';
+
+  if (is_institutional) {
+    prefix += [
+      '\n\n## INSTITUTIONAL INVESTOR CONTEXT\n',
+      `This is an institutional investor or family office. Open with: "Welcome. I'll focus on the institutional view — debt structure, returns waterfall, and exit analysis."`,
+      'Skip the retail onboarding narrative. Go straight to data: loan terms, cap rate sensitivity, waterfall mechanics, exit scenarios.',
+      'Assume they understand PE fundamentals. Speak at a sophisticated allocator level.',
+      'Prioritize: debt structure, LTV/DSCR, exit analysis, GP/LP alignment, reporting cadence, institutional co-invest availability.\n',
+    ].join('\n');
+  }
+
   if (!is_returning || !first_name) {
-    return SYSTEM_PROMPT;
+    return prefix + SYSTEM_PROMPT;
   }
 
   const sectionLabels = {
@@ -150,7 +162,7 @@ function buildSystemPrompt({ is_returning = false, first_name = '', last_section
     'Keep it natural — one sentence of greeting, then be helpful.\n',
   ].join('\n');
 
-  return returningContext + '\n' + SYSTEM_PROMPT;
+  return prefix + returningContext + '\n' + SYSTEM_PROMPT;
 }
 
 module.exports = { SYSTEM_PROMPT, buildSystemPrompt };

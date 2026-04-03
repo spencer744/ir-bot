@@ -2,6 +2,8 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
 import { DealProvider } from './context/DealContext';
 import DealRoom from './pages/DealRoom';
+import LegalPage from './pages/LegalPage';
+import InstitutionalGate from './pages/InstitutionalGate';
 import AdminLogin from './components/admin/AdminLogin';
 import AdminLayout from './components/admin/AdminLayout';
 import Logo from './components/shared/Logo';
@@ -49,6 +51,10 @@ export default function App() {
         <Route path="settings" element={<Suspense fallback={<AdminLoading />}><SettingsPage /></Suspense>} />
       </Route>
 
+      {/* Legal pages */}
+      <Route path="/legal/:type" element={<LegalPage />} />
+      {/* Institutional fast track gate */}
+      <Route path="/institutional/:slug" element={<DealProvider><InstitutionalGate /></DealProvider>} />
       {/* Root redirect to default deal */}
       <Route path="/" element={<Navigate to="/deals/parkview-commons" replace />} />
       {/* Investor-facing routes — wrapped in DealProvider */}

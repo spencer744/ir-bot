@@ -22,13 +22,23 @@ export default function DealRoom() {
     intakeCompleted,
     sessionRestored,
     currentSection,
+    setCurrentSection,
     loadDeal,
   } = useDeal();
+
+  // Institutional investors come in with ?institutional=1 — open financial spoke by default
+  useEffect(() => {
+    if (isInstitutional && isAuthenticated && intakeCompleted && currentSection === 'hub') {
+      setCurrentSection('financial');
+    }
+  }, [isInstitutional, isAuthenticated, intakeCompleted]);
 
   const lpPreview =
     typeof window !== 'undefined' &&
     searchParams.get('lp_preview') === '1' &&
     !!localStorage.getItem('admin_token');
+
+  const isInstitutional = searchParams.get('institutional') === '1';
 
   useEffect(() => {
     if (slug) loadDeal(slug);

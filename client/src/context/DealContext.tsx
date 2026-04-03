@@ -32,6 +32,9 @@ interface DealContextValue {
   setChatOpen: (open: boolean) => void;
   addChatMessage: (msg: ChatMessage) => void;
 
+  // Investor profile (auto-fill for modals)
+  investorProfile: { name: string; email: string; phone: string; investmentRange: string } | null;
+
   // Actions
   loadDeal: (slug: string) => Promise<void>;
   authenticate: (data: {
@@ -68,6 +71,9 @@ export function DealProvider({ children }: { children: ReactNode }) {
 
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [chatOpen, setChatOpen] = useState(false);
+
+  // Investor profile for modal auto-fill (T1-B)
+  const [investorProfile, setInvestorProfile] = useState<{ name: string; email: string; phone: string; investmentRange: string } | null>(null);
 
   // Restore session from localStorage on mount
   useEffect(() => {
@@ -208,12 +214,30 @@ export function DealProvider({ children }: { children: ReactNode }) {
       engagement_score: 0,
     });
     setIsAuthenticated(true);
+    // Set investor profile for modal auto-fill (T1-B)
+    setInvestorProfile({
+      name: data.first_name,
+      email: data.email,
+      phone: data.phone || '',
+      investmentRange: '',
+    });
+    // Handle returning investor from register endpoint
+    if (res.is_returning) {
+      setIsReturning(true);
+      setIntakeCompleted(true); // Skip intake for returning investors
+      localStorage.setItem('gc_intake_completed', 'true');
+    }
   };
 
   const completeIntake = (answers: IntakeAnswers) => {
     setIntakeAnswers(answers);
     setIntakeCompleted(true);
     localStorage.setItem('gc_intake_completed', 'true');
+    // Update investorProfile with intake-provided investment range (T1-B)
+    setInvestorProfile(prev => prev ? {
+      ...prev,
+      investmentRange: (answers as any).target_range || (answers as any).investment_range || prev.investmentRange,
+    } : prev);
     if (session?.id) {
       api.submitIntake({ answers: answers as any, session_id: session.id }).catch(() => {});
     }
@@ -268,6 +292,7 @@ export function DealProvider({ children }: { children: ReactNode }) {
         authenticate,
         completeIntake,
         trackEvent,
+        investorProfile,
       }}
     >
       {children}
