@@ -738,11 +738,11 @@ const DEMO_COMPANY_DATA = {
       { label: 'Minimum Investment', value: '$100,000' },
       { label: 'Distribution Cadence', value: 'Monthly' },
       { label: 'Preferred Return', value: '8%' },
-      { label: 'LP/GP Split', value: '70/30' },
+      { label: 'LP/GP Split', value: '80/20 → 60/40 (above 15% IRR)' },
       { label: 'Avg. Sponsor Co-Invest', value: '14%' },
     ],
     one_time_fees: [
-      { label: 'Acquisition', value: '1.75%' },
+      { label: 'Acquisition', value: '1.5%' },
       { label: 'Loan Guarantee', value: '0.75%' },
     ],
     recurring_fees: [

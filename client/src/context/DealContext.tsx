@@ -66,8 +66,22 @@ export function DealProvider({ children }: { children: ReactNode }) {
   const [intakeCompleted, setIntakeCompleted] = useState(false);
   const [sessionRestored, setSessionRestored] = useState(false);
 
-  const [currentSection, setCurrentSectionState] = useState('hub');
+  // Initialize section from URL hash if present
+  const [currentSection, setCurrentSectionState] = useState(() => {
+    const hash = window.location.hash.replace('#', '');
+    return hash || 'hub';
+  });
   const [sectionsVisited, setSectionsVisited] = useState<string[]>([]);
+
+  // Sync browser back/forward with section state
+  useEffect(() => {
+    const handlePopState = () => {
+      const hash = window.location.hash.replace('#', '');
+      setCurrentSectionState(hash || 'hub');
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [chatOpen, setChatOpen] = useState(false);
@@ -146,6 +160,11 @@ export function DealProvider({ children }: { children: ReactNode }) {
 
   const setCurrentSection = (section: string) => {
     setCurrentSectionState(section);
+    // Push to browser history so back button works
+    const newHash = section === 'hub' ? '' : `#${section}`;
+    if (window.location.hash !== (newHash || '#')) {
+      window.history.pushState(null, '', newHash || window.location.pathname);
+    }
     setSectionsVisited(prev => {
       if (prev.includes(section)) return prev;
       return [...prev, section];
