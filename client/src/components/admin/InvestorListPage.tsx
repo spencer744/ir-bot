@@ -199,7 +199,7 @@ export default function InvestorListPage() {
     let cancelled = false;
     setLoading(true);
     api
-      .get('/api/admin/investors')
+      .get('/dealroom/api/admin/investors')
       .then((data: InvestorsResponse) => {
         if (!cancelled) setInvestors(data.investors ?? []);
       })

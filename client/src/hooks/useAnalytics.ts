@@ -105,7 +105,7 @@ export function useAnalytics() {
         headers['Authorization'] = `Bearer ${token}`;
       }
 
-      fetch('/api/analytics/heartbeat', {
+      fetch('/dealroom/api/analytics/heartbeat', {
         method: 'POST',
         headers,
         body: JSON.stringify({

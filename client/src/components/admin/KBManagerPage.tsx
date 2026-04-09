@@ -411,7 +411,7 @@ export default function KBManagerPage() {
   const fetchFiles = useCallback(() => {
     setLoading(true);
     api
-      .get('/api/admin/knowledge-base')
+      .get('/dealroom/api/admin/knowledge-base')
       .then((data: KBInventoryResponse) => {
         setFiles(data.files ?? []);
         setTotalTokens(data.total_tokens ?? 0);
@@ -465,7 +465,7 @@ export default function KBManagerPage() {
     setSaveMsg(null);
 
     try {
-      await api.post('/api/admin/knowledge-base', {
+      await api.post('/dealroom/api/admin/knowledge-base', {
         path: selectedFile.path,
         content: fileContent,
       });
@@ -508,7 +508,7 @@ export default function KBManagerPage() {
 
   /* ---- add content modal: save as KB (from browse or enter text) ---- */
   async function handleAddContentSave(path: string, content: string) {
-    await api.post('/api/admin/knowledge-base', { path, content });
+    await api.post('/dealroom/api/admin/knowledge-base', { path, content });
     await fetchFiles();
     setAddModalOpen(false);
     setAddModalContent('');
@@ -545,7 +545,7 @@ export default function KBManagerPage() {
     setCreatingFile(true);
     try {
       const filePath = `${category}/${filename}`;
-      await api.post('/api/admin/knowledge-base', {
+      await api.post('/dealroom/api/admin/knowledge-base', {
         path: filePath,
         content: '',
       });

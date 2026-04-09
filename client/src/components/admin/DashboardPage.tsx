@@ -184,7 +184,7 @@ export default function DashboardPage() {
     let cancelled = false;
     setDealsLoading(true);
     api
-      .get('/api/admin/deals')
+      .get('/dealroom/api/admin/deals')
       .then((data: DealsResponse) => {
         if (cancelled) return;
         const list = data.deals ?? [];

@@ -40,7 +40,7 @@ export default function ResearchProgressBar() {
       // Also fire via analytics route for HubSpot sync
       const token = localStorage.getItem('gc_session_token');
       const sessionId = localStorage.getItem('gc_session_id');
-      fetch('/api/analytics/event', {
+      fetch('/dealroom/api/analytics/event', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -49,7 +49,7 @@ export function useAdminAuth(): AdminAuth {
 
   const login = useCallback(async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
-      const res = await fetch('/api/admin/login', {
+      const res = await fetch('/dealroom/api/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),

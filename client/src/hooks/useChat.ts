@@ -112,7 +112,7 @@ export function useChat() {
         headers['Authorization'] = `Bearer ${token}`;
       }
 
-      const response = await fetch('/api/chat', {
+      const response = await fetch('/dealroom/api/chat', {
         method: 'POST',
         headers,
         body: JSON.stringify({

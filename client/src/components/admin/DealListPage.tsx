@@ -101,7 +101,7 @@ export default function DealListPage() {
     let cancelled = false;
     setLoading(true);
     api
-      .get('/api/admin/deals')
+      .get('/dealroom/api/admin/deals')
       .then((data: DealsResponse) => {
         if (!cancelled) setDeals(data.deals ?? []);
       })

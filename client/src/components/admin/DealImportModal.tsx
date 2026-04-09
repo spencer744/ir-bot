@@ -218,7 +218,7 @@ export default function DealImportModal({ open, onClose, onImported }: DealImpor
       if (sensitivityFile) formData.append('sensitivity', sensitivityFile);
 
       const token = localStorage.getItem('admin_token');
-      const res = await fetch('/api/admin/deals/import', {
+      const res = await fetch('/dealroom/api/admin/deals/import', {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
@@ -336,7 +336,7 @@ export default function DealImportModal({ open, onClose, onImported }: DealImpor
           <Download className="w-3 h-3" />
           <span>Download template:</span>
           <a
-            href="/api/admin/deals/import/template/overview"
+            href="/dealroom/api/admin/deals/import/template/overview"
             download="deal_overview_template.csv"
             className="text-gc-accent hover:underline"
             onClick={e => e.stopPropagation()}
@@ -345,7 +345,7 @@ export default function DealImportModal({ open, onClose, onImported }: DealImpor
           </a>
           <span>|</span>
           <a
-            href="/api/admin/deals/import/template/sensitivity"
+            href="/dealroom/api/admin/deals/import/template/sensitivity"
             download="deal_sensitivity_template.csv"
             className="text-gc-accent hover:underline"
             onClick={e => e.stopPropagation()}

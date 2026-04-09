@@ -41,7 +41,7 @@ export default function SettingsPage() {
 
   useEffect(() => {
     let cancelled = false;
-    fetch('/api/config')
+    fetch('/dealroom/api/config')
       .then((res) => res.json())
       .then((data) => {
         if (!cancelled) setConfig(data);
