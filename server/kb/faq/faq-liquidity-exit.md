@@ -19,9 +19,9 @@ A: The operating agreement permits transfers subject to conditions:
 
 Gray Capital may assist in finding a buyer but this is not guaranteed. Transfers typically occur at a discount to NAV due to illiquidity. Plan to hold for the full term.
 
-**Q: What is Gray Capital's primary exit strategy for Parkview Commons?**
+**Q: What is Gray Capital's primary exit strategy for Fairmont Apartments?**
 
-A: The primary exit is a sale of the property in Year 5 after the value-add business plan is fully executed -- all renovations completed, target rents achieved, occupancy stabilized, and consistent NOI growth established. The exit will be marketed through a commercial brokerage to institutional buyers, regional operators, and other qualified purchasers.
+A: The primary exit is a sale of the property in Year 7 (projected June 2033) after the business plan is fully executed -- loss-to-lease captured, concessions burned off, NOI growth compounded, and ~8 years of tax abatement still remaining for the next buyer. The exit will be marketed through a leading commercial brokerage (CBRE, JLL, Walker & Dunlop) to institutional buyers, regional operators, and other qualified purchasers. Gray Capital underwrites a 5.50% exit cap rate -- conservative relative to recent Columbus Class A comparables that have traded at 4.95%–5.10%.
 
 **Q: Are there alternative exit strategies if market conditions are unfavorable?**
 
@@ -36,7 +36,7 @@ A: Yes. Gray Capital evaluates multiple exit paths:
 
 A: Key factors include:
 
-- **Business plan completion** -- Are renovations done, rents at target, and occupancy stabilized?
+- **Business plan completion** -- Is loss-to-lease captured, concessions burned off, rents at target, and occupancy stabilized?
 - **Market conditions** -- Are cap rates, buyer demand, and financing conditions favorable?
 - **Return optimization** -- Does selling now maximize IRR and equity multiple? Sometimes holding longer increases returns; other times selling early boosts IRR.
 - **Debt maturity** -- The fixed-rate loan at 5.5% has a maturity date that creates a natural decision point.

@@ -60,7 +60,7 @@ $100,000 invested, $8,000/year distributions for 5 years, $155,000 at sale in ye
 | 4 | +$8,000 |
 | 5 | +$163,000 |
 
-**IRR: approximately 15.8%**
+**IRR: approximately 14-16%**
 
 ### Why Timing Matters
 
@@ -99,9 +99,9 @@ IRR is the industry standard for comparing investments across different hold per
 |--------------|-------|
 | Cash-on-Cash | 8.0% |
 | Equity Multiple | 1.95x |
-| IRR | 15.8% |
+| IRR | 14-16% |
 
-This tells a clear story: moderate current income (8%), strong total profitability (nearly doubling your money), achieved at an attractive annualized rate (15.8%) over a 5-year hold.
+This tells a clear story: moderate current income (8%), strong total profitability (more than doubling your money), achieved at an attractive annualized rate (14-16%) over a 7-year hold.
 
 ---
 

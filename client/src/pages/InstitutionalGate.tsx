@@ -10,7 +10,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export default function InstitutionalGate() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const { authenticate, isAuthenticated, intakeCompleted, loadDeal, deal } = useDeal();
+  const { authenticate, loadDeal, deal } = useDeal();
 
   const [form, setForm] = useState({
     first_name: '',

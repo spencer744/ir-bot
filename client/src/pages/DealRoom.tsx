@@ -25,6 +25,7 @@ export default function DealRoom() {
     setCurrentSection,
     loadDeal,
   } = useDeal();
+  const isInstitutional = searchParams.get('institutional') === '1';
 
   // Institutional investors come in with ?institutional=1 — open financial spoke by default
   useEffect(() => {
@@ -38,7 +39,6 @@ export default function DealRoom() {
     searchParams.get('lp_preview') === '1' &&
     !!localStorage.getItem('admin_token');
 
-  const isInstitutional = searchParams.get('institutional') === '1';
 
   useEffect(() => {
     if (slug) loadDeal(slug);

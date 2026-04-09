@@ -1,8 +1,8 @@
 # FAQ: Returns, Distributions & Cash Flow
 
-**Q: What is the target return for the Parkview Commons investment?**
+**Q: What is the target return for the Fairmont Apartments investment?**
 
-A: Base case projections over a five-year hold: 15.8% IRR, 1.95x equity multiple, and 7.2% average annual cash-on-cash return. These are based on Gray Capital's base scenario assumptions and are not guaranteed. Four scenarios are provided -- Conservative, Base, Upside, and Strategic -- so investors can evaluate the range of outcomes.
+A: Base case projections over a 7-year hold: 14–16% IRR, 2.2x equity multiple, and 8.4% average annual cash-on-cash return. These are based on Gray Capital's base scenario assumptions and are not guaranteed. Conservative, Base, and Upside scenarios are provided so investors can evaluate the range of outcomes. The deal also targets an 8% cumulative preferred return paid before GP profit participation. Projections are not guarantees of future performance. Past performance is not indicative of future results.
 
 **Q: What is Gray Capital's historical return performance?**
 
@@ -47,9 +47,9 @@ A: The unpaid amount accrues and carries forward. Accrued preferred return must 
 
 A: Three distinct performance measures:
 
-- **IRR (Internal Rate of Return)** -- Annualized return accounting for timing and magnitude of all cash flows. Rewards faster capital return. Parkview Commons base case: 15.8%.
+- **IRR (Internal Rate of Return)** -- Annualized return accounting for timing and magnitude of all cash flows. Rewards faster capital return. Fairmont Apartments base case: 14-16% target IRR.
 - **Cash-on-Cash (CoC) Return** -- Annual distributions as a percentage of original investment. A $100K investment receiving $7,200/year = 7.2% CoC. Measures ongoing cash flow yield only.
-- **Equity Multiple** -- Total cash returned divided by total cash invested. A 1.95x multiple means $1.95 back for every $1.00 invested ($100K investment returns $195K total, or $95K profit).
+- **Equity Multiple** -- Total cash returned divided by total cash invested. A 2.2x multiple means $2.20 back for every $1.00 invested ($100K investment returns $220K total, or $120K profit).
 
 All three matter: IRR rewards speed, equity multiple shows total wealth creation, CoC shows annual income.
 

@@ -1,0 +1,16 @@
+[Unit]
+Description=IR Bot Deal Room
+After=network.target
+
+[Service]
+Type=simple
+User=openclaw
+WorkingDirectory=/home/openclaw/projects/ir-bot
+ExecStart=/usr/bin/node server/src/index.js
+Restart=on-failure
+RestartSec=5
+Environment=NODE_ENV=production
+EnvironmentFile=/home/openclaw/projects/ir-bot/server/.env
+
+[Install]
+WantedBy=multi-user.target

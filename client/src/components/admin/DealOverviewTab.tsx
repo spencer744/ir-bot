@@ -266,7 +266,7 @@ export function DealOverviewTab({ deal, dealId, onSave }: DealOverviewTabProps) 
             value={formData.name}
             onChange={(e) => updateField('name', e.target.value)}
             onBlur={handleNameBlur}
-            placeholder="e.g. Parkview Commons"
+            placeholder="e.g. Fairmont Apartments"
           />
         </Field>
 

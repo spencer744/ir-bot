@@ -3,13 +3,13 @@ import { useDeal } from '../context/DealContext';
 import type { ChatMessage } from '../types/investor';
 
 const DEMO_RESPONSES: Record<string, string> = {
-  returns: "In our Base Case scenario, Parkview Commons targets a 14.8% LP IRR with a 1.85x equity multiple over a 5-year hold. The Conservative case projects 10.8%, while the Upside reaches 19.2%. You can explore all four scenarios interactively in the Financial Explorer.\n\nThese are projections based on current assumptions \u2014 actual results may differ.",
+  returns: "In our Base Case scenario, Fairmont Apartments targets a 14-16% LP IRR with a 2.2x equity multiple over a 7-year hold. The Conservative case projects lower returns, while the Upside scenario benefits from strong rent growth in Columbus\' supply-constrained submarket. You can explore all four scenarios interactively in the Financial Explorer.\n\nThese are projections based on current assumptions \u2014 actual results may differ.",
   tax: "One of the biggest advantages of this investment is the tax treatment. Through cost segregation, we estimate approximately 60% of the depreciable basis qualifies for accelerated depreciation. For a $100K investment at a 37% tax bracket, that's roughly $16,500 in year-one tax savings. We recommend consulting your tax advisor for your specific situation.",
   'track record': "Gray Capital has realized 5 deals with a weighted average IRR of 18.4% and a 1.92x equity multiple. Zero capital losses across 8+ years. Our best performer was Riverside Terrace at 22.1% IRR. Our most instructive was Timber Ridge \u2014 navigated COVID and still delivered 17.2%.\n\nPast performance is not indicative of future results.",
   fees: "Full transparency: 2% acquisition fee, 2% annual asset management fee, 5% construction management fee, and 1% disposition fee. Our promote is 30% of profits above the 8% preferred return \u2014 and there's no GP catch-up, which is more investor-friendly than most sponsors.",
   risk: "The main risks are market risk, interest rate risk, execution risk, and illiquidity. We mitigate these through conservative underwriting, fixed-rate debt, $800K+ operating reserves, and in-house property management. To date, zero capital losses across our portfolio.\n\nPast performance is not indicative of future results.",
   process: "Here's how it works: 1) You're already exploring the deal room. 2) Schedule a call with Griffin or Blake if you have questions. 3) Request and review the PPM. 4) Complete subscription docs via DocuSign. 5) Wire funds. Whole process typically takes 1-2 weeks from decision to funded.",
-  default: "I'm currently in demo mode \u2014 once the API is connected, I'll be able to have a full conversation about Parkview Commons, Gray Capital's track record, tax benefits, and anything else you're curious about. In the meantime, the deal room sections have all the details you need!",
+  default: "I'm currently in demo mode \u2014 once the API is connected, I'll be able to have a full conversation about Fairmont Apartments, Gray Capital's track record, tax benefits, and anything else you're curious about. In the meantime, the deal room sections have all the details you need!",
 };
 
 function getDemoResponse(message: string): string {
@@ -91,8 +91,8 @@ export function useChat() {
       currentSection,
       sectionsVisited,
       timeOnSiteSeconds: Math.floor((Date.now() - startTimeRef.current) / 1000),
-      dealSlug: deal?.slug || 'parkview-commons',
-      dealName: deal?.name || 'Parkview Commons',
+      dealSlug: deal?.slug || 'fairmont-apartments',
+      dealName: deal?.name || 'Fairmont Apartments',
       sessionId: session?.id || undefined,
       isReturning: isReturning || false,
       lastSectionsVisited: lastSectionsVisited || [],

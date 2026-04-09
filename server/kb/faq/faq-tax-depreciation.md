@@ -1,6 +1,6 @@
 # FAQ: Tax Benefits, Depreciation & K-1s
 
-**Q: What are the tax benefits of investing in Parkview Commons?**
+**Q: What are the tax benefits of investing in Fairmont Apartments?**
 
 A: As a partnership-structured syndication, tax benefits pass through to investors via Schedule K-1:
 
@@ -14,7 +14,7 @@ Because the LLC is taxed as a partnership, these flow directly to your personal 
 
 **Q: What is cost segregation and how does it work?**
 
-A: Cost segregation is an IRS-approved engineering study that reclassifies building components from the standard 27.5-year depreciation schedule into shorter-lived categories of 5, 7, and 15 years (e.g., flooring, cabinetry, appliances, parking lots, landscaping, certain plumbing/electrical). For Parkview Commons, the depreciable basis is approximately $35 million. The study is expected to accelerate about 60% of the depreciable basis into shorter-lived categories, creating substantial paper losses in early years allocated to investors proportionally.
+A: Cost segregation is an IRS-approved engineering study that reclassifies building components from the standard 27.5-year depreciation schedule into shorter-lived categories of 5, 7, and 15 years (e.g., flooring, cabinetry, appliances, parking lots, landscaping, certain plumbing/electrical). For Fairmont Apartments, the depreciable basis is approximately $35 million. The study is expected to accelerate about 60% of the depreciable basis into shorter-lived categories, creating substantial paper losses in early years allocated to investors proportionally.
 
 **Q: How much depreciation can I expect in Year 1?**
 
@@ -57,7 +57,7 @@ Your CPA uses the K-1 to complete your Form 1040. Ensure your preparer is experi
 
 **Q: Will this investment affect my state tax filings?**
 
-A: Yes. Since Parkview Commons is in Indiana, you may have an Indiana filing requirement regardless of your home state. Indiana's income tax rate is approximately 3.05%, with some counties imposing additional local taxes. Gray Capital provides state-specific K-1 information. Your CPA can advise on home-state credits for taxes paid to other states.
+A: Yes. Since Fairmont Apartments is in Ohio (Westerville, Columbus MSA), you may have an Ohio filing requirement regardless of your home state. Ohio's income tax rate varies by income bracket, with some municipalities imposing additional local taxes. Gray Capital provides state-specific K-1 information. Your CPA can advise on home-state credits for taxes paid to Ohio.
 
 **Q: Can I invest through a self-directed IRA and still get the tax benefits?**
 

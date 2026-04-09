@@ -173,7 +173,7 @@ export default function DashboardPage() {
   const api = useAdminApi();
 
   const [deals, setDeals] = useState<Deal[]>([]);
-  const [selectedSlug, setSelectedSlug] = useState<string>('parkview-commons');
+  const [selectedSlug, setSelectedSlug] = useState<string>('fairmont-apartments');
   const [dashboard, setDashboard] = useState<DashboardResponse | null>(null);
   const [events, setEvents] = useState<ActivityEvent[]>([]);
   const [loading, setLoading] = useState(true);

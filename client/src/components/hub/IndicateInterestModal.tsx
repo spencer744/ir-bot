@@ -41,7 +41,7 @@ export default function IndicateInterestModal({ isOpen, onClose, onSuccess }: In
 
     try {
       const token = localStorage.getItem('gc_session_token');
-      const res = await fetch(`/api/deal/${deal?.slug || 'parkview-commons'}/interest`, {
+      const res = await fetch(`/api/deal/${deal?.slug || 'fairmont-apartments'}/interest`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

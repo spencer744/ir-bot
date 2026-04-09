@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useDeal } from '../../context/DealContext';
-import { api } from '../../lib/api';
+// import { api } from '../../lib/api';
 import Logo from '../shared/Logo';
 
 interface GateProps {
@@ -30,7 +30,7 @@ export default function Gate({ dealSlug, dealName, heroImage }: GateProps) {
 
   // Returning investor fast-pass state
   const [returningInvestor, setReturningInvestor] = useState<{ first_name: string; email: string } | null>(null);
-  const [checkingEmail, setCheckingEmail] = useState(false);
+  const [_checkingEmail, setCheckingEmail] = useState(false);
   const [emailChecked, setEmailChecked] = useState('');
 
   // Check email on blur/debounce for returning investor

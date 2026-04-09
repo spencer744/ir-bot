@@ -60,7 +60,7 @@ function tokenCountColor(tokens: number): string {
 /**
  * Build the fetch URL for a given KB file path.
  * Handles both flat paths like "firm/history.md" and nested paths
- * like "deal/parkview-commons/overview.md".
+ * like "deal/fairmont-apartments/overview.md".
  */
 function buildFileUrl(filePath: string): string {
   return `/api/admin/knowledge-base/file/${filePath}`;
@@ -294,7 +294,7 @@ function AddContentModal({
                   type="text"
                   value={dealSlug}
                   onChange={(e) => setDealSlug(e.target.value)}
-                  placeholder="e.g. parkview-commons"
+                  placeholder="e.g. fairmont-apartments"
                   className="w-full bg-gc-bg border border-gc-border rounded-lg px-3 py-2 text-sm text-gc-text focus:outline-none focus:ring-2 focus:ring-gc-accent"
                 />
               </div>

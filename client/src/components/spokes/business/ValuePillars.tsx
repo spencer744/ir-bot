@@ -36,7 +36,7 @@ export default function ValuePillars({ pillars }: ValuePillarsProps) {
       transition={{ duration: 0.4 }}
     >
       <h2 className="text-xl font-semibold text-gc-text mb-2">Value Creation Strategy</h2>
-      <p className="text-gc-text-muted text-sm mb-6">Three levers driving returns at Parkview Commons.</p>
+      <p className="text-gc-text-muted text-sm mb-6">Three levers driving returns at Fairmont Apartments.</p>
       <motion.div
         variants={container}
         initial="hidden"

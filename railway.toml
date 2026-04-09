@@ -2,24 +2,30 @@
 builder = "nixpacks"
 
 # ── Server service ──────────────────────────────────────────────────────────
-# In Railway: add a second service pointing to this repo with root = "server"
-# Start command: npm install && npm start
-# Port: 3001
+# In Railway: add a service pointing to this repo with root = "server"
+# Build command: npm install
+# Start command: npm start
+# Port: 3005 (or Railway injects $PORT automatically)
 
 # ── Client service ──────────────────────────────────────────────────────────
-# In Railway: add a service pointing to this repo with root = "client"
+# In Railway: add a second service pointing to this repo with root = "client"
 # Build command: npm install && npm run build
 # Start command: npx serve -s dist -l $PORT
 # Port: auto-assigned
 
 # ── Required environment variables (set per-service in Railway dashboard) ──
+# NODE_ENV=production
+# PORT                   (injected automatically by Railway)
+# JWT_SECRET             (generate: openssl rand -base64 48)
 # ANTHROPIC_API_KEY
 # SUPABASE_URL
 # SUPABASE_ANON_KEY
 # SUPABASE_SERVICE_KEY
 # HUBSPOT_API_KEY
-# JWT_SECRET
-# NODE_ENV=production
-# SENTRY_DSN
-# CLIENT_URL=https://<your-client-domain>   (server service only)
-# PORT is injected automatically by Railway
+# HUBSPOT_MEETING_URL
+# HUBSPOT_INSTITUTIONAL_FORM_URL
+# INVESTMENT_PORTAL_URL=https://investors.appfolioim.com/graycapitalllc
+# CLIENT_URL=https://dealroom.graycapitalllc.com
+# ADMIN_EMAILS=spencer@graycapitalllc.com
+# ADMIN_PASSWORD
+# SENTRY_DSN             (optional)

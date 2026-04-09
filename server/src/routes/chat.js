@@ -174,7 +174,7 @@ router.post('/', requireAuth, async (req, res, next) => {
       return res.status(400).json({ error: 'Message exceeds maximum length of 2000 characters.' });
     }
 
-    const dealSlug = session.dealSlug || 'parkview-commons';
+    const dealSlug = session.dealSlug || 'fairmont-apartments';
     const sessionId = session.sessionId || null;
 
     // ── Token rate limiting check ─────────────────────────────────
@@ -419,7 +419,7 @@ router.post('/', requireAuth, async (req, res, next) => {
     // If API auth fails, fall back to demo
     if (error.status === 401 || error.status === 403) {
       return res.json({
-        response: "I'm currently in demo mode — the AI service isn't connected yet. Once connected, I'll be able to answer detailed questions about Parkview Commons, Gray Capital's track record, tax benefits, and more. For now, feel free to explore the deal room sections directly.",
+        response: "I'm currently in demo mode — the AI service isn't connected yet. Once connected, I'll be able to answer detailed questions about Fairmont Apartments, Gray Capital's track record, tax benefits, and more. For now, feel free to explore the deal room sections directly.",
         hubspot_extract: null,
         navigate: null,
         demo_mode: true,

@@ -34,7 +34,7 @@ A: Join our investor list by reaching out to our investor relations team or sign
 
 **Q: What is the current deal?**
 
-A: The current offering is Parkview Commons, a 312-unit apartment community located in Indianapolis, Indiana. The purchase price is $42 million with a $15 million equity raise from limited partners. The business plan involves a five-year hold period with targeted unit renovations and operational improvements to drive rent growth. The base case projects a 15.8% IRR, a 1.95x equity multiple, and a 7.2% average cash-on-cash return. Four underwriting scenarios are provided -- Conservative, Base, Upside, and Strategic -- so investors can evaluate the range of potential outcomes.
+A: The current offering is Fairmont Apartments, a 219-unit, 2025-vintage Class A multifamily community located in Westerville, Ohio — on the west edge of New Albany in the Columbus MSA. The purchase price is $62,500,000 ($285K/door) with a $22.1 million equity raise from limited partners. The property benefits from a 15-year, 100% property tax abatement through 2041 (~$895K/yr savings), and carries nearly $737K of embedded loss-to-lease ready to capture as leases roll to market. Target returns: 14–16% IRR, 2.2x equity multiple, 8.4% average cash-on-cash over a 7-year hold with 8% cumulative preferred return and 80/20 LP/GP waterfall. Minimum investment $100,000. Target close: June 2026.
 
 **Q: Who manages the property on a day-to-day basis?**
 

@@ -59,7 +59,7 @@ export default function AdminSidebar({ open = false, onClose }: AdminSidebarProp
       {/* Switch to LP view + Logout */}
       <div className="px-3 pb-6 space-y-1">
         <a
-          href="/deals/parkview-commons?lp_preview=1"
+          href="/deals/fairmont-apartments?lp_preview=1"
           className="flex items-center gap-3 px-4 py-3 min-h-[44px] rounded-lg text-sm text-gc-text-secondary hover:text-gc-text hover:bg-gc-surface-elevated transition-colors w-full touch-manipulation"
         >
           <Eye className="w-4 h-4" />

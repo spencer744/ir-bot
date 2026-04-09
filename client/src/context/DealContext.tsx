@@ -113,7 +113,7 @@ export function DealProvider({ children }: { children: ReactNode }) {
           });
           setIsAuthenticated(true);
           // Track returning visitor status
-          if (res.is_returning) {
+          if ((res as any).is_returning) {
             setIsReturning(true);
             setLastSectionsVisited(res.last_sections_visited || []);
           }
@@ -222,7 +222,7 @@ export function DealProvider({ children }: { children: ReactNode }) {
       investmentRange: '',
     });
     // Handle returning investor from register endpoint
-    if (res.is_returning) {
+    if ((res as any).is_returning) {
       setIsReturning(true);
       setIntakeCompleted(true); // Skip intake for returning investors
       localStorage.setItem('gc_intake_completed', 'true');

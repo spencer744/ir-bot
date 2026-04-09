@@ -5,7 +5,7 @@
 A: The investment process follows these steps:
 
 ### Step 1: Review the Opportunity
-Access the Deal Room for the investment summary, financial projections, market analysis, business plan, property photos, and webinar recording. Parkview Commons materials include the full underwriting model (Conservative, Base, Upside, and Strategic scenarios), property condition reports, market data, and the unit-level renovation plan.
+Access the Deal Room for the investment summary, financial projections, market analysis, business plan, property photos, and webinar recording. Fairmont Apartments materials include the full underwriting model (Conservative, Base, and Upside scenarios), property condition reports, market data, and the business plan detail.
 
 ### Step 2: Schedule a Call (Optional)
 Schedule a one-on-one call with Blake Pieroni (Blake@graycapitalllc.com) or Griffin Haddad (Griffin@graycapitalllc.com) to discuss the deal, underwriting, fees, and how it fits your portfolio. No obligation.
@@ -33,7 +33,7 @@ After subscription acceptance, wire funds within five business days. Accepted me
 Once funds are verified, you receive a countersigned subscription agreement and portal access credentials. The portal provides 24/7 access to documents, distributions, reports, and tax documents.
 
 ### Step 7: Property Closing
-The acquisition closes on schedule. You receive a closing confirmation and are officially a limited partner in Parkview Commons.
+The acquisition closes on schedule. You receive a closing confirmation and are officially a limited partner in Fairmont Apartments.
 
 **Q: How long does the entire process take?**
 
@@ -58,7 +58,7 @@ A: Typically within 60-90 days after property closing. The initial period allows
 
 A: Gray Capital provides:
 - **Monthly Distributions** -- Direct deposit with statements in the portal
-- **Monthly Operational Updates** -- Occupancy, leasing, renovation progress highlights
+- **Monthly Operational Updates** -- Occupancy, leasing, and rent growth highlights
 - **Quarterly Financial Reports** -- Financials, performance vs. underwriting, market commentary, updated projections
 - **Annual K-1 Tax Documents** -- Delivered by March 15 via the portal
 - **Investor Portal** -- 24/7 access to all documents and history
@@ -82,7 +82,7 @@ Response time target: one business day.
 
 **Q: What if the deal fills up before I complete my subscription?**
 
-A: Parkview Commons equity raise is $15 million. Subscriptions are first-come, first-served, and popular offerings can fill early. Existing LPs receive priority access. If fully subscribed, you are placed on a waitlist and receive priority notification of the next offering.
+A: Fairmont Apartments equity raise is $15 million. Subscriptions are first-come, first-served, and popular offerings can fill early. Existing LPs receive priority access. If fully subscribed, you are placed on a waitlist and receive priority notification of the next offering.
 
 ---
 

@@ -1,4 +1,6 @@
 require('dotenv').config();
+const path = require('path');
+const fs = require('fs');
 const Sentry = require('@sentry/node');
 const express = require('express');
 const cors = require('cors');
@@ -75,7 +77,7 @@ app.use('/api', publicRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  res.json({ status: 'ok', deal: 'fairmont-apartments', version: '2.0.0', timestamp: new Date().toISOString() });
 });
 
 // Sentry error handler (must be before other error handlers)
@@ -91,6 +93,18 @@ app.use((err, req, res, next) => {
   });
 });
 
+
+// Serve React client build
+const clientBuildPath = path.join(__dirname, '../../client/dist');
+if (fs.existsSync(clientBuildPath)) {
+  app.use(express.static(clientBuildPath));
+  app.get('/{*path}', (req, res) => {
+    res.sendFile(path.join(clientBuildPath, 'index.html'));
+  });
+}
 app.listen(PORT, () => {
   console.log(`[Server] Gray Capital Deal Room API running on port ${PORT}`);
 });
+
+
+

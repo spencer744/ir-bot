@@ -117,8 +117,8 @@ export default function RisksSection() {
   const displayedRisks = showAllRisks ? BASE_RISKS : BASE_RISKS.slice(0, 4);
 
   // Conservative scenario data from deal
-  const conservativeIRR = deal.target_irr_conservative
-    ? `${(deal.target_irr_conservative * 100).toFixed(1)}%`
+  const conservativeIRR = (deal as any).target_irr_conservative
+    ? `${((deal as any).target_irr_conservative * 100).toFixed(1)}%`
     : `${((deal.target_irr_base || 0.132) * 100 * 0.65).toFixed(1)}%`;
 
   const holdYears = deal.projected_hold_years ?? 6;

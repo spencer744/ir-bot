@@ -56,7 +56,7 @@ export default function App() {
       {/* Institutional fast track gate */}
       <Route path="/institutional/:slug" element={<DealProvider><InstitutionalGate /></DealProvider>} />
       {/* Root redirect to default deal */}
-      <Route path="/" element={<Navigate to="/deals/parkview-commons" replace />} />
+      <Route path="/" element={<Navigate to="/deals/fairmont-apartments" replace />} />
       {/* Investor-facing routes — wrapped in DealProvider */}
       <Route path="/deals/:slug/*" element={<DealProvider><DealRoom /></DealProvider>} />
       <Route path="*" element={

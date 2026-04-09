@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { Calculator, Info } from 'lucide-react';
 import { useDeal } from '../../context/DealContext';
 
@@ -29,26 +28,32 @@ interface FeeBreakdown {
 function calcFees(investment: number, deal: any): FeeBreakdown {
   // Default fee structure (sourced from deal data where available)
   const fees = deal?.deal_fees || {};
-  const acqFeeRate = fees.acquisition_fee_pct ?? 0.02;           // 2% of equity raise
-  const assetMgmtRate = fees.asset_mgmt_fee_pct ?? 0.02;         // 2%/yr on equity
+  // Fairmont fee structure:
+  //   Acquisition fee: 1.5% of purchase price ($937,500)
+  //   Asset management fee: 2.0% of EGI (ongoing)
+  //   Disposition fee: 1.0% of sale price at exit
+  //   Construction management: N/A (no renovation)
+  //   Preferred return: 8% cumulative non-compounding
+  const acqFeeRate = fees.acquisition_fee_pct ?? 0.015;          // 1.5% of purchase price
+  const assetMgmtRate = fees.asset_mgmt_fee_pct ?? 0.02;         // 2%/yr on EGI
   const dispositionRate = fees.disposition_fee_pct ?? 0.01;      // 1% of sale price
-  const constructionMgmtRate = fees.construction_mgmt_fee_pct ?? 0.05; // 5% of reno budget
-  const holdYears = deal?.projected_hold_years ?? 6;
-  const equityMultiple = deal?.target_equity_multiple ?? 1.85;
-  const totalRaise = deal?.total_raise ?? 20_000_000;
-  const purchasePrice = deal?.purchase_price ?? 63_500_000;
-  const renoPerUnit = fees.renovation_budget_per_unit ?? 12_000;
-  const totalUnits = deal?.total_units ?? 219;
-  const totalRenoBudget = renoPerUnit * totalUnits;
+  const holdYears = deal?.projected_hold_years ?? 7;
+  const equityMultiple = deal?.target_equity_multiple ?? 2.2;
+  const totalRaise = deal?.total_raise ?? 22_082_000;
+  const purchasePrice = deal?.purchase_price ?? 62_500_000;
+  // No renovation / construction management for Fairmont (new construction)
+  // const totalRenoBudget = 0; // unused — no renovation fees
 
   // Fee calculations on this investor's share
   const investorPct = totalRaise > 0 ? investment / totalRaise : 0;
-  const acquisition = investment * acqFeeRate;
+  // Acquisition fee is 1.5% of purchase price, prorated by investor share
+  const acquisition = purchasePrice * acqFeeRate * investorPct;
+  // Asset mgmt fee is 2% of EGI — approximated as % of investment per year
   const assetMgmtPerYear = investment * assetMgmtRate;
   const assetMgmtTotal = assetMgmtPerYear * holdYears;
   const investorShareOfSalePrice = purchasePrice * equityMultiple * investorPct;
   const disposition = investorShareOfSalePrice * dispositionRate;
-  const constructionMgmt = totalRenoBudget * constructionMgmtRate * investorPct;
+  const constructionMgmt = 0; // N/A — no renovation
   const totalFees = acquisition + assetMgmtTotal + disposition + constructionMgmt;
 
   // Gross return at base case, then subtract fees
@@ -86,7 +91,7 @@ export default function FeeCalculator({ externalAmount }: FeeCalculatorProps) {
 
   const fees = calcFees(investment, deal);
   const holdYears = deal.projected_hold_years ?? 6;
-  const assetMgmtPct = (deal.deal_fees as any)?.asset_mgmt_fee_pct ?? 0.02;
+  const assetMgmtPct = (deal as any).deal_fees?.asset_mgmt_fee_pct ?? 0.02;
 
   return (
     <div className="bg-gc-surface border border-gc-border rounded-2xl p-5">
@@ -141,7 +146,7 @@ export default function FeeCalculator({ externalAmount }: FeeCalculatorProps) {
       {/* Summary output */}
       <div className="space-y-2">
         <div className="flex items-center justify-between py-2 border-b border-gc-border/50">
-          <span className="text-xs text-gc-text-secondary">Acquisition fee <span className="text-gc-text-muted">(2% of equity, one-time)</span></span>
+          <span className="text-xs text-gc-text-secondary">Acquisition fee <span className="text-gc-text-muted">(1.5% of purchase price, one-time)</span></span>
           <span className="text-sm font-mono text-gc-text">{fmtDollar(fees.acquisition)}</span>
         </div>
         <div className="flex items-center justify-between py-2 border-b border-gc-border/50">
@@ -157,8 +162,8 @@ export default function FeeCalculator({ externalAmount }: FeeCalculatorProps) {
 
         {showDetails && (
           <div className="flex items-center justify-between py-2 border-b border-gc-border/50">
-            <span className="text-xs text-gc-text-secondary">Construction mgmt fee <span className="text-gc-text-muted">(your share)</span></span>
-            <span className="text-sm font-mono text-gc-text">{fmtDollar(fees.constructionMgmt)}</span>
+            <span className="text-xs text-gc-text-secondary">Construction mgmt fee <span className="text-gc-text-muted">(N/A — new construction)</span></span>
+            <span className="text-sm font-mono text-gc-text-muted">$0</span>
           </div>
         )}
 
@@ -166,7 +171,7 @@ export default function FeeCalculator({ externalAmount }: FeeCalculatorProps) {
           onClick={() => setShowDetails(d => !d)}
           className="text-[11px] text-gc-accent hover:text-gc-accent/80 transition-colors py-1"
         >
-          {showDetails ? '▲ Hide details' : '▾ Show construction mgmt fee'}
+          {showDetails ? '▲ Hide details' : '▾ Show all fees'}
         </button>
 
         {/* Totals */}

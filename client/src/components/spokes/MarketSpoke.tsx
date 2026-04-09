@@ -204,7 +204,7 @@ export default function MarketSpoke() {
                 <div className="mt-6 bg-gc-surface border-l-4 border-l-gc-accent border border-gc-border rounded-xl p-5">
                   <p className="text-sm text-gc-text leading-relaxed">
                     <span className="font-semibold text-gc-accent">The Opportunity:</span>{' '}
-                    Parkview Commons currently rents at $1.19/SF — a 12% discount to renovated comps averaging $1.35/SF.
+                    Fairmont Apartments currently rents at market-competitive rates with embedded upside as the 15-year tax abatement supports occupancy in Columbus' most supply-constrained submarket.
                     Post-renovation, the property's pro forma rents align with comparable renovated communities,
                     validating the value-add thesis with real market data.
                   </p>
