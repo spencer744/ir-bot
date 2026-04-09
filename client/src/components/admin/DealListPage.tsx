@@ -124,16 +124,16 @@ export default function DealListPage() {
           <button
             type="button"
             onClick={() => setImportOpen(true)}
-            className="border border-gc-border text-gc-text-secondary hover:text-gc-text hover:bg-gc-surface-elevated px-4 py-2.5 min-h-[44px] rounded-lg text-sm font-medium transition-colors touch-manipulation"
+            className="border-2 border-[#3B82F6]/50 text-[#F0F0F5] bg-[#1C1C24] hover:bg-[#2A2A35] px-4 py-2.5 min-h-[44px] rounded-lg text-sm font-medium transition-colors touch-manipulation"
           >
             Import from CSV
           </button>
           <button
             type="button"
             onClick={() => navigate('/admin/deals/new')}
-            className="bg-gc-accent hover:bg-gc-accent-hover text-white px-4 py-2.5 min-h-[44px] rounded-lg text-sm font-medium transition-colors touch-manipulation"
+            className="bg-[#3B82F6] hover:bg-[#2563EB] text-white px-4 py-2.5 min-h-[44px] rounded-lg text-sm font-medium transition-colors touch-manipulation shadow-md shadow-blue-500/20"
           >
-            New Deal
+            + New Deal
           </button>
         </div>
       </div>
@@ -203,10 +203,10 @@ export default function DealListPage() {
                         Edit
                       </Link>
                       <a
-                        href={`/deals/${deal.slug}?lp_preview=1`}
+                        href={`/dealroom/deals/${deal.slug}?lp_preview=1`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center min-h-[44px] px-3 py-2 rounded-lg text-sm text-gc-text-secondary hover:text-gc-text hover:bg-gc-surface-elevated touch-manipulation"
+                        className="inline-flex items-center min-h-[44px] px-3 py-2 rounded-lg text-sm text-[#9595A5] hover:text-white hover:bg-[#2A2A35] border border-[#2A2A35] touch-manipulation"
                       >
                         Preview
                       </a>
