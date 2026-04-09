@@ -112,7 +112,7 @@ export function DealKBTab({ deal, dealId: _dealId, onSave: _onSave }: DealKBTabP
   const fetchFiles = useCallback(() => {
     setLoading(true);
     api
-      .get('/dealroom/api/admin/knowledge-base')
+      .get('/admin/knowledge-base')
       .then((data: KBInventoryResponse) => {
         setFiles(data.files ?? []);
       })
@@ -165,7 +165,7 @@ export function DealKBTab({ deal, dealId: _dealId, onSave: _onSave }: DealKBTabP
     setSaveMsg(null);
 
     try {
-      await api.post('/dealroom/api/admin/knowledge-base', {
+      await api.post('/admin/knowledge-base', {
         path: selectedFile.path,
         content: fileContent,
       });

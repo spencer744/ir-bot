@@ -196,7 +196,7 @@ export function DealOverviewTab({ deal, dealId, onSave }: DealOverviewTabProps) 
 
       let result: any;
       if (isNew) {
-        result = await api.post('/dealroom/api/admin/deals', payload);
+        result = await api.post('/admin/deals', payload);
       } else {
         result = await api.put(`/api/admin/deals/${dealId}`, payload);
       }
