@@ -99,7 +99,7 @@ export default function Hub() {
             transition={{ delay: 0.45, duration: 0.5, ease: 'easeOut' }}
             className="text-gc-text-secondary text-base sm:text-lg max-w-2xl mx-auto mb-3"
           >
-            {deal.city}, {deal.state} &middot; {deal.total_units} Units &middot; Class B Value-Add Multifamily
+            {deal.city}, {deal.state} &middot; {deal.total_units} Units &middot; {deal.deal_terms?.asset_class || 'Class A Multifamily'}
           </motion.p>
 
           {/* Investment Thesis */}
@@ -109,7 +109,7 @@ export default function Hub() {
             transition={{ delay: 0.55, duration: 0.5, ease: 'easeOut' }}
             className="text-gc-text-muted text-sm sm:text-base max-w-xl mx-auto mb-10 leading-relaxed"
           >
-            Below-market rents with a proven renovation playbook targeting 15%+ rent premiums in Indianapolis&apos; strongest employment submarket.
+            A newly constructed Class A community in one of Columbus&apos; most supply-constrained suburbs, backed by a 15-year tax abatement and institutional-quality demand fundamentals.
           </motion.p>
 
           {/* Key Metrics Row */}
@@ -188,9 +188,6 @@ export default function Hub() {
         </section>
       ) : null}
 
-      {/* Risks & Considerations */}
-      <RisksSection />
-
       {/* Spoke Navigation Cards */}
       <section id="spokes" className="max-w-6xl mx-auto px-4 sm:px-6 pb-16">
         <motion.div
@@ -221,6 +218,9 @@ export default function Hub() {
           />
         </div>
       </section>
+
+      {/* Risks & Considerations */}
+      <RisksSection />
 
       {/* Fundraise Progress (conditional) */}
       {deal.fundraise_pct != null && deal.fundraise_pct > 0 && (
