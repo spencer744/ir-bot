@@ -171,14 +171,20 @@ router.post('/login', async (req, res, next) => {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
+    // Per-user password support: ADMIN_PASSWORD_<EMAIL_PREFIX>=<password>
+    // Falls back to shared ADMIN_PASSWORD if no per-user password is set.
+    const emailPrefix = email.toLowerCase().split('@')[0].replace(/[^a-z0-9]/g, '_').toUpperCase();
+    const perUserPassword = process.env[`ADMIN_PASSWORD_${emailPrefix}`];
+    const effectivePassword = perUserPassword || adminPassword;
+
     // Compare password: bcrypt hash if stored as $2b$..., else constant-time plaintext compare.
     // Production deployments should pre-hash the password with bcrypt.
     let passwordMatch = false;
-    if (adminPassword.startsWith('$2b$')) {
-      passwordMatch = await bcrypt.compare(password, adminPassword);
+    if (effectivePassword.startsWith('$2b$')) {
+      passwordMatch = await bcrypt.compare(password, effectivePassword);
     } else {
       const submittedBuf = Buffer.from(password);
-      const storedBuf = Buffer.from(adminPassword);
+      const storedBuf = Buffer.from(effectivePassword);
       if (submittedBuf.length === storedBuf.length) {
         passwordMatch = crypto.timingSafeEqual(submittedBuf, storedBuf);
       }
