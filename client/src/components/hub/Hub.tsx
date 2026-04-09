@@ -99,7 +99,7 @@ export default function Hub() {
             transition={{ delay: 0.45, duration: 0.5, ease: 'easeOut' }}
             className="text-gc-text-secondary text-base sm:text-lg max-w-2xl mx-auto mb-3"
           >
-            {deal.city}, {deal.state} &middot; {deal.total_units} Units &middot; {deal.deal_terms?.asset_class || 'Class A Multifamily'}
+            {deal.city}, {deal.state} &middot; {deal.total_units} Units &middot; {'Class A Multifamily'}
           </motion.p>
 
           {/* Investment Thesis */}
