@@ -35,7 +35,9 @@ export interface DealFees {
   acquisition_fee_pct?: number;
   loan_guarantee_fee_pct?: number;
   asset_management_fee_pct?: number;
+  asset_management_fee_basis?: string;
   property_management_fee_pct?: number;
+  property_management_fee_basis?: string;
   disposition_fee_pct?: number;
 }
 
