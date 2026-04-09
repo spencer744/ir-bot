@@ -33,7 +33,7 @@ This applies to both ongoing distributions and final sale proceeds.
 
 **Q: What does "no GP catch-up" mean and why does it matter?**
 
-A: A catch-up lets the GP receive 100% of profits after the pref is met until the GP reaches a target percentage, reducing what LPs receive in that tranche. Gray Capital does not use a catch-up -- after the 8% pref, profits go directly to the 70/30 split. Investors receive a larger share of profits, making this a more investor-friendly structure.
+A: A catch-up lets the GP receive 100% of profits after the pref is met until the GP reaches a target percentage, reducing what LPs receive in that tranche. Gray Capital does not use a catch-up -- after the 8% pref, profits go directly to the 80/20 split. Investors receive a larger share of profits, making this a more investor-friendly structure.
 
 **Q: Are distributions guaranteed?**
 
@@ -59,7 +59,7 @@ A: Gray Capital does not offer a formal DRIP. However, you can accumulate distri
 
 **Q: What happens to my investment at the time of sale?**
 
-A: Sale proceeds flow through the waterfall: mortgage and secured obligations repaid, closing costs deducted, then remaining proceeds distributed to investors -- return of capital, accrued preferred return, and finally the 70/30 LP/GP profit split on remaining gains. Investors receive a final distribution statement with complete accounting.
+A: Sale proceeds flow through the waterfall: mortgage and secured obligations repaid, closing costs deducted, then remaining proceeds distributed to investors -- return of capital, accrued preferred return, and finally the 80/20 LP/GP profit split on remaining gains. Investors receive a final distribution statement with complete accounting.
 
 ---
 

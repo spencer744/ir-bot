@@ -52,7 +52,7 @@ A: Sale proceeds are distributed through the waterfall:
 2. **Closing Costs** -- Brokerage commissions, transfer taxes, legal fees deducted
 3. **Return of Capital** -- Investors receive remaining invested capital
 4. **Accrued Preferred Return** -- Any unpaid 8% cumulative preferred return paid to LPs
-5. **Profit Split** -- Remaining net proceeds split 70% LP / 30% GP
+5. **Profit Split** -- Remaining net proceeds split 80% LP / 20% GP
 
 Final distributions are typically wired within 30-60 days after the sale closes, accompanied by a complete accounting statement.
 
