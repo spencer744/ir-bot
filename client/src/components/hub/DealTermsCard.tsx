@@ -18,8 +18,11 @@ function formatPct(n: number) {
 export default function DealTermsCard({ deal }: DealTermsCardProps) {
   const wt = deal.waterfall_terms;
   const prefRate = wt?.pref_rate ?? 0.08;
-  const lpSplit = wt?.split_above_hurdle_1?.lp ?? 0.7;
-  const gpSplit = wt?.split_above_hurdle_1?.gp ?? 0.3;
+  const lpSplitBelow = wt?.split_below_hurdle?.lp ?? 0.8;
+  const gpSplitBelow = wt?.split_below_hurdle?.gp ?? 0.2;
+  const hurdleRate = wt?.hurdle_1_rate ?? 0.15;
+  const lpSplitAbove = wt?.split_above_hurdle_1?.lp ?? 0.6;
+  const gpSplitAbove = wt?.split_above_hurdle_1?.gp ?? 0.4;
   const fees: DealFees | null = deal.fees ?? null;
 
   return (
@@ -47,8 +50,12 @@ export default function DealTermsCard({ deal }: DealTermsCardProps) {
                 <span className="font-mono-numbers font-semibold text-gc-text">{formatPct(prefRate)}</span>
               </div>
               <div className="flex justify-between items-baseline">
-                <span className="text-sm text-gc-text-secondary">Waterfall split</span>
-                <span className="font-mono-numbers font-semibold text-gc-text">{Math.round(lpSplit * 100)}/{Math.round(gpSplit * 100)} LP/GP</span>
+                <span className="text-sm text-gc-text-secondary">Split (below {formatPct(hurdleRate)} IRR)</span>
+                <span className="font-mono-numbers font-semibold text-gc-text">{Math.round(lpSplitBelow * 100)}/{Math.round(gpSplitBelow * 100)} LP/GP</span>
+              </div>
+              <div className="flex justify-between items-baseline">
+                <span className="text-sm text-gc-text-secondary">Split (above {formatPct(hurdleRate)} IRR)</span>
+                <span className="font-mono-numbers font-semibold text-gc-text">{Math.round(lpSplitAbove * 100)}/{Math.round(gpSplitAbove * 100)} LP/GP</span>
               </div>
               <div className="flex justify-between items-baseline">
                 <span className="text-sm text-gc-text-secondary">GP catch-up</span>
@@ -86,11 +93,8 @@ export default function DealTermsCard({ deal }: DealTermsCardProps) {
                     <span className="font-mono-numbers text-sm text-gc-text">{fees.property_management_fee_pct}%</span>
                   </div>
                 )}
-                {fees.disposition_fee_pct != null && (
-                  <div className="flex justify-between items-baseline">
-                    <span className="text-sm text-gc-text-secondary">Disposition</span>
-                    <span className="font-mono-numbers text-sm text-gc-text">{fees.disposition_fee_pct}%</span>
-                  </div>
+                {(fees.asset_management_fee_basis || fees.property_management_fee_basis) && (
+                  <p className="text-xs text-gc-text-muted pt-1">AM &amp; PM fees charged on gross revenue</p>
                 )}
               </div>
             ) : (

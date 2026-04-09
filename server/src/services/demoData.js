@@ -193,18 +193,19 @@ The 15-year tax abatement is a significant differentiator — it substantially r
     pref_rate: 0.08,
     pref_type: 'cumulative',
     pref_basis: 'committed_capital',
-    hurdle_1_irr: null,
-    split_below_hurdle: { lp: 1.0, gp: 0.0 },
+    hurdle_1_irr: 0.15,
+    split_below_hurdle: { lp: 0.80, gp: 0.20 },
     hurdle_1_rate: 0.15,
-    split_above_hurdle_1: { lp: 0.70, gp: 0.30 },
+    split_above_hurdle_1: { lp: 0.60, gp: 0.40 },
     catch_up: false,
   },
   fees: {
     acquisition_fee_pct: 1.5,               // 1.5% of purchase price ($937,500)
     acquisition_fee_dollars: 937_500,
-    asset_management_fee_pct: 2.0,          // 2.0% of EGI, ongoing
-    asset_management_fee_basis: 'EGI',
-    disposition_fee_pct: 1.0,              // 1.0% of sale price at exit
+    asset_management_fee_pct: 2.0,          // 2.0% of gross revenue, ongoing
+    asset_management_fee_basis: 'Gross Revenue',
+    property_management_fee_pct: 3.0,      // 3.0% of gross revenue, Gray Residential
+    property_management_fee_basis: 'Gross Revenue',
     construction_mgmt_fee_pct: 0,          // N/A — no renovation
     preferred_return_pct: 8.0,             // 8% cumulative non-compounding
     preferred_return_type: 'cumulative_non_compounding',
@@ -213,8 +214,9 @@ The 15-year tax abatement is a significant differentiator — it substantially r
     acquisition_fee_pct: 0.015,
     acquisition_fee_dollars: 937_500,
     asset_mgmt_fee_pct: 0.02,
-    asset_mgmt_fee_basis: 'EGI',
-    disposition_fee_pct: 0.01,
+    asset_mgmt_fee_basis: 'Gross Revenue',
+    property_mgmt_fee_pct: 0.03,
+    property_mgmt_fee_basis: 'Gross Revenue',
     construction_mgmt_fee_pct: 0,
     construction_mgmt_note: 'N/A - no renovation',
     preferred_return_pct: 0.08,

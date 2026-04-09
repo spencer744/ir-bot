@@ -188,6 +188,64 @@ export default function Hub() {
         </section>
       ) : null}
 
+      {/* Spoke Navigation Cards */}
+      <section id="spokes" className="max-w-6xl mx-auto px-4 sm:px-6 pb-16">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-50px' }}
+          transition={{ duration: 0.5 }}
+          className="text-center mb-10"
+        >
+          <h2 className="text-2xl sm:text-3xl font-bold text-gc-text mb-2">Explore the Deal</h2>
+          <p className="text-gc-text-secondary">Dive deep into every aspect of this investment.</p>
+        </motion.div>
+
+        <ResearchProgressBar />
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {SPOKES.map((spoke, i) => (
+            <SpokeCard
+              key={spoke.id}
+              {...spoke}
+              index={i}
+              onClick={() => handleSpokeClick(spoke.id)}
+            />
+          ))}
+          <IndicateInterestCard
+            index={SPOKES.length}
+            visible={sectionsVisited.filter(s => s !== 'hub').length >= 3}
+          />
+        </div>
+      </section>
+
+      {/* Executive Summary */}
+      <section className="max-w-4xl mx-auto px-4 sm:px-6 pb-16">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-50px' }}
+          transition={{ duration: 0.5 }}
+          className="bg-gc-surface border border-gc-border rounded-2xl p-6 sm:p-8"
+        >
+          <h2 className="text-xl font-semibold text-gc-text mb-4">Executive Summary</h2>
+          <div className="space-y-4 text-sm text-gc-text-secondary leading-relaxed">
+            <p>
+              Fairmont Apartments is a 219-unit, Class A multifamily community in Westerville, Ohio &mdash; one of Columbus&apos; most supply-constrained and high-demand suburbs. Built to institutional standards (2025 delivery), the property features premium finishes and a <strong className="text-gc-text">15-year property tax abatement</strong> that significantly enhances investor returns.
+            </p>
+            <p>
+              Gray Capital is acquiring Fairmont at <strong className="text-gc-text">$285,000 per unit</strong>, well below estimated replacement cost of $350K+, with <strong className="text-gc-text">$43.75M in fixed-rate Fannie Mae agency debt</strong> at 5.17% with 48 months of interest-only payments. This eliminates floating-rate risk and provides predictable debt service throughout the hold period.
+            </p>
+            <p>
+              The investment thesis is driven by organic rent growth in a structurally supply-constrained submarket, anchored by major demand catalysts including Intel&apos;s $20B semiconductor campus (4 miles away), Anduril&apos;s defense manufacturing hub, and Ohio State University. No renovation is required &mdash; upside comes from lease-up, loss-to-lease capture, and market rent growth managed by <strong className="text-gc-text">Gray Residential</strong>, our in-house property management platform.
+            </p>
+            <p>
+              Target returns: <strong className="text-gc-text">14&ndash;16% IRR</strong>, <strong className="text-gc-text">2.2x equity multiple</strong>, <strong className="text-gc-text">8% preferred return</strong> (cumulative, no GP catch-up), over a 7-year projected hold.
+            </p>
+          </div>
+        </motion.div>
+      </section>
+
       {/* Gray Capital At-A-Glance */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-16">
         <motion.div
@@ -297,36 +355,7 @@ export default function Hub() {
         </motion.div>
       </section>
 
-      {/* Spoke Navigation Cards */}
-      <section id="spokes" className="max-w-6xl mx-auto px-4 sm:px-6 pb-16">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-50px' }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-10"
-        >
-          <h2 className="text-2xl sm:text-3xl font-bold text-gc-text mb-2">Explore the Deal</h2>
-          <p className="text-gc-text-secondary">Dive deep into every aspect of this investment.</p>
-        </motion.div>
 
-        <ResearchProgressBar />
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {SPOKES.map((spoke, i) => (
-            <SpokeCard
-              key={spoke.id}
-              {...spoke}
-              index={i}
-              onClick={() => handleSpokeClick(spoke.id)}
-            />
-          ))}
-          <IndicateInterestCard
-            index={SPOKES.length}
-            visible={sectionsVisited.filter(s => s !== 'hub').length >= 3}
-          />
-        </div>
-      </section>
 
 
 
