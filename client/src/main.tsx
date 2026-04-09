@@ -23,7 +23,7 @@ if (import.meta.env.VITE_SENTRY_DSN) {
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ErrorBoundary>
-      <BrowserRouter>
+      <BrowserRouter basename="/dealroom">
         <App />
       </BrowserRouter>
     </ErrorBoundary>
