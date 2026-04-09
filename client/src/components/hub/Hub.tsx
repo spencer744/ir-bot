@@ -7,7 +7,7 @@ import SpokeCard from './SpokeCard';
 import DealTermsCard from './DealTermsCard';
 import IndicateInterestCard from './IndicateInterestCard';
 import ResearchProgressBar from './ResearchProgressBar';
-import RisksSection from './RisksSection';
+// RisksSection moved to Financial Explorer spoke
 import { isEmbedVideoUrl, getEmbedVideoUrl } from '../../utils/videoUrl';
 
 export default function Hub() {
@@ -188,6 +188,115 @@ export default function Hub() {
         </section>
       ) : null}
 
+      {/* Gray Capital At-A-Glance */}
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-16">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-50px' }}
+          transition={{ duration: 0.5 }}
+          className="mb-8"
+        >
+          <h2 className="text-2xl sm:text-3xl font-bold text-gc-text mb-2">Gray Capital Track Record</h2>
+          <p className="text-gc-text-secondary text-sm">10 full-cycle deals. Zero capital losses. 29.3% average net IRR.</p>
+        </motion.div>
+
+        {/* Track Record Stats */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-8">
+          {[
+            { value: '29.3%', label: 'AVG. NET IRR' },
+            { value: '2.16x', label: 'AVG. EQUITY MULTIPLE' },
+            { value: '8.0%', label: 'AVG. CASH-ON-CASH' },
+            { value: '3.5', label: 'AVG. HOLD PERIOD' },
+          ].map((stat) => (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="bg-gc-surface border border-gc-border rounded-2xl p-5 text-center"
+            >
+              <p className="text-2xl sm:text-3xl font-bold font-mono-numbers text-gc-text mb-1">{stat.value}</p>
+              <p className="text-[10px] text-gc-text-muted uppercase tracking-wider">{stat.label}</p>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Differentiators */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-8">
+          {[
+            { title: 'Capital Preservation is #1', desc: 'Never lost a single dollar of investor capital.' },
+            { title: 'No Capital Calls, Ever', desc: 'Assets capitalized to mitigate risk \u2014 obsess over buying and financing the right way.' },
+            { title: 'Cash-Flow Focused', desc: 'Stable, steady cash flow at acquisition \u2014 operationally driven growth seeds upside.' },
+          ].map((item) => (
+            <motion.div
+              key={item.title}
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="bg-gc-surface border border-gc-border rounded-xl p-4"
+            >
+              <h4 className="text-sm font-semibold text-gc-text mb-1">{item.title}</h4>
+              <p className="text-xs text-gc-text-secondary leading-relaxed">{item.desc}</p>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Vertically Integrated Platform */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mb-6"
+        >
+          <h3 className="text-lg font-semibold text-gc-text mb-2">Vertically Integrated Platform</h3>
+          <p className="text-gc-text-secondary text-sm mb-4">
+            Gray Capital controls every aspect of the investment process \u2014 acquisitions, asset management, property management, construction, and design. Everything in-house.
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
+          {[
+            { name: 'Gray Capital', sub: 'CAPITAL MANAGEMENT', items: ['Acquisitions', 'Capital Raising', 'Asset Management', 'Fund Management', 'Dispositions'] },
+            { name: 'Gray Residential', sub: 'PROPERTY MANAGEMENT', items: ['Leasing', 'Marketing', 'Maintenance', 'Collections'] },
+            { name: 'Gray Construction', sub: 'CONSTRUCTION & DESIGN', items: ['Project Management', 'Vendor Sourcing', 'Interior Design'] },
+            { name: 'The Gray Report', sub: 'MULTIFAMILY INTELLIGENCE', items: ['Industry Research', 'Market Data', 'Weekly Podcast & Newsletter'] },
+          ].map((pillar) => (
+            <motion.div
+              key={pillar.name}
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="bg-gc-surface border border-gc-border rounded-xl p-4"
+            >
+              <h4 className="text-sm font-semibold text-gc-accent mb-0.5">{pillar.name}</h4>
+              <p className="text-[10px] text-gc-text-muted uppercase tracking-wider mb-3">{pillar.sub}</p>
+              <ul className="space-y-1">
+                {pillar.items.map((item) => (
+                  <li key={item} className="text-xs text-gc-text-secondary flex items-center gap-1.5">
+                    <span className="w-1 h-1 bg-gc-accent-light rounded-full shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Sponsor Co-Invest Callout */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="bg-gc-surface border-l-4 border-gc-positive rounded-xl p-4"
+        >
+          <p className="text-sm text-gc-text-secondary">
+            <span className="text-gc-positive text-lg font-bold font-mono-numbers">14%</span>{' '}
+            Average Sponsor Co-Invest \u2014 3x the market average. Gray Capital wins when investors win. High alignment of interest means our incentives are directly tied to yours.
+          </p>
+        </motion.div>
+      </section>
+
       {/* Spoke Navigation Cards */}
       <section id="spokes" className="max-w-6xl mx-auto px-4 sm:px-6 pb-16">
         <motion.div
@@ -219,8 +328,7 @@ export default function Hub() {
         </div>
       </section>
 
-      {/* Risks & Considerations */}
-      <RisksSection />
+
 
       {/* Fundraise Progress (conditional) */}
       {deal.fundraise_pct != null && deal.fundraise_pct > 0 && (

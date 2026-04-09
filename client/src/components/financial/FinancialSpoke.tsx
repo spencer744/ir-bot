@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { useDeal } from '../../context/DealContext';
 import { useAnalytics } from '../../hooks/useAnalytics';
 import SpokeLayout from '../spokes/SpokeLayout';
+import RisksSection from '../hub/RisksSection';
 import ScenarioViewer from './ScenarioViewer';
 import DistributionTimeline from './DistributionTimeline';
 import BenchmarkComparison from './BenchmarkComparison';
@@ -160,6 +161,9 @@ export default function FinancialSpoke() {
           </div>
         </section>
       )}
+
+      {/* Risks & Considerations */}
+      <RisksSection />
     </SpokeLayout>
   );
 }
