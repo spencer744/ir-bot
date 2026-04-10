@@ -109,7 +109,7 @@
 
 **At exit, ~8 years of abatement remain** (abatement runs through 2041; close June 2026 + 7yr hold = exit June 2033). The next buyer inherits $7–8M NPV of abatement — a structural pricing floor supporting our 5.50% exit cap underwriting.
 
-**IRR sensitivity:** Deal clears 12%+ LP IRR through 6.00% exit cap (50 bps of widening from base case). At 5.50% base + conservative rent growth of 3%, IRR remains above 12.5%.
+**IRR sensitivity:** At a 6.00% exit cap (50 bps of widening), LP IRR is approximately 11.8%. Under the full conservative scenario (3% growth, 6.00% exit, 92% occupancy), LP IRR is approximately 10.5% with a 1.8x equity multiple.
 
 ---
 

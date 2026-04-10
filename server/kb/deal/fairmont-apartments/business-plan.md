@@ -50,7 +50,7 @@ Our underwriting assumes 4% blended rent growth. That is NOT a market appreciati
 
 3. **3BR Mark-to-Market (5–8%):** 23 units currently priced below the Westerville average ($2,270) and well below the New Albany premium tier ($2,400+). These push 5–10% on renewal.
 
-**Stress test:** At flat 3% organic growth, LP IRR still clears 12.5%. The rent growth thesis provides upside, not survival.
+**Stress test:** At flat 3% organic growth with a 5.50% exit cap, LP IRR is approximately 14.2%. Under the conservative scenario (3% growth, 6.00% exit cap), LP IRR is approximately 10.5% with a 1.8x equity multiple. The rent growth thesis provides upside, not survival.
 
 ---
 

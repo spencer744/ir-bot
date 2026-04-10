@@ -14,7 +14,7 @@ Gray Capital models multiple scenarios for every deal — not to show a range of
 
 | Scenario | Rent Growth | Exit Cap | LP IRR | Equity Multiple | Avg CoC |
 |----------|------------|----------|--------|-----------------|---------|
-| Conservative | 3.0% | 5.75% | ~12.5% | ~2.0x | ~7.5% |
+| Conservative | 3.0% | 6.00% | ~10.5% | ~1.8x | ~7.0% |
 | Base Case | 4.0% | 5.50% | 14–16% | 2.2x | 8.4% |
 | Upside | 4.5–5.0% | 5.25% | ~17%+ | ~2.4x+ | ~9%+ |
 | Abatement Loss | N/A | 5.50% | ~8.0% | ~1.5x | ~4% |
@@ -44,7 +44,7 @@ Gray Capital models multiple scenarios for every deal — not to show a range of
 **Assumptions:**
 - Rent growth: 4.0% blended (three verifiable engines)
   - Engine 1: AMI escalator 5.3% CAGR on 66 units
-  - Engine 2: $737K loss-to-lease capture as early leases roll to market
+  - Engine 2: ~$290K loss-to-lease capture as early leases roll to market
   - Engine 3: 3BR units push 5–8% to submarket avg on renewal
 - Exit cap: 5.50% (underwritten; 55 bps above where comps last traded)
 - Occupancy: 93.5%+ stabilized economic occupancy

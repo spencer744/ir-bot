@@ -77,7 +77,7 @@ Illustrative example (not a guarantee — actual results depend on performance):
 
 | Scenario | LP IRR | Equity Multiple | Avg CoC |
 |----------|--------|-----------------|---------|
-| Conservative (3% rent growth, 5.75% exit cap) | ~12.5% | ~2.0x | ~7.5% |
+| Conservative (3% rent growth, 6.00% exit cap) | ~10.5% | ~1.8x | ~7.0% |
 | Base Case (4% rent growth, 5.50% exit cap) | 14–16% | 2.2x | 8.4% |
 | Upside (4.5% rent growth, 5.25% exit cap) | ~17%+ | ~2.4x | ~9%+ |
 

@@ -4,11 +4,11 @@
 
 | Detail | Value |
 |--------|-------|
-| **Address** | 4985 Warner Rd, Westerville, OH 43081 |
+| **Address** | 4985 Warner Rd & 5390 Magnolia Mae Place, Westerville, OH 43081 |
 | **Submarket** | Westerville / West Edge of New Albany |
 | **Property Type** | Class A Multifamily |
 | **Year Built** | 2025 |
-| **Developer** | Preferred Living (central Ohio's premier multifamily developer) |
+| **Developer** | Preferred Living (Nicholas I. King, principal) — central Ohio's premier multifamily developer |
 | **Buildings** | 8 |
 | **Total Units** | 219 |
 | **Total Rentable SF** | 203,274 |
@@ -41,6 +41,7 @@ Built by **Preferred Living**, central Ohio's premier development firm, Fairmont
 - **Smart home:** Nest thermostats, keyless entry, EV charging stations, Luxer parcel lockers
 - **Building systems:** All brand-new; zero deferred maintenance; zero capex projection for hold period
 - **Construction type:** Stick-frame over podium / garden-style across 8 buildings
+- **Architects/Engineers:** Collaborative Design (architectural), Jezerinac Geers Associates (structural), McMullen Engineering Co. Inc. (plumbing, HVAC, electrical)
 - **2025 vintage:** Delivered March 2025; inspection reports clean
 
 ---

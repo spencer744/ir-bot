@@ -70,10 +70,10 @@ We're underwriting a **55 bps wider** cap rate than where The Meridian traded �
 |----------|-----------|--------|
 | 5.25% (Bull) | ~$86M+ | ~17%+ |
 | 5.50% (Base) | ~$82.7M | 14–16% |
-| 5.75% (Bear) | ~$79.2M | ~12–13% |
-| 6.00% (Stress) | ~$75.9M | ~11–12% |
+| 5.75% (Bear) | ~$79.2M | ~13% |
+| 6.00% (Stress) | ~$75.9M | ~11.8% |
 
-The deal clears **12%+ LP IRR through a 6.00% exit cap** — which would require no abatement premium, rising rates, and no Intel demand pull simultaneously.
+At a 6.00% exit cap, LP IRR is approximately 11.8% — which represents a scenario with no abatement premium priced in, elevated rates, and no Intel demand pull.
 
 ---
 

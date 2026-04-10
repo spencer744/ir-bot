@@ -54,10 +54,10 @@ Columbus is also the only major U.S. market to sustain zero negative lease trade
 **Our Position:** Our 4% is not a market appreciation bet. It's three verifiable engines embedded in the current rent roll:
 
 1. **AMI escalator:** 5.3% CAGR on 66 units — built into the HUD structure, not dependent on market conditions
-2. **Loss-to-lease capture:** $737K/year of existing mispricing corrects to market as leases expire. This is arithmetic, not speculation.
+2. **Loss-to-lease capture:** ~$290K/year of existing mispricing corrects to market as leases expire. This is arithmetic, not speculation.
 3. **3BR mark-to-market:** 23 units currently 5–8% below submarket average ($2,270). Natural correction on renewal.
 
-**Stress test:** At flat 3% organic growth, LP IRR still clears 12.5%. We're not relying on a market rebound.
+**Stress test:** At flat 3% organic growth with a 5.50% exit cap, LP IRR is approximately 14.2%. Under the conservative scenario (3% growth, 6.00% exit cap), LP IRR is approximately 10.5% with a 1.8x equity multiple. We're not relying on a market rebound.
 
 ---
 
@@ -101,11 +101,23 @@ We're exiting 7 years after those trades, with:
 - Intel Ohio One operational or approaching operation (~3,000 engineers at $135K+)
 - Multi-year proven submarket outperformance
 
-**The deal clears 12%+ LP IRR through a 6.00% exit cap** — 50 bps of widening — which would require simultaneously: higher rates, no abatement premium, and no Intel demand premium. All three simultaneously is a very low probability outcome.
+At a 6.00% exit cap (50 bps of widening), LP IRR is approximately 11.8%. That scenario would require simultaneously: higher rates, no abatement premium, and no Intel demand premium.
 
 ---
 
-### Risk 8: Could I Lose My Entire Investment?
+### Risk 8: Intel Ohio One Timeline Risk
+
+**The Concern:** Intel's Ohio semiconductor campus is referenced as a demand catalyst, but Intel has faced financial headwinds, workforce reductions, and timeline adjustments to its U.S. fab expansion plans.
+
+**Our Position:** Intel Ohio One is presented as unmodeled upside — it is not in our base case underwriting. The deal's projected returns assume existing demand only. If Intel delivers on its planned timeline (2030–31), it would be a significant demand catalyst with ~3,000 engineers at $135K+ average salary and 10,000+ secondary jobs. If it is delayed or reduced, our base case is unaffected.
+
+That said, the broader Columbus advanced manufacturing and technology corridor is real and diversified beyond Intel alone. Amazon, Google, Microsoft, and Meta are expanding data center operations in northeast Columbus. Anduril's $1.8B defense campus is independently progressing. The submarket's demand base does not depend on any single employer.
+
+Investors should be aware that Intel's timeline is subject to change based on corporate priorities, CHIPS Act funding allocations, and global semiconductor market conditions.
+
+---
+
+### Risk 9: Could I Lose My Entire Investment?
 
 Total loss is extremely unlikely but possible under catastrophic circumstances (sustained vacancy with inability to service debt, catastrophic uninsured property damage, complete regulatory failure). The 70% LTV provides a 30% equity cushion before the loan exceeds property value. Fixed-rate Fannie Mae agency debt eliminates refinancing risk.
 
@@ -113,13 +125,13 @@ Gray Capital has zero capital losses across 10 realized deals with $2.5B+ in tra
 
 ---
 
-### Risk 9: Has Gray Capital Ever Lost Investor Capital?
+### Risk 10: Has Gray Capital Ever Lost Investor Capital?
 
 No. Across 10 realized deals: 29.3% avg net LP IRR, 2.16x avg equity multiple, zero capital losses. Every realized investment has returned full capital plus profits. Past performance does not guarantee future results.
 
 ---
 
-### Risk 10: What if Gray Capital Cannot Execute Operationally?
+### Risk 11: What if Gray Capital Cannot Execute Operationally?
 
 Gray Capital self-manages through Gray Residential, with an established Columbus-area operational footprint and deep familiarity with Ohio CRA and abatement compliance. The team is coordinating with the seller in advance of close — not starting from scratch on Day 1.
 

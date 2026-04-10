@@ -127,7 +127,7 @@ Columbus Class A rents are currently -0.3% YoY — a temporary condition driven 
 2. **Loss-to-lease capture:** ~$290K of existing mispricing corrects to market on natural rollover
 3. **3BR mark-to-market:** 5–8% below submarket average with natural correction on renewal
 
-**Stress test:** At flat 3% organic growth, LP IRR still clears 12.5%. The deal does not depend on a market rebound.
+**Stress test:** At flat 3% organic growth with a 5.50% exit cap, LP IRR is approximately 14.2%. Under the conservative scenario (3% growth, 6.00% exit cap), LP IRR is approximately 10.5%. The deal does not depend on a market rebound.
 
 ---
 

@@ -12,7 +12,7 @@ Fairmont is financed with a **Fannie Mae agency loan originated through Greyston
 | **Loan Term** | 7 years |
 | **Interest-Only Period** | 48 months (4 years) |
 | **LTV** | 70.0% |
-| **Going-In DSCR** | 1.03x |
+| **Going-In DSCR** | 1.31x (I/O period) |
 | **Rate Buydown** | $875,000 (2.0% of loan amount) |
 | **Amortization** | 30-year schedule (after IO period) |
 
