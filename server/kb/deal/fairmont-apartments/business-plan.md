@@ -97,7 +97,6 @@ The 15-year, 100% abatement is Fairmont's largest structural advantage. Gray Cap
 - Conduct income certification on all 66 restricted units (80% AMI)
 - Engage an Ohio-qualified property manager with abatement compliance experience
 - Submit annual reporting 90 days ahead of the March 31 deadline (not at deadline)
-- Confirm Too LLC Phase 2 final approval as a hard closing condition
 
 The abatement is **transferable with notice** and fully confirmed. The risk is administrative, not economic — and we treat it accordingly.
 

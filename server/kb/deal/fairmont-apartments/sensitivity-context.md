@@ -97,7 +97,6 @@ If the 15-year, 100% tax abatement is lost due to CRA non-compliance:
 - Income certification on all 66 restricted units conducted annually
 - Annual reporting filed 90 days before the March 31 deadline (not at deadline)
 - Ohio-qualified property management team with abatement compliance experience
-- Too LLC Phase 2 final approval confirmed as a hard closing condition — no close without it
 - Abatement transferability confirmed with notice to municipality
 
 **Gray Capital's assessment:** This is an administrative risk, not an economic one. The 66 AMI units are already leased at 80% AMI rents — the current structure already satisfies the requirement. The risk is operational discipline, which is squarely within our control.

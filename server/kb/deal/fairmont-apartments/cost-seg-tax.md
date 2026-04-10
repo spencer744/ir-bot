@@ -34,7 +34,6 @@ The abatement requires that **66 units (30% of total)** be restricted at **80% o
 - Annual income certification on all 66 restricted units
 - Annual CRA compliance reporting filed 90 days before the March 31 deadline
 - Ohio-qualified property management team experienced in abatement compliance
-- Too LLC Phase 2 final approval confirmed as hard closing condition
 - Dedicated internal tracking — not delegated to a third party
 
 **Critical note:** One year of non-compliance triggers **permanent, irrecoverable rescission** of the abatement through 2041. Gray Capital treats this as the deal's most important operational risk and manages it accordingly.

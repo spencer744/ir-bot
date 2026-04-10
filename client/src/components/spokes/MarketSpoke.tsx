@@ -19,6 +19,7 @@ import RentPsfVintageScatter from './market/RentPsfVintageScatter';
 import RentComparablesTable from './market/RentComparablesTable';
 import MidwestThesis from './market/MidwestThesis';
 import MarketRisks from './market/MarketRisks';
+import FairmontChartsSection from '../charts/FairmontChartsSection';
 
 export default function MarketSpoke() {
   const { deal } = useDeal();
@@ -217,6 +218,9 @@ export default function MarketSpoke() {
           {md.midwest_thesis && (
             <MidwestThesis cards={md.midwest_thesis} />
           )}
+
+          {/* 7b. Live Chart Data: Population, Supply/Demand, Rent Growth, Rent Comps */}
+          <FairmontChartsSection section="market" />
 
           {/* 8. Market Risks */}
           {md.market_risks && (

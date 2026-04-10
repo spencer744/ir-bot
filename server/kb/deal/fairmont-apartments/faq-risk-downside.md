@@ -26,7 +26,6 @@ Additionally, Fairmont is 2025 construction by Columbus's premier developer. The
 - Annual income certification on all 66 restricted units
 - Annual CRA compliance reporting filed **90 days before** the March 31 deadline
 - Ohio-qualified property manager with abatement compliance experience
-- Too LLC Phase 2 final approval as a **hard closing condition** — we cannot close without it
 - Abatement transferability confirmed with notice to municipality
 
 Gray Capital staff have extensive experience in affordable housing management and compliance. We've navigated AMI compliance programs before. This is operational discipline, which is within our control.

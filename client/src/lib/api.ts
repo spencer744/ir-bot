@@ -64,6 +64,7 @@ export const api = {
   // Deals
   getDeal: (slug: string) => request<{ deal: any }>(`/deal/${slug}`),
   getDealSensitivity: (slug: string) => request<any>(`/deal/${slug}/sensitivity`),
+  getDealCharts: (slug: string) => request<any>(`/deal/${slug}/charts`),
   getDealMedia: (slug: string) => request<{ media: any[] }>(`/deal/${slug}/media`),
   getDealMarket: (slug: string) => request<{ market_data: any }>(`/deal/${slug}/market`),
   getDealBusinessPlan: (slug: string) => request<{ business_plan_data: any }>(`/deal/${slug}/business-plan`),

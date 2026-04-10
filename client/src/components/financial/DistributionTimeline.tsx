@@ -34,15 +34,25 @@ export default function DistributionTimeline({ deal, sensitivityData, scenario, 
     // Check if we have real annual cash flow data
     if (sensitivityData?.annual_cash_flows?.[scenario]) {
       const flows = sensitivityData.annual_cash_flows[scenario];
-      return Object.entries(flows).map(([year, cf]) => {
-        const yearNum = parseInt(year.replace('year_', ''));
-        const isExit = yearNum > holdYears;
-        return {
-          name: isExit ? 'Exit' : `Y${yearNum}`,
-          cashFlow: Math.round(cf.distribution_per_unit * ownershipPct * deal.total_raise / deal.min_investment),
-          isExit,
-        };
-      });
+      if (Array.isArray(flows) && flows.length > 0) {
+        const years = flows.map((cf: any) => {
+          const yearNum = cf.year ?? 0;
+          const annualDist = cf.coc ? investmentAmount * cf.coc : 0;
+          return {
+            name: `Y${yearNum}`,
+            cashFlow: Math.round(annualDist),
+            isExit: false,
+          };
+        });
+        // Add exit year
+        const exitEm = sensitivityData.scenarios?.[scenario]?.returns?.equity_multiple ?? deal.target_equity_multiple ?? 2.2;
+        years.push({
+          name: 'Exit',
+          cashFlow: Math.round(investmentAmount * exitEm - investmentAmount),
+          isExit: true,
+        });
+        return years;
+      }
     }
 
     // Generate estimated data

@@ -13,6 +13,7 @@ import RentBridgeChart from './business/RentBridgeChart';
 import OperationalEdge from './business/OperationalEdge';
 import NOIProjectionChart from './business/NOIProjectionChart';
 import KeyAssumptions from './business/KeyAssumptions';
+import FairmontChartsSection from '../charts/FairmontChartsSection';
 
 export default function BusinessSpoke() {
   const { deal } = useDeal();
@@ -126,6 +127,9 @@ export default function BusinessSpoke() {
           {bp.scenario_assumptions && (
             <KeyAssumptions rows={bp.scenario_assumptions} />
           )}
+
+          {/* 10. Live Chart Data: Loss-to-Lease, Lease-Up, Occupancy */}
+          <FairmontChartsSection section="business" />
 
           {/* Footer Disclaimer */}
           <div className="border-t border-gc-border pt-6">

@@ -73,7 +73,7 @@ export default function AdminLayout() {
       </header>
 
       {/* Main Content: full width on mobile when sidebar is drawer */}
-      <main className="md:ml-60 pt-14 p-4 sm:p-6 min-h-screen">
+      <main className="md:ml-60 pt-16 p-4 sm:p-6 min-h-screen">
         <Outlet />
       </main>
     </div>

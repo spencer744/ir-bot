@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { AlertTriangle, Lock, TrendingDown, Shield, ChevronDown, ChevronUp } from 'lucide-react';
 import { useDeal } from '../../context/DealContext';
-import FeeCalculator from './FeeCalculator';
+// import FeeCalculator from './FeeCalculator';
 
 interface RiskItem {
   title: string;
@@ -266,8 +266,7 @@ export default function RisksSection() {
         )}
       </div>
 
-      {/* Fee Calculator */}
-      <FeeCalculator />
+
 
       {/* Compliance disclosure */}
       <div className="mt-4 p-4 bg-gc-surface border border-gc-border rounded-xl">

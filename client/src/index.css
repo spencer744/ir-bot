@@ -23,6 +23,14 @@
   --color-gc-warning: #FBBF24;
   --color-gc-negative: #F87171;
 
+  /* Fairmont gold — Fairmont-specific data points */
+  --color-gc-gold: #D4A843;
+  --color-gc-gold-muted: rgba(212,168,67,0.15);
+  --color-gc-gold-dim: #8A6E2A;
+
+  /* Chart dot-grid background */
+  --chart-dot-grid: radial-gradient(circle, rgba(42,42,53,0.8) 1px, transparent 1px);
+
   /* Brand palette (Gray Capital) — Dark Teal + White */
   --color-gc-brand-teal: #003437;
   --color-gc-brand-white: #FFFFFF;

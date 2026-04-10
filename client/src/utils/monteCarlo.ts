@@ -1,5 +1,5 @@
 import type { Deal, SensitivityData } from '../types/deal';
-import type { MonteCarloResult, HistogramBin } from '../types/monteCarlo';
+import type { MonteCarloResult, HistogramBin, CDFPoint, ScatterPoint } from '../types/monteCarlo';
 
 function linearInterpolate(x: number, x0: number, x1: number, y0: number, y1: number): number {
   if (x1 === x0) return y0;
@@ -148,6 +148,14 @@ function buildHistogram(values: number[], numBins: number, minVal: number, maxVa
   return bins;
 }
 
+function buildSparkline(values: number[], numBins: number): number[] {
+  if (values.length === 0) return new Array(numBins).fill(0);
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const bins = buildHistogram(values, numBins, min, max);
+  return bins.map((b) => b.count);
+}
+
 /** Seeded RNG (simple LCG) for reproducible runs when seed is provided. */
 function createRng(seed?: number): () => number {
   if (seed == null) return () => Math.random();
@@ -158,10 +166,20 @@ function createRng(seed?: number): () => number {
   };
 }
 
+/** Sample ~count indices uniformly from 0..total-1 */
+function sampleIndices(total: number, count: number, rng: () => number): number[] {
+  if (total <= count) return Array.from({ length: total }, (_, i) => i);
+  const step = total / count;
+  return Array.from({ length: count }, (_, i) => Math.min(total - 1, Math.floor(i * step + rng() * step)));
+}
+
 const DEFAULT_ITERATIONS = 2000;
 const MAX_ITERATIONS = 3000;
-const IRR_BINS = 18;
-const EM_BINS = 16;
+const IRR_BINS = 20;
+const EM_BINS = 18;
+const SPARKLINE_BINS = 20;
+const SCATTER_SAMPLE = 500;
+const FAN_PATHS = 100;
 
 /**
  * Run Monte Carlo simulation: sample rent_growth and exit_cap from table bounds,
@@ -189,11 +207,18 @@ export function runMonteCarlo(
   const ecMax = Math.max(...exitCapTable.map((r) => r.exit_cap ?? 0));
 
   const iter = Math.min(MAX_ITERATIONS, Math.max(500, Math.floor(iterations)));
-  const rng = createRng(seed);
+  const rng = createRng(seed ?? 42);
+
+  const holdYears = deal.projected_hold_years ?? 7;
+  const baseCaseIrr = deal.target_irr_base ?? sensitivityData.scenarios?.base?.returns?.lp_irr ?? 0.158;
+  const baseCaseEm = deal.target_equity_multiple ?? sensitivityData.scenarios?.base?.returns?.equity_multiple ?? 2.0;
 
   const irrs: number[] = [];
   const ems: number[] = [];
   const totalDists: number[] = [];
+  const rawRentGrowths: number[] = [];
+  const rawExitCaps: number[] = [];
+  const avgCocs: number[] = [];
 
   for (let i = 0; i < iter; i++) {
     const rentGrowth = rgMin + rng() * (rgMax - rgMin);
@@ -201,12 +226,16 @@ export function runMonteCarlo(
 
     const irr = interpolateRentGrowthExitCap(sensitivityData, rentGrowth, exitCap);
     const em = interpolateExitCapEm(sensitivityData, exitCap);
+    const rgData = interpolateRentGrowthVsIrr(sensitivityData, rentGrowth);
 
     if (irr == null || em == null) continue;
 
     irrs.push(irr);
     ems.push(em);
     totalDists.push(investmentAmount * em);
+    rawRentGrowths.push(rentGrowth);
+    rawExitCaps.push(exitCap);
+    avgCocs.push(rgData?.avg_coc ?? 0.06);
   }
 
   if (irrs.length === 0) return null;
@@ -215,39 +244,87 @@ export function runMonteCarlo(
   const sortedEm = [...ems].sort((a, b) => a - b);
   const sortedDist = [...totalDists].sort((a, b) => a - b);
 
-  const baseIrr = deal.target_irr_base ?? sensitivityData.scenarios?.base?.returns?.lp_irr ?? 0.158;
-  const probAboveBase = irrs.filter((x) => x >= baseIrr).length / irrs.length;
+  const probAboveBase = irrs.filter((x) => x >= baseCaseIrr).length / irrs.length;
 
-  const irrMin = Math.min(...irrs);
-  const irrMax = Math.max(...irrs);
-  const emMin = Math.min(...ems);
-  const emMax = Math.max(...ems);
+  const irrMin = sortedIrr[0];
+  const irrMax = sortedIrr[sortedIrr.length - 1];
+  const emMin = sortedEm[0];
+  const emMax = sortedEm[sortedEm.length - 1];
+
+  // Build CDF (downsampled for performance)
+  const cdfStep = Math.max(1, Math.floor(sortedIrr.length / 200));
+  const cdfData: CDFPoint[] = [];
+  for (let i = 0; i < sortedIrr.length; i += cdfStep) {
+    cdfData.push({ irr: sortedIrr[i], cumProb: (i + 1) / sortedIrr.length });
+  }
+  // ensure last point
+  if (cdfData[cdfData.length - 1]?.irr !== sortedIrr[sortedIrr.length - 1]) {
+    cdfData.push({ irr: sortedIrr[sortedIrr.length - 1], cumProb: 1.0 });
+  }
+
+  // Build scatter sample (uniformly sample indices from full run)
+  const scatterIndices = sampleIndices(irrs.length, SCATTER_SAMPLE, rng);
+  const scatterPoints: ScatterPoint[] = scatterIndices.map((idx) => ({
+    irr: irrs[idx],
+    em: ems[idx],
+    rentGrowth: rawRentGrowths[idx],
+    exitCap: rawExitCaps[idx],
+  }));
+
+  // Build equity fan paths (100 paths sampled uniformly)
+  const pathIndices = sampleIndices(irrs.length, FAN_PATHS, rng);
+  const equityPaths: number[][] = pathIndices.map((idx) => {
+    const coc = avgCocs[idx];
+    const em = ems[idx];
+    const path: number[] = [1.0];
+    for (let t = 1; t < holdYears; t++) {
+      path.push(Math.pow(1 + coc, t));
+    }
+    path.push(em); // exit at hold year
+    return path;
+  });
 
   return {
     irrPercentiles: {
+      p5: percentile(sortedIrr, 5),
       p10: percentile(sortedIrr, 10),
       p25: percentile(sortedIrr, 25),
       p50: percentile(sortedIrr, 50),
       p75: percentile(sortedIrr, 75),
       p90: percentile(sortedIrr, 90),
+      p95: percentile(sortedIrr, 95),
     },
     emPercentiles: {
+      p5: percentile(sortedEm, 5),
       p10: percentile(sortedEm, 10),
       p25: percentile(sortedEm, 25),
       p50: percentile(sortedEm, 50),
       p75: percentile(sortedEm, 75),
       p90: percentile(sortedEm, 90),
+      p95: percentile(sortedEm, 95),
     },
     totalDistPercentiles: {
+      p5: percentile(sortedDist, 5),
       p10: percentile(sortedDist, 10),
       p25: percentile(sortedDist, 25),
       p50: percentile(sortedDist, 50),
       p75: percentile(sortedDist, 75),
       p90: percentile(sortedDist, 90),
+      p95: percentile(sortedDist, 95),
     },
     irrHistogramBins: buildHistogram(irrs, IRR_BINS, irrMin, irrMax),
     emHistogramBins: buildHistogram(ems, EM_BINS, emMin, emMax),
     probIrrAboveBase: probAboveBase,
     iterations: irrs.length,
+
+    scatterPoints,
+    cdfData,
+    equityPaths,
+    baseCaseIrr,
+    baseCaseEm,
+    holdYears,
+
+    irrSparkline: buildSparkline(irrs, SPARKLINE_BINS),
+    emSparkline: buildSparkline(ems, SPARKLINE_BINS),
   };
 }

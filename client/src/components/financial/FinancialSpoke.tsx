@@ -9,10 +9,14 @@ import BenchmarkComparison from './BenchmarkComparison';
 import TaxEstimator from './TaxEstimator';
 import MonteCarloSummary from './MonteCarloSummary';
 import MonteCarloHistogram from './MonteCarloHistogram';
+import MonteCarloCDF from './MonteCarloCDF';
+import MonteCarloScatter from './MonteCarloScatter';
+import MonteCarloFanChart from './MonteCarloFanChart';
 import TornadoChart from './TornadoChart';
 import IRRHeatmap from './IRRHeatmap';
 import { runMonteCarlo } from '../../utils/monteCarlo';
 import type { ScenarioKey } from '../../types/deal';
+import FairmontChartsSection from '../charts/FairmontChartsSection';
 
 export default function FinancialSpoke() {
   const { deal, sensitivityData, trackEvent } = useDeal();
@@ -103,6 +107,14 @@ export default function FinancialSpoke() {
         />
       </section>
 
+      {/* CoC Progression + Scenario Charts */}
+      <section className="mb-10">
+        <FairmontChartsSection
+          section="financial"
+          sensitivityScenarios={sensitivityData?.scenarios}
+        />
+      </section>
+
       {/* Distribution Timeline */}
       <section className="mb-10">
         <h2 className="text-xl font-semibold text-gc-text mb-4">Distribution Timeline</h2>
@@ -138,12 +150,25 @@ export default function FinancialSpoke() {
       {sensitivityData && (
         <section className="mb-10">
           <h2 className="text-xl font-semibold text-gc-text mb-4">Probability Analysis (Monte Carlo)</h2>
-          <p className="text-gc-text-muted text-xs mb-4">
-            Simulated outcomes based on assumed input distributions. Not a guarantee of future results. See PPM for risks.
+          <p className="text-gc-text-muted text-xs mb-6">
+            Simulated outcomes based on assumed input distributions. Not a guarantee of future results.
           </p>
-          <div className="space-y-6">
+
+          {/* Probability Dashboard */}
+          <div className="mb-6">
             <MonteCarloSummary result={monteCarloResult} investmentAmount={investmentAmount} deal={deal} />
+          </div>
+
+          {/* Enhanced Histogram + CDF side by side on large screens */}
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
             <MonteCarloHistogram result={monteCarloResult} metric="irr" />
+            <MonteCarloCDF result={monteCarloResult} />
+          </div>
+
+          {/* Scatter + Fan chart */}
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
+            <MonteCarloScatter result={monteCarloResult} />
+            <MonteCarloFanChart result={monteCarloResult} investmentAmount={investmentAmount} />
           </div>
         </section>
       )}
