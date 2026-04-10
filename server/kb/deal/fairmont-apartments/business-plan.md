@@ -60,12 +60,13 @@ Fairmont is built to perform through uncertainty:
 
 | Factor | Our Position |
 |--------|-------------|
-| Tax Abatement | 15-year, 100% through 2041 (~$895K+ annual savings) |
-| Renter Income | $109K median HHI in trade area; 17–18% rent-to-income ratio |
-| Supply Cliff | 75% drop in Westerville deliveries through 2026 |
-| Debt Structure | 5.17% fixed, 48-month I/O — no refinancing risk during hold |
+| Debt Structure | 5.17% fixed, 48-month I/O, Fannie Mae agency — no refinancing risk |
+| Renter Income | $102K median HHI (3-mile); 17–18% rent-to-income ratio |
+| Basis | $285K/door, 15–20% below replacement cost |
 | CapEx | $0 required — brand-new 2025 construction |
+| Supply Cliff | Sharp drop in Westerville deliveries through 2026 |
 | Self-Management | Gray Capital captures management margin directly |
+| Tax Abatement | 15-year, 100% through 2041 — additional cash flow support |
 
 ---
 
@@ -76,17 +77,16 @@ Our base case underwriting assumes **existing demand only**. These employers are
 **Anduril Arsenal-1 — Near-Term Catalyst**
 - $1.8B defense manufacturing campus
 - 4,008 direct jobs at $132K avg salary
-- Production begins July 2026 — three months post-close
+- Ramping operations near Fairmont
 - Defense engineers have demonstrated strong renter preference for Class A product
 
-**Intel Ohio One — Exit-Year Catalyst**
-- $28B semiconductor fab
-- ~3,000 engineers at $135K+ avg salary, operational 2030–31
-- Perfectly timed for our Year 7 exit
-- 10,000+ secondary jobs in supply chain, construction, services
-- Compresses exit cap rates when it matters most
+**Intel Ohio One — Longer-Term Catalyst**
+- $28B semiconductor campus planned for New Albany
+- ~3,000 engineers at $135K+ avg salary
+- Timeline subject to Intel's corporate priorities and macroeconomic conditions
+- If delivered as planned (2030–31), significant demand catalyst during our hold
 
-These are **free call options layered on top of our underwriting** — not required for the deal to work, but transformative if they materialize as projected.
+These are **demand catalysts layered on top of our underwriting** — not required for the deal to work, but additive if they materialize. The base case assumes existing demand only.
 
 ---
 

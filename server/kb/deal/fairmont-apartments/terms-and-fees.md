@@ -11,8 +11,8 @@ Fairmont is structured as a single-asset LLC under SEC Regulation D, Rule 506(c)
 | Equity Raise | $22.1M |
 | GP Co-Investment | ~10% of GP allocation |
 | Preferred Return | 8% cumulative |
-| Waterfall | 80/20 LP/GP (after return of capital + pref) |
-| No GP Catch-Up | ✓ — directly investor-friendly |
+| Waterfall | 80/20 LP/GP to 15% IRR, then 60/40 LP/GP above 15% IRR |
+| No GP Catch-Up | ✓ — no catch-up provision before the 80/20 split |
 | Distributions | Monthly when cash flow permits (ACH) |
 | Target Close | June 2026 |
 | Hold Period | 7 years (projected exit June 2033) |
@@ -48,10 +48,13 @@ The waterfall governs all cash flows: ongoing distributions AND final sale proce
 LPs receive all accrued and unpaid 8% cumulative preferred return, calculated from each LP's capital contribution date. Any shortfall from prior periods carries forward — the pref is cumulative, not "use it or lose it."
 
 **Step 3 — No GP Catch-Up**
-Gray Capital does NOT use a catch-up provision. After the 8% pref, profits move immediately to the 80/20 split. This means LPs capture their proportional share from dollar one of profit above pref — a materially more investor-friendly structure than the industry standard.
+Gray Capital does NOT use a catch-up provision. After the 8% pref, profits move immediately to the 80/20 split — LPs capture their proportional share from dollar one of profit above pref.
 
-**Step 4 — Profit Split**
-Remaining profits split **80% LP / 20% GP**. This applies to both cash flow distributions and sale proceeds.
+**Step 4 — Profit Split (Below 15% IRR)**
+Profits split **80% LP / 20% GP** on both cash flow distributions and sale proceeds, up to a 15% LP IRR.
+
+**Step 5 — Profit Split (Above 15% IRR)**
+Once LP IRR exceeds 15%, remaining profits split **60% LP / 40% GP**. This performance-based tier aligns GP incentives with outperformance — the GP earns a larger share only after LPs have achieved strong returns.
 
 ---
 
@@ -63,7 +66,8 @@ Illustrative example (not a guarantee — actual results depend on performance):
 |-------|-------------|
 | Return of $500K capital | $500,000 |
 | 8% pref on $500K over 7 years (~$280K) | ~$280,000 |
-| 80% of profits above pref | Varies by deal performance |
+| 80% of profits above pref (to 15% IRR) | Varies by deal performance |
+| 60% of profits above 15% IRR | Varies by deal performance |
 | **Total at 2.2x equity multiple** | **~$1,100,000** |
 | **Net profit on $500K** | **~$600,000** |
 

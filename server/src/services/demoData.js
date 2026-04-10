@@ -168,6 +168,9 @@ The 15-year tax abatement is a significant differentiator — it substantially r
       pref_basis: 'committed_capital',
       lp_split: 0.80,
       gp_split: 0.20,
+      hurdle_1_irr: 0.15,
+      lp_split_above_hurdle_1: 0.60,
+      gp_split_above_hurdle_1: 0.40,
       catch_up: false,
     },
     deal_terms: {

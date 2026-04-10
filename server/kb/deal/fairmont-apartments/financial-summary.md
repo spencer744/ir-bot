@@ -34,7 +34,7 @@
 | DSCR | 1.03x going-in |
 | Rate Buydown | $875,000 (2.0% of loan) |
 | Preferred Return | 8.0% cumulative |
-| Waterfall | 80/20 LP/GP (after return of capital + pref) |
+| Waterfall | 80/20 LP/GP to 15% IRR, then 60/40 above |
 | Exit Cap Rate | 5.50% (underwritten) |
 | Target Close | June 2026 |
 | Hold Period | 7 years (exit ~June 2033) |
@@ -83,7 +83,7 @@
 | **Equity Multiple** | **2.2x** |
 | **Avg Cash-on-Cash** | **8.4%** |
 | **Preferred Return** | **8% cumulative** |
-| **Waterfall** | **80/20 LP/GP** |
+| **Waterfall** | **80/20 LP/GP to 15% IRR, then 60/40 above** |
 | **Hold Period** | **7 years** |
 
 ---
