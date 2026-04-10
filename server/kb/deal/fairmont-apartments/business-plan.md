@@ -10,7 +10,7 @@ The developer leased Fairmont during Columbus's peak supply cycle, underpricing 
 
 ## Three Value Levers
 
-### 1. Loss-to-Lease Capture — $737K/Year
+### 1. Loss-to-Lease Capture — ~$290K/Year
 
 - **5.9% LTL** embedded in the current rent roll from lease-up mispricing
 - 24 units priced 15%+ below market
@@ -23,9 +23,9 @@ The developer leased Fairmont during Columbus's peak supply cycle, underpricing 
 - **1BR/2BR units:** Hold at or slightly below market to protect occupancy during concession burn-off. Selectively push H2 2027 as supply cliff takes hold.
 - **AMI units (66 units, 30%):** Built-in 3–5% annual HUD escalator. Near-zero concession exposure, very low turnover. Stabilizing force on the rent roll.
 
-### 2. Concession Burn-Off — $534K+
+### 2. Concession Burn-Off
 
-- Current concessions represent approximately 5% of Gross Potential Rent
+- Current concessions being reduced as supply drops and market tightens
 - Westerville new deliveries drop 75% in 2026 — landlord pricing power returns
 - Columbus absorption running 356% above prior year levels
 - As market tightens, concessions evaporate; no action required beyond patience and occupancy discipline
@@ -46,7 +46,7 @@ Our underwriting assumes 4% blended rent growth. That is NOT a market appreciati
 
 1. **AMI Escalator (5.3% CAGR):** 66 affordable units carry a built-in annual HUD rent escalator. These units are fully leased, low-turnover, and insulated from concession pressure. Near-zero volatility.
 
-2. **Loss-to-Lease Capture ($737K):** As early leases expire, in-place rents converge to market. This is arithmetic, not speculation. The gap exists today in the rent roll.
+2. **Loss-to-Lease Capture (~$290K/year):** As early leases expire, in-place rents converge to market. This is arithmetic, not speculation. The gap exists today in the rent roll.
 
 3. **3BR Mark-to-Market (5–8%):** 23 units currently priced below the Westerville average ($2,270) and well below the New Albany premium tier ($2,400+). These push 5–10% on renewal.
 

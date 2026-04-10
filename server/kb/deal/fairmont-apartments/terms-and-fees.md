@@ -24,12 +24,13 @@ Fairmont is structured as a single-asset LLC under SEC Regulation D, Rule 506(c)
 | Fee | Rate | Basis | Timing |
 |-----|------|-------|--------|
 | Acquisition Fee | 1.5% | Purchase price ($937,500) | One-time at closing |
-| Asset Management Fee | 0.5% | Effective gross income | Ongoing, annual |
+| Asset Management Fee | 1.5% | Effective gross income | Ongoing, annual |
 | Property Management Fee | 3.0% | Effective gross income | Ongoing (operating expense) |
 | Construction Management Fee | N/A | No renovation required | N/A for Fairmont |
 
 **Notes:**
 - The acquisition fee (1.5%) is below the 1.75% Gray Capital standard rate — reflecting the clean, zero-capex nature of this deal
+- The asset management fee (1.5%) is in line with Gray Capital's standard rate
 - No loan guarantee fee disclosed in Fairmont structure (Fannie Mae agency loan)
 - Gray Capital self-manages, so property management fee stays within the Gray Residential vertical — no third-party PM misalignment
 - Construction management fee not applicable — Fairmont is 2025 construction with zero planned renovation

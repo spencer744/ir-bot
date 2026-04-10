@@ -117,8 +117,8 @@
 
 | Upside Driver | Est. Annual Impact |
 |--------------|-------------------|
-| Concession burn-off | $534K+ once concessions eliminated |
-| Loss-to-lease capture | $737K/year as leases roll to market |
+| Concession burn-off | Pricing power returns as Westerville deliveries drop 75% |
+| Loss-to-lease capture | ~$290K/year as leases roll to market |
 | Other income optimization (RUBS, parking, pet) | $191K lift to $450K+ Year 3 |
 | Intel Ohio One (unmodeled; 2030–31) | Exit cap compression tailwind |
 | Anduril Arsenal-1 (unmodeled; July 2026) | Demand pull for Class A units |
