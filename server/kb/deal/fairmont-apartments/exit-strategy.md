@@ -98,8 +98,6 @@ If cap rates are elevated in 2033 but NOI is growing, Gray Capital can refinance
 **Extended Hold:**
 If the sale market is temporarily weak, the property continues generating cash flow. Gray Capital will not sell into a down market just to meet a projected timeline. Monthly distributions continue during any hold extension.
 
-**1031 Exchange (for Investors):**
-Investors may be able to defer capital gains by rolling their distributable sale proceeds into a qualifying replacement property through a 1031 exchange. Consult your CPA — this is investor-specific.
 
 ---
 
