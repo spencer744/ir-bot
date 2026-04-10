@@ -231,7 +231,7 @@ The 15-year tax abatement is a significant differentiator — it substantially r
     loan_amount: 43_750_000,
     interest_rate: 0.0517,
     ltv: 0.70,
-    dscr: 1.03,
+    dscr: 1.33,  // Y1 pro forma pre-abatement ($3.0M NOI / $2.26M DS); 1.72x with abatement
     io_months: 48,
     entry_cap_rate: 0.0584,
     exit_cap_rate: 0.0550,

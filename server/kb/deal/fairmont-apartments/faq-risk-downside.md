@@ -61,11 +61,11 @@ Columbus is also the only major U.S. market to sustain zero negative lease trade
 
 ---
 
-### Risk 5: Thin Debt Coverage (1.03x DSCR at Entry)
+### Risk 5: Debt Service Coverage
 
-**The Concern:** A 1.03x going-in DSCR is thin. What's the cushion if revenue misses?
+**The Concern:** Is there adequate debt service coverage?
 
-**Our Position:** The 1.03x DSCR is the going-in metric at current occupancy and rents — before concession burn-off, loss-to-lease capture, or RUBS implementation. By Year 2, NOI with abatement is projected at $4.07M against debt service of $2.26M, implying a ~1.80x coverage ratio.
+**Our Position:** Year 1 pro forma DSCR is **1.33x pre-abatement** ($3.0M NOI / $2.26M debt service) and **1.72x with abatement** ($3.9M / $2.26M). By Year 2, coverage with abatement grows to ~1.80x as NOI increases.
 
 The 48-month interest-only period provides maximum cash flow during the critical early years. The $875K rate buydown reduces the stated rate and improves near-term cash flow. Fannie Mae agency debt eliminates refinancing risk during the hold — no floating rate exposure, no bridge loan maturity event.
 

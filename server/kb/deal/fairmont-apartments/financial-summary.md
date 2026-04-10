@@ -31,7 +31,7 @@
 | Loan Term | 7 years |
 | Interest-Only Period | 48 months |
 | LTV | 70.0% |
-| DSCR | 1.03x going-in |
+| DSCR (Y1 Pro Forma) | 1.33x pre-abatement / 1.72x with abatement |
 | Rate Buydown | $875,000 (2.0% of loan) |
 | Preferred Return | 8.0% cumulative |
 | Waterfall | 80/20 LP/GP to 15% IRR, then 60/40 above |

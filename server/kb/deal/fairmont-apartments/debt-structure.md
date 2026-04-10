@@ -12,7 +12,7 @@ Fairmont is financed with a **Fannie Mae agency loan originated through Greyston
 | **Loan Term** | 7 years |
 | **Interest-Only Period** | 48 months (4 years) |
 | **LTV** | 70.0% |
-| **Going-In DSCR** | 1.31x (I/O period) |
+| **Y1 Pro Forma DSCR** | 1.33x pre-abatement / 1.72x with abatement |
 | **Rate Buydown** | $875,000 (2.0% of loan amount) |
 | **Amortization** | 30-year schedule (after IO period) |
 
@@ -47,7 +47,7 @@ Gray Capital paid $875,000 at closing to buy down the interest rate to 5.17%. Th
 
 ## DSCR Analysis
 
-**Going-in DSCR of 1.03x** reflects Year 1 metrics at current occupancy and rents — before concession burn-off, loss-to-lease capture, or income optimization.
+**Year 1 pro forma DSCR of 1.33x** (pre-abatement) provides solid coverage on fixed-rate debt service of $2.26M against projected NOI of $3.0M. Including the tax abatement, effective DSCR is 1.72x.
 
 | Year | NOI (with Abatement) | Annual Debt Service | DSCR |
 |------|---------------------|---------------------|------|
@@ -61,7 +61,7 @@ Gray Capital paid $875,000 at closing to buy down the interest rate to 5.17%. Th
 
 *Years 5–7 reflect transition to amortizing debt service after 48-month IO period ends.*
 
-**Note:** The "going-in 1.03x DSCR" cited in offering materials reflects the **pre-abatement NOI** divided by debt service — the conservative metric used by Fannie Mae underwriting standards. Including the abatement, actual Year 1 NOI coverage is ~1.71x. The abatement is not counted in the lender's DSCR calculation, making our actual cash flow cushion substantially wider than the stated 1.03x implies.
+**Note:** Fannie Mae's lender-underwritten DSCR (based on trailing actuals at the time of underwriting) may differ from the pro forma figures above. The lender's metric uses historical performance, while our pro forma reflects the Year 1 business plan. Both the pre-abatement (1.33x) and with-abatement (1.72x) figures provide comfortable coverage above standard agency DSCR thresholds.
 
 ---
 
